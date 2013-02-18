@@ -29,6 +29,9 @@
           <fileset dir="${basedir}/project-template"/>
        </copy>
        <copy file="${dist.jar}" todir="${dist.dir}/project-template/bin"/>
+       <copy todir="${dist.dir}/project-template/bin/lib">
+          <fileset dir="${dist.dir}/lib"/>
+       </copy>
        <copy todir="${dist.dir}/project-template/bin/project-template">
           <fileset dir="${dist.dir}/project-template"/>
        </copy>

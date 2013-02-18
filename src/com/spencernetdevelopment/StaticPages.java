@@ -14,12 +14,17 @@ public class StaticPages {
    public static final int exit_code_bad_argument=1;
    public static final int exit_code_missing_default_stylesheet=2;
    public static final Path jarDir = Paths.get(StaticPages.class.getResource("/arguments.xml").getPath().replaceAll("^file:|![^!]+$", "")).getParent();
+   public static Path projectDirPath;
+   public static Path srcDirPath;
+   public static Path assetsDirPath;
 
    /**
     * @param args the command line arguments
     */
    public static void main(String[] args) {
       try {
+        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+             "com.icl.saxon.om.DocumentBuilderFactoryImpl");
          StaticPagesArguments arguments = StaticPagesTerminal.getArguments(args);
 
          if(arguments.hasNewproject()){
@@ -34,7 +39,9 @@ public class StaticPages {
 
          if(arguments.hasProjectdir()){
             File projectDir = arguments.getProjectdir();
-            Path projectDirPath = projectDir.toPath();
+            projectDirPath = projectDir.toPath();
+            srcDirPath=projectDirPath.resolve("src");
+            assetsDirPath=srcDirPath.resolve("assets");
             Path buildDirPath = projectDirPath.resolve("build");
             Path pagesDirPath = projectDirPath.resolve("src/xml/pages");
             Path defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
