@@ -18,8 +18,8 @@ public class StaticPages {
    /**
     * @param args the command line arguments
     */
-   public static void main(String[] args) throws Throwable {
-
+   public static void main(String[] args) {
+      try {
          StaticPagesArguments arguments = StaticPagesTerminal.getArguments(args);
 
          if(arguments.hasNewproject()){
@@ -47,6 +47,9 @@ public class StaticPages {
             htmlBuilder.setDefaultStylesheet(defaultStylesheet.toFile());
             htmlBuilder.buildPages();
          }
+      } catch(Throwable exc){
+         end("Failed for the following reason: "+exc, 1);
+      }
    }
 
 
