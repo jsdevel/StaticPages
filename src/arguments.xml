@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2012 Joseph Spencer.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+
+<arguments
+   class="StaticPages"
+   copyright="2012 Joseph Spencer"
+   description="
+StaticPages builds static HTML files using XML + XSL.
+"
+   example="java -jar --src-dir my/dir/src --build-dir my/dir/build"
+   indent="   "
+   license="http://www.apache.org/licenses/LICENSE-2.0"
+   package="com.spencernetdevelopment.arguments"
+   menulength="40"
+   terminal="true"
+   title="StaticPages"
+>
+   <!--<argument
+      name="src-dir"
+      description="
+The directory that contains your source files.\n
+
+The directory should have the following contents:\n
+   xml/\n
+   xsl/\n
+   images/\n
+   css/\n
+   js/\n
+"
+      overwrite="false"
+      type="directory"/>-->
+
+   <argument
+      name="--project-dir"
+      description="
+The base path of your project.
+"
+      type="directory"
+      />
+   <argument
+      name="--new-project"
+      description="
+Creates a default project in the specified directory.
+"
+      type="directory"
+      />
+</arguments>
