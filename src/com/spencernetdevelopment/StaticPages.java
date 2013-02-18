@@ -32,19 +32,21 @@ public class StaticPages {
             msg("project-template created successfully in: "+arguments.getNewproject().toPath());
          }
 
-         File projectDir = arguments.getProjectdir();
-         Path projectDirPath = projectDir.toPath();
-         Path buildDirPath = projectDirPath.resolve("build");
-         Path pagesDirPath = projectDirPath.resolve("src/xml/pages");
-         Path defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
+         if(arguments.hasProjectdir()){
+            File projectDir = arguments.getProjectdir();
+            Path projectDirPath = projectDir.toPath();
+            Path buildDirPath = projectDirPath.resolve("build");
+            Path pagesDirPath = projectDirPath.resolve("src/xml/pages");
+            Path defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
 
-         if(!Assertions.fileExists(defaultStylesheet)){
-            end("No default stylesheet found.", exit_code_missing_default_stylesheet);
+            if(!Assertions.fileExists(defaultStylesheet)){
+               end("No default stylesheet found.", exit_code_missing_default_stylesheet);
+            }
+
+            HTMLBuilder htmlBuilder = new HTMLBuilder(buildDirPath, pagesDirPath);
+            htmlBuilder.setDefaultStylesheet(defaultStylesheet.toFile());
+            htmlBuilder.buildPages();
          }
-
-         HTMLBuilder htmlBuilder = new HTMLBuilder(buildDirPath, pagesDirPath);
-         htmlBuilder.setDefaultStylesheet(defaultStylesheet.toFile());
-         htmlBuilder.buildPages();
    }
 
 
