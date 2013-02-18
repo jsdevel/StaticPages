@@ -6,9 +6,12 @@ package com.spencernetdevelopment;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -41,6 +44,33 @@ public class FileUtils {
          Integer.MAX_VALUE,
          new DirectoryDuplicator(fromDir, toDir)
       );
+   }
+   public static void copyFile(File inputFile, File outputFile) throws IOException {
+      if(inputFile == null || outputFile == null){
+         return;
+      }
+      if(!inputFile.exists()){
+         throw new IOException("Can't copy a non-existent file: "+inputFile.getAbsolutePath());
+      }
+      if(!outputFile.exists()) {
+         outputFile.createNewFile();
+      }
+
+      FileChannel source = null;
+      FileChannel destination = null;
+
+      try {
+         source = new FileInputStream(inputFile).getChannel();
+         destination = new FileOutputStream(outputFile).getChannel();
+         destination.transferFrom(source, 0, source.size());
+      } finally {
+         if(source != null) {
+               source.close();
+         }
+         if(destination != null) {
+               destination.close();
+         }
+      }
    }
    public static void createDir(File dir) throws Exception{
       if(dir != null){
