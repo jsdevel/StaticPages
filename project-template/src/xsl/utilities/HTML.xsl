@@ -36,6 +36,8 @@
    <xsl:template match="d:ul"><ul><xsl:apply-templates select="@*"/><xsl:apply-templates/></ul></xsl:template>
    <xsl:template match="d:ol"><ol><xsl:apply-templates select="@*"/><xsl:apply-templates/></ol></xsl:template>
    <xsl:template match="d:li"><li><xsl:apply-templates select="@*"/><xsl:apply-templates/></li></xsl:template>
+   <xsl:template match="d:script"><script><xsl:apply-templates select="@*"/><xsl:value-of select="." disable-output-escaping="yes"/></script></xsl:template>
+   <xsl:template match="d:style"><style><xsl:apply-templates select="@*"/><xsl:value-of select="." disable-output-escaping="yes"/></style></xsl:template>
    <xsl:template match="text()"><xsl:value-of select="normalize-space(.)"/></xsl:template>
    <xsl:template match="text()" mode="pre"><xsl:value-of select="."/></xsl:template>
    <xsl:template match="*" mode="pre">&lt;<xsl:value-of select="local-name()"/>&gt;<xsl:apply-templates mode="pre"/>&lt;<xsl:value-of select="local-name()"/>&gt;</xsl:template>

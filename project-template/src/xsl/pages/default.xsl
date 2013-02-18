@@ -41,6 +41,7 @@
       <xsl:call-template name="HTML5Doctype"/>
       <html>
          <head>
+            <meta charset="utf-8"/>
             <title>default.xsl</title>
          </head>
          <body>
