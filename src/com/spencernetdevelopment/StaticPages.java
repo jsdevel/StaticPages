@@ -13,7 +13,7 @@ import java.nio.file.Paths;
 public class StaticPages {
    public static final int exit_code_bad_argument=1;
    public static final int exit_code_missing_default_stylesheet=2;
-   public static final Path jarDir = Paths.get(StaticPages.class.getResource("/arguments.xml").getPath().replaceAll("^file:|![^!]+$", "")).getParent();
+   public static final Path jarDir = Paths.get(StaticPages.class.getResource("/arguments.xml").getPath().replaceAll("^(?:file:)?(?:/(?=[A-Z]:/))?|^jar:|![^!]+$", "")).getParent();
    public static Path assetsDirPath;
    public static Path buildDirPath;
    public static Path pagesDirPath;
