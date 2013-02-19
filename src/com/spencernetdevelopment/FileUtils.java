@@ -53,6 +53,7 @@ public class FileUtils {
          throw new IOException("Can't copy a non-existent file: "+inputFile.getAbsolutePath());
       }
       if(!outputFile.exists()) {
+         outputFile.getParentFile().mkdirs();
          outputFile.createNewFile();
       }
 

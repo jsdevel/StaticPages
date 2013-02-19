@@ -11,6 +11,7 @@
 
    <xsl:import href="../utilities/HTML.xsl"/>
    <xsl:import href="../utilities/Functions.xsl"/>
+   <xsl:import href="../utilities/Assets.xsl"/>
 
    <xsl:output method="html" indent="no" saxon:omit-meta-tag="yes"/>
 
@@ -44,9 +45,8 @@
       <html class="no-js">
          <head>
             <meta charset="utf-8"/>
-            <title>default.xsl</title>
-            <xsl:apply-templates select="seo"/>
-            <xsl:apply-templates select="head"/>
+            <xsl:apply-templates select="d:seo" mode="seo"/>
+            <xsl:apply-templates select="d:head" mode="head"/>
          </head>
          <body>
             <xsl:apply-templates/>

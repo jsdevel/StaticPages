@@ -83,6 +83,9 @@ public final class URLUtils {
             }
          }
       }
-      return filtered;
+      char[] finalFiltered = new char[filteredIndex];
+      System.arraycopy(filtered, 0, finalFiltered, 0, filteredIndex);
+
+      return finalFiltered;
    }
 }
