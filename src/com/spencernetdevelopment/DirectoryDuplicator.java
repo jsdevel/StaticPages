@@ -26,15 +26,15 @@ public class DirectoryDuplicator extends SimpleFileVisitor<Path> {
    private final String sourcePathString;
    private final int sourcePathStringLength;
 
-   public DirectoryDuplicator(File source, File destination) throws Exception{
+   public DirectoryDuplicator(File source, File destination) throws IOException{
       if(source == null || destination == null){
-         throw new Exception("Both source and destination must not be null.");
+         throw new IOException("Both source and destination must not be null.");
       }
       if(!source.isDirectory() || !source.isDirectory()){
-         throw new Exception("Both source and destination must be directories.");
+         throw new IOException("Both source and destination must be directories.");
       }
       if(!source.exists() || !source.exists()){
-         throw new Exception("Both source and destination must exist.");
+         throw new IOException("Both source and destination must exist.");
       }
       this.destination=destination;
       this.destinationPath=destination.toPath();

@@ -10,12 +10,17 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -34,7 +39,7 @@ public class HTMLBuilder {
    private StreamSource xslStream;
    private Transformer xslTransformer;
 
-   public HTMLBuilder(Path buildDirPath, Path pagesDirPath) throws Exception {
+   public HTMLBuilder(Path buildDirPath, Path pagesDirPath) throws ParserConfigurationException {
       docBuilderFactory = DocumentBuilderFactory.newInstance();
       docBuilderFactory.setNamespaceAware(true);
       docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -47,18 +52,18 @@ public class HTMLBuilder {
       xmlPagesDirStringLength=xmlPagesDirString.length();
    }
 
-   public void setDefaultStylesheet(File defaultStylesheet) throws Exception{
+   public void setDefaultStylesheet(File defaultStylesheet) throws IOException, TransformerConfigurationException {
       if(defaultStylesheet==null || !defaultStylesheet.isFile() || !defaultStylesheet.exists()){
-         throw new Exception("Can't set a stylesheet that isn't an existing file.");
+         throw new IOException("Can't set a stylesheet that isn't an existing file.");
       }
       this.defaultStylesheet=defaultStylesheet;
       xslStream = new StreamSource(defaultStylesheet);
       xslTransformer = transformerFactory.newTransformer(xslStream);
    }
 
-   public void buildPages() throws IOException, Exception {
+   public void buildPages() throws IOException, SAXException, TransformerException {
       if(defaultStylesheet==null){
-         throw new Exception("A default stylesheet is required to process xml files.");
+         throw new IOException("A default stylesheet is required to process xml files.");
       }
 
       ArrayList<Path> xmlPagesToBuild = new ArrayList<Path>();
@@ -71,13 +76,25 @@ public class HTMLBuilder {
       }
    }
 
-   public void buildPage(Path xmlFilePath) throws Exception {
+   public void buildPage(Path xmlFilePath) throws SAXException, TransformerException, IOException {
       Document xmlDocument = docBuilder.parse(xmlFilePath.toFile());
-      DOMSource xmlDoc = new DOMSource(xmlDocument);
-      File htmlFile = buildDirPath.resolve(xmlFilePath.toString().substring(xmlPagesDirStringLength+1).replaceFirst("\\.xml$", ".html")).toFile();
-      FileUtils.createFile(htmlFile);
+      Path outputFilePath = buildDirPath.resolve(xmlFilePath.toString().substring(xmlPagesDirStringLength+1).replaceFirst("\\.xml$", ".html"));
+      File htmlFile = outputFilePath.toFile();
+      File alternateHTMLFile=null;
 
-      StreamResult resultStream = new StreamResult(htmlFile);
+      Node alternateNameNode = xmlDocument.getFirstChild().getAttributes().getNamedItem("alternate-name");
+
+      if(alternateNameNode != null){
+         String alternateName = alternateNameNode.getNodeValue();
+         transform(xmlDocument, outputFilePath.getParent().resolve(alternateName+".html").toFile());
+      }
+      transform(xmlDocument, htmlFile);
+   }
+
+   public void transform(Document xmlDocument, File outputFile) throws TransformerException, IOException {
+      FileUtils.createFile(outputFile);
+      DOMSource xmlDoc = new DOMSource(xmlDocument);
+      StreamResult resultStream = new StreamResult(outputFile);
       xslTransformer.transform(xmlDoc, resultStream);
    }
 }

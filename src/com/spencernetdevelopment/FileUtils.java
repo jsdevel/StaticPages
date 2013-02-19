@@ -34,7 +34,7 @@ public class FileUtils {
          Files.walkFileTree(directory.toPath(), new DirectoryCleaner(directory.toPath(), preserveBase));
       }
    }
-   public static void copyDirContentsToDir(File fromDir, File toDir) throws Exception{
+   public static void copyDirContentsToDir(File fromDir, File toDir) throws IOException{
       createDir(fromDir);
       createDir(toDir);
       EnumSet<FileVisitOption> options = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
@@ -73,26 +73,26 @@ public class FileUtils {
          }
       }
    }
-   public static void createDir(File dir) throws Exception{
+   public static void createDir(File dir) throws IOException{
       if(dir != null){
          if(!dir.exists()){
             dir.mkdirs();
          } else if(!dir.isDirectory()){
-            throw new Exception("Can't convert a file to a directory: "+dir.getAbsolutePath());
+            throw new IOException("Can't convert a file to a directory: "+dir.getAbsolutePath());
          }
       } else {
-         throw new Exception("Can't create a dir from null.");
+         throw new IOException("Can't create a dir from null.");
       }
    }
-   public static void createFile(File file) throws Exception {
+   public static void createFile(File file) throws IOException {
       if(file == null){
-         throw new Exception("Unable to create file from null.");
+         throw new IOException("Unable to create file from null.");
       }
       if(!file.exists()){
          file.getParentFile().mkdirs();
          file.createNewFile();
       } else if(!file.isFile()){
-         throw new Exception("The file exists, but it isn't a file.");
+         throw new IOException("The file exists, but it isn't a file.");
       }
    }
    public static void filePathsToArrayList(File directory, ArrayList<Path> filePaths) throws IOException {
