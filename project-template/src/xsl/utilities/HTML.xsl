@@ -60,7 +60,7 @@
 
    <!-- head -->
    <xsl:template match="d:head" mode="head">
-      <xsl:apply-templates select="d:link|d:script|fn:outputCSS|fn:outputJS"/>
+      <xsl:apply-templates/>
    </xsl:template>
 
    <!-- seo -->
