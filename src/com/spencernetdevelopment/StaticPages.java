@@ -4,7 +4,6 @@ import com.spencernetdevelopment.arguments.StaticPagesArguments;
 import com.spencernetdevelopment.arguments.StaticPagesTerminal;
 import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  *
@@ -13,19 +12,23 @@ import java.nio.file.Paths;
 public class StaticPages {
    public static final int exit_code_bad_argument=1;
    public static final int exit_code_missing_default_stylesheet=2;
-   public static final Path jarDir = Paths.get(StaticPages.class.getResource("/arguments.xml").getPath().replaceAll("^(?:file:)?(?:/(?=[A-Z]:/))?|^jar:|![^!]+$", "")).getParent();
-   public static Path assetsDirPath;
-   public static Path buildDirPath;
-   public static Path pagesDirPath;
-   public static Path viewsDirPath;
-   public static Path projectDirPath;
-   public static Path srcDirPath;
+   public static FilePath jarDir;
+
+   public static FilePath assetsDirPath;
+   public static FilePath buildDirPath;
+   public static FilePath pagesDirPath;
+   public static FilePath viewsDirPath;
+   public static FilePath projectDirPath;
+   public static FilePath srcDirPath;
 
    /**
     * @param args the command line arguments
     */
    public static void main(String[] args) {
       try {
+         jarDir = FilePath.getFilePath(StaticPages.class.getResource("/arguments.xml").getPath().replaceAll("^(?:file:)?(?:/(?=[A-Z]:/))?|^jar:|![^!]+$", "")).getParent();
+         System.out.println(jarDir);
+
         System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
              "com.icl.saxon.om.DocumentBuilderFactoryImpl");
          StaticPagesArguments arguments = StaticPagesTerminal.getArguments(args);
@@ -42,17 +45,17 @@ public class StaticPages {
 
          if(arguments.hasProjectdir()){
             File projectDir = arguments.getProjectdir();
-            projectDirPath = projectDir.toPath();
+            projectDirPath = FilePath.getFilePath(projectDir.getAbsolutePath());
             pagesDirPath=projectDirPath.resolve("src/xml/pages");
             viewsDirPath=projectDirPath.resolve("src/xml/views");
             buildDirPath=projectDirPath.resolve("build");
             srcDirPath=projectDirPath.resolve("src");
             assetsDirPath=srcDirPath.resolve("assets");
-            Path buildDirPath = projectDirPath.resolve("build");
-            Path pagesDirPath = projectDirPath.resolve("src/xml/pages");
-            Path defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
+            FilePath buildDirPath = projectDirPath.resolve("build");
+            FilePath pagesDirPath = projectDirPath.resolve("src/xml/pages");
+            FilePath defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
 
-            if(!Assertions.fileExists(defaultStylesheet)){
+            if(!Assertions.fileExists(defaultStylesheet.toFile())){
                end("No default stylesheet found.", exit_code_missing_default_stylesheet);
             }
 

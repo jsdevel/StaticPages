@@ -26,15 +26,6 @@ import java.util.EnumSet;
  * @author Joseph Spencer
  */
 public class FileUtils {
-   public static void assertFileExistsOrThrowIOException(File file) throws IOException{
-      if(file == null){
-         throw new IOException("No file to assert existence of, null passed...");
-      }
-
-      if(!file.exists() || !file.isFile()){
-         throw new IOException("The followig file doesn't exist: "+file.getAbsolutePath());
-      }
-   }
    public static void clearDirectory(File directory) throws IOException {
       clearDirectory(directory, true);
    }
@@ -128,7 +119,9 @@ public class FileUtils {
       throws IOException
    {
       String str;
-      assertFileExistsOrThrowIOException(file);
+
+      Assertions.fileExistsOrFail(file);
+
       FileReader reader = new FileReader(file);
       BufferedReader buffer = new BufferedReader(reader);
       String line;
