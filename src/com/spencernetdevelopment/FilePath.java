@@ -38,6 +38,15 @@ public class FilePath {
       return path;
    }
 
+   public String toUnix(){
+      if(isUnix){
+         return path;
+      } else {
+         String unixPath=(separator+path.substring(root.length())).replace(separator, "/");
+         return unixPath;
+      }
+   }
+
    public FilePath getParent() throws IOException {
       return resolve("..");
    }
@@ -56,11 +65,9 @@ public class FilePath {
    }
    public static FilePath getFilePath(String path) throws IOException {
       assertSuppliedPath(path);
-      String pathToUse;
 
-      if(path.startsWith(root)){
-         pathToUse=path;
-      } else {
+      String pathToUse= new File(path).getPath();
+      if(pathToUse.indexOf(root) == -1){
          pathToUse=getAbsolutePath(cwd, path);
       }
 

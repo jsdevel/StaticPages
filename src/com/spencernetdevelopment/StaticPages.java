@@ -26,7 +26,10 @@ public class StaticPages {
     */
    public static void main(String[] args) {
       try {
-         jarDir = FilePath.getFilePath(StaticPages.class.getResource("/arguments.xml").getPath().replaceAll("^(?:file:)?(?:/(?=[A-Z]:/))?|^jar:|![^!]+$", "")).getParent();
+         String argumentsXmlPathString = StaticPages.class.getResource("/arguments.xml").getPath().replaceAll("^(?:file:)?(?:/(?=[A-Z]:/))?|^jar:|![^!]+$", "");
+         FilePath argumentsXmlFilePath = FilePath.getFilePath(argumentsXmlPathString);
+
+         jarDir = argumentsXmlFilePath.getParent();
          System.out.println(jarDir);
 
         System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
@@ -44,6 +47,7 @@ public class StaticPages {
          }
 
          if(arguments.hasProjectdir()){
+            System.out.println("Building all pages...");
             File projectDir = arguments.getProjectdir();
             projectDirPath = FilePath.getFilePath(projectDir.getAbsolutePath());
             pagesDirPath=projectDirPath.resolve("src/xml/pages");

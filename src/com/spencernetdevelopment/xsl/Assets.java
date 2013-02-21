@@ -32,6 +32,7 @@ public class Assets {
    }
 
    public static String getViewPath(String path) throws IOException {
-      return StaticPages.viewsDirPath.resolve(path+".xml").toString();
+      FilePath fpath = StaticPages.viewsDirPath.resolve(path+".xml");
+      return fpath.toUnix();
    }
 }

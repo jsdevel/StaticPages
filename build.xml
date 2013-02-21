@@ -14,14 +14,14 @@
 
     <target name="-pre-compile">
        <!-- make sure arguments are up to date. -->
-       <exec executable="java">
+       <!--<exec executable="java">
          <arg value="-jar"/>
          <arg path="${basedir}/lib/BetterJargs.jar"/>
-         <arg value="--input-xml"/>
+         <arg value="-input-xml"/>
          <arg value="src/arguments.xml"/>
-         <arg value="--output-directory"/>
+         <arg value="-output-directory"/>
          <arg value="src/com/spencernetdevelopment/arguments"/>
-      </exec>
+      </exec>-->
     </target>
 
     <target name="-post-jar">

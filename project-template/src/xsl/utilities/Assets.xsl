@@ -19,8 +19,15 @@
       <xsl:value-of select="assets:validatePageReference(@src)"/>
 
       <a href="{string:replaceAll(@src, '%', '%25')}.html">
-         <xsl:apply-templates select="@*[name() != 'href' or name() != 'src']"/>
-         <xsl:value-of select="string:replaceAll(@src, '%2F', '/')"/>
+         <xsl:apply-templates select="@*[name() != 'href' or name() != 'src' or name() != 'name' ]"/>
+         <xsl:choose>
+            <xsl:when test="not(@name)">
+               <xsl:value-of select="string:replaceAll(@src, '%2F', '/')"/>
+            </xsl:when>
+            <xsl:otherwise>
+               <xsl:value-of select="@name"/>
+            </xsl:otherwise>
+         </xsl:choose>
       </a>
    </xsl:template>
 
