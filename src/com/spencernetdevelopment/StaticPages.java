@@ -19,6 +19,7 @@ public class StaticPages {
    public static FilePath pagesDirPath;
    public static FilePath viewsDirPath;
    public static FilePath projectDirPath;
+   public static FilePath xmlResourcesDirPath;
    public static FilePath srcDirPath;
 
    /**
@@ -51,6 +52,7 @@ public class StaticPages {
             projectDirPath = FilePath.getFilePath(projectDir.getAbsolutePath());
             pagesDirPath=projectDirPath.resolve("src/xml/pages");
             viewsDirPath=projectDirPath.resolve("src/xml/views");
+            xmlResourcesDirPath=projectDirPath.resolve("src/xml/resources");
             buildDirPath=projectDirPath.resolve("build");
             srcDirPath=projectDirPath.resolve("src");
             assetsDirPath=srcDirPath.resolve("assets");
