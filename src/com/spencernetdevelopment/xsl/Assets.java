@@ -21,13 +21,26 @@ public class Assets {
       );
    }
    public static void validatePageReference(String path) throws IOException {
+      assertPathHasLength(path);
+      FilePath page = StaticPages.pagesDirPath.resolve(path +".xml");
+      assertFileExists(page);
+   }
+
+   public static void validateAssetReference(String path) throws IOException {
+      assertPathHasLength(path);
+      FilePath page = StaticPages.assetsDirPath.resolve(path);
+      assertFileExists(page);
+   }
+
+   public static void assertPathHasLength(String path) throws IOException {
       if(path == null || path.length() == 0){
          throw new IOException("Invalid Path: '"+path+"'.");
       }
+   }
 
-      FilePath page = StaticPages.pagesDirPath.resolve(path +".xml");
-      if(!page.toFile().exists()){
-         throw new IOException("The following page doesn't exist: "+page);
+   public static void assertFileExists(FilePath path) throws IOException {
+      if(!path.toFile().exists()){
+         throw new IOException("The following page doesn't exist: "+path);
       }
    }
 
