@@ -30,7 +30,6 @@ public class StaticPages {
          FilePath argumentsXmlFilePath = FilePath.getFilePath(argumentsXmlPathString);
 
          jarDir = argumentsXmlFilePath.getParent();
-         System.out.println(jarDir);
 
         System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
              "com.icl.saxon.om.DocumentBuilderFactoryImpl");
