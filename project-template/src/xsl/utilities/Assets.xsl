@@ -9,7 +9,7 @@
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
    <xsl:template match="a:image[@src]">
-      <xsl:value-of select="assets:assetReference(@src)"/>
+      <xsl:value-of select="assets:transferAsset(@src)"/>
       <img>
          <xsl:apply-templates select="@*"/>
       </img>

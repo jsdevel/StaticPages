@@ -14,7 +14,7 @@ import java.io.IOException;
  * @author Joseph Spencer
  */
 public class Assets {
-   public static void assetReference(String path) throws IOException {
+   public static void transferAsset(String path) throws IOException {
       FileUtils.copyFile(
          StaticPages.assetsDirPath.resolve(path).toFile(),
          StaticPages.buildDirPath.resolve(path).toFile()
