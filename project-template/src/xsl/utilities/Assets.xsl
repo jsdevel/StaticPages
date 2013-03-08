@@ -53,6 +53,22 @@
       </a>
    </xsl:template>
 
+   <xsl:template match="a:include[@asset]">
+      <xsl:value-of select="string(assets:getAsset(@asset))" disable-output-escaping="yes"/>
+   </xsl:template>
+
+   <xsl:template match="a:style[@href]">
+      <style type="text/css">
+         <xsl:value-of select="string(assets:getAsset(@href))" disable-output-escaping="yes"/>
+      </style>
+   </xsl:template>
+
+   <xsl:template match="a:script[@href]">
+      <script>
+         <xsl:value-of select="string(assets:getAsset(@href))" disable-output-escaping="yes"/>
+      </script>
+   </xsl:template>
+
    <!-- views -->
    <xsl:template match="a:view">
       <xsl:variable name="viewPath" select="assets:getViewPath(text())"/>

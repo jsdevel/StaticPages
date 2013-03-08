@@ -4,8 +4,7 @@
  */
 package com.spencernetdevelopment.xsl;
 
-import com.spencernetdevelopment.FileUtils;
-import com.spencernetdevelopment.StaticPages;
+import com.spencernetdevelopment.FilePath;
 import java.io.*;
 
 /**
@@ -13,8 +12,15 @@ import java.io.*;
  * @author Joseph Spencer
  */
 public class FileFunctions {
-   public static String getAsset(String path) throws IOException {
-      File file = StaticPages.assetsDirPath.resolve(path).toFile();
-      return FileUtils.getString(file);
+   public static void assertPathHasLength(String path) throws IOException {
+      if(path == null || path.length() == 0){
+         throw new IOException("Invalid Path: '"+path+"'.");
+      }
+   }
+
+   public static void assertFileExists(FilePath path) throws IOException {
+      if(!path.toFile().exists()){
+         throw new IOException("The following page doesn't exist: "+path);
+      }
    }
 }

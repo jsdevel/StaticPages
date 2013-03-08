@@ -10,7 +10,7 @@
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" >
 
    <xsl:import href="../utilities/HTML.xsl"/>
-   <xsl:import href="../utilities/Functions.xsl"/>
+   <xsl:import href="../utilities/Resources.xsl"/>
    <xsl:import href="../utilities/Assets.xsl"/>
 
    <xsl:output method="html" indent="no" saxon:omit-meta-tag="yes"/>

@@ -6,7 +6,10 @@ package com.spencernetdevelopment.xsl;
 
 import com.spencernetdevelopment.FilePath;
 import com.spencernetdevelopment.FileUtils;
+import static com.spencernetdevelopment.xsl.FileFunctions.assertFileExists;
+import static com.spencernetdevelopment.xsl.FileFunctions.assertPathHasLength;
 import com.spencernetdevelopment.StaticPages;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -32,20 +35,23 @@ public class Assets {
       assertFileExists(page);
    }
 
-   public static void assertPathHasLength(String path) throws IOException {
-      if(path == null || path.length() == 0){
-         throw new IOException("Invalid Path: '"+path+"'.");
-      }
-   }
-
-   public static void assertFileExists(FilePath path) throws IOException {
-      if(!path.toFile().exists()){
-         throw new IOException("The following page doesn't exist: "+path);
+   public static boolean assertXmlResourceExists(String path) throws IOException {
+      assertPathHasLength(path);
+      FilePath _path = StaticPages.xmlResourcesDirPath.resolve(path);
+      try {
+         assertFileExists(_path);
+         return true;
+      } catch(Throwable e){
+         return false;
       }
    }
 
    public static String getViewPath(String path) throws IOException {
       FilePath fpath = StaticPages.viewsDirPath.resolve(path+".xml");
       return fpath.toUnix();
+   }
+   public static String getAsset(String path) throws IOException {
+      File file = StaticPages.assetsDirPath.resolve(path).toFile();
+      return FileUtils.getString(file);
    }
 }
