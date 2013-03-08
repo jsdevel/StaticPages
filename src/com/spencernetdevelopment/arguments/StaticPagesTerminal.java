@@ -1,5 +1,6 @@
 package com.spencernetdevelopment.arguments;
 
+import com.spencernetdevelopment.FilePath;
 import java.io.File;
 public class StaticPagesTerminal {
    private static final boolean __showHelpOnNoArgs=true;
@@ -17,13 +18,11 @@ public class StaticPagesTerminal {
          String key = args[i];
          String val = args[i+1];
          if("--project-dir".equals(key)){
-            String newPath = getPath(val);
-            projectdir = new File(newPath);
+            projectdir = FilePath.getFilePath(val).toFile();
             continue;
          }
          if("--new-project".equals(key)){
-            String newPath = getPath(val);
-            newproject = new File(newPath);
+            newproject = FilePath.getFilePath(val).toFile();
             continue;
          }
          throw new IllegalArgumentException("Unknown argument: "+key);
@@ -36,15 +35,7 @@ public class StaticPagesTerminal {
             newproject
       );
    }
-   public static final String getPath(String path){
-      String pathToUse;
-      if(path.startsWith("/")){
-         pathToUse = path;
-      } else {
-         pathToUse = System.getProperty("user.dir")+"/"+path;
-      }
-      return pathToUse;
-   }
+
    public static final boolean getBoolean(String bool){
       if(bool != null){
          String s = bool.toLowerCase();

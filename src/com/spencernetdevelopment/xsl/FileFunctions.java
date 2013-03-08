@@ -6,7 +6,7 @@ package com.spencernetdevelopment.xsl;
 
 import com.spencernetdevelopment.FileUtils;
 import com.spencernetdevelopment.StaticPages;
-import java.io.IOException;
+import java.io.*;
 
 /**
  *
@@ -14,6 +14,7 @@ import java.io.IOException;
  */
 public class FileFunctions {
    public static String getAsset(String path) throws IOException {
-      return FileUtils.getString(StaticPages.assetsDirPath.resolve(path).toFile());
+      File file = StaticPages.assetsDirPath.resolve(path).toFile();
+      return FileUtils.getString(file);
    }
 }

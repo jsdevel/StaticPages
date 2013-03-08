@@ -28,8 +28,8 @@ import org.xml.sax.SAXException;
  */
 public class HTMLBuilder {
    private final File buildDir;
-   private final Path buildDirPath;
-   private final Path xmlPagesDirPath;
+   private final FilePath buildDirPath;
+   private final FilePath xmlPagesDirPath;
    private final String xmlPagesDirString;
    private final int xmlPagesDirStringLength;
    private File defaultStylesheet;
@@ -39,7 +39,7 @@ public class HTMLBuilder {
    private StreamSource xslStream;
    private Transformer xslTransformer;
 
-   public HTMLBuilder(Path buildDirPath, Path pagesDirPath) throws ParserConfigurationException {
+   public HTMLBuilder(FilePath buildDirPath, FilePath pagesDirPath) throws ParserConfigurationException {
       docBuilderFactory = DocumentBuilderFactory.newInstance();
       docBuilderFactory.setNamespaceAware(true);
       docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -78,7 +78,7 @@ public class HTMLBuilder {
 
    public void buildPage(Path xmlFilePath) throws SAXException, TransformerException, IOException {
       Document xmlDocument = docBuilder.parse(xmlFilePath.toFile());
-      Path outputFilePath = buildDirPath.resolve(xmlFilePath.toString().substring(xmlPagesDirStringLength+1).replaceFirst("\\.xml$", ".html"));
+      FilePath outputFilePath = buildDirPath.resolve(xmlFilePath.toString().substring(xmlPagesDirStringLength+1).replaceFirst("\\.xml$", ".html"));
       File htmlFile = outputFilePath.toFile();
       File alternateHTMLFile=null;
 

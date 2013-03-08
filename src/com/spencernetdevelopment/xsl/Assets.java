@@ -4,12 +4,10 @@
  */
 package com.spencernetdevelopment.xsl;
 
+import com.spencernetdevelopment.FilePath;
 import com.spencernetdevelopment.FileUtils;
 import com.spencernetdevelopment.StaticPages;
-import com.spencernetdevelopment.URLUtils;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.file.Path;
 
 /**
  *
@@ -27,13 +25,14 @@ public class Assets {
          throw new IOException("Invalid Path: '"+path+"'.");
       }
 
-      Path page = StaticPages.pagesDirPath.resolve(path +".xml");
+      FilePath page = StaticPages.pagesDirPath.resolve(path +".xml");
       if(!page.toFile().exists()){
          throw new IOException("The following page doesn't exist: "+page);
       }
    }
 
-   public static String getViewPath(String path){
-      return StaticPages.viewsDirPath.resolve(path+".xml").toString();
+   public static String getViewPath(String path) throws IOException {
+      FilePath fpath = StaticPages.viewsDirPath.resolve(path+".xml");
+      return fpath.toUnix();
    }
 }

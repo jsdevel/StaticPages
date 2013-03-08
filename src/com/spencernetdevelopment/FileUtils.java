@@ -120,6 +120,8 @@ public class FileUtils {
    {
       String str;
 
+      Assertions.fileExistsOrFail(file);
+
       FileReader reader = new FileReader(file);
       BufferedReader buffer = new BufferedReader(reader);
       String line;
