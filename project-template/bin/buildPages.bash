@@ -4,6 +4,7 @@ PROJECT_DIR=$(dirname $BIN_DIR);
 
 function buildPages()
 {
+   clear
    java -jar $BIN_DIR/StaticPages.jar --project-dir $PROJECT_DIR
 }
 
