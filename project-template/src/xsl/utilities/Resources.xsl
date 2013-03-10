@@ -12,17 +12,19 @@
       <xsl:choose>
          <xsl:when test="assets:assertXmlResourceExists('phrases.xml')">
             <xsl:variable name="id" select="local-name()"/>
-            <xsl:variable name="value" select="document(concat($rp, '/phrases.xml'))/a:phrases/a:phrase[@id=$id]"/>
+            <xsl:variable name="phrase" select="document(concat($rp, '/phrases.xml'))/a:phrases/a:phrase[@id=$id]"/>
             <xsl:choose>
-               <xsl:when test="string($value) = ''">
+               <xsl:when test="string($phrase) = ''">
                   <xsl:message>
 phrases.xml:  Couldn't find phrase with id: <xsl:value-of select="$id"/>
                   </xsl:message>
                </xsl:when>
                <xsl:otherwise>
                   <span>
-                     <xsl:apply-templates select="@*[not(local-name() = 'id')]"/>
-                     <xsl:value-of select="$value"/>
+                     <xsl:apply-templates select="@*[not(local-name() = 'id' or local-name() = 'a' or local-name() = 'b')]"/>
+                     <xsl:if test="@b">&#160;</xsl:if>
+                     <xsl:apply-templates select="$phrase"/>
+                     <xsl:if test="@a">&#160;</xsl:if>
                   </span>
                </xsl:otherwise>
             </xsl:choose>
@@ -35,6 +37,5 @@ Couldn't find <xsl:value-of select="$rp"/>/phrases.xml.
          </xsl:otherwise>
       </xsl:choose>
    </xsl:template>
-
 
 </xsl:stylesheet>

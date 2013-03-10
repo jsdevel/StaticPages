@@ -79,4 +79,8 @@
       <xsl:apply-templates/>
    </xsl:template>
 
+   <xsl:template match="a:phrase">
+      <xsl:apply-templates/>
+   </xsl:template>
+
 </xsl:stylesheet>
