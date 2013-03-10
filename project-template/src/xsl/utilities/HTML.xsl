@@ -85,4 +85,8 @@
       </meta>
    </xsl:template>
 
+   <xsl:template match="d:phrase">
+      <xsl:apply-templates/>
+   </xsl:template>
+
 </xsl:stylesheet>

@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phrases xmlns:a="assets">
-   <!-- info -->
-   <phrase id="MainPhone">602-795-7850</phrase>
-   <phrase id="Insectek">INSECTEK</phrase>
+<phrases xmlns:d="default">
 
-   <!-- programs -->
-   <phrase id="POMP">Peace-of-Mind Program</phrase>
-   <phrase id="P365P">365 Pest Protection Program</phrase>
 </phrases>
