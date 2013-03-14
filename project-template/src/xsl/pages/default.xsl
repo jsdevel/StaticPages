@@ -45,13 +45,24 @@
       <html class="no-js">
          <head>
             <meta charset="utf-8"/>
-            <xsl:apply-templates select="d:seo" mode="seo"/>
-            <xsl:apply-templates select="d:head" mode="head"/>
+            <xsl:apply-templates select="d:seo" mode="defaultStylesheet"/>
+            <xsl:apply-templates select="d:head" mode="defaultStylesheet"/>
          </head>
          <body>
-            <xsl:apply-templates/>
+            <xsl:apply-templates select="d:body" mode="defaultStylesheet"/>
          </body>
       </html>
+   </xsl:template>
+
+   <!-- These are here to allow for an override mechanism. -->
+   <xsl:template match="d:seo" mode="defaultStylesheet">
+      <xsl:apply-templates select="." mode="seo"/>
+   </xsl:template>
+   <xsl:template match="d:head" mode="defaultStylesheet">
+      <xsl:apply-templates select="." mode="head"/>
+   </xsl:template>
+   <xsl:template match="d:body" mode="defaultStylesheet">
+      <xsl:apply-templates/>
    </xsl:template>
 
 </xsl:stylesheet>
