@@ -21,6 +21,7 @@ public class StaticPages {
    public static FilePath projectDirPath;
    public static FilePath xmlResourcesDirPath;
    public static FilePath srcDirPath;
+   public static FilePath xslDirPath;
 
    /**
     * @param args the command line arguments
@@ -55,6 +56,7 @@ public class StaticPages {
             xmlResourcesDirPath=projectDirPath.resolve("src/xml/resources");
             buildDirPath=projectDirPath.resolve("build");
             srcDirPath=projectDirPath.resolve("src");
+            xslDirPath=srcDirPath.resolve("xsl");
             assetsDirPath=srcDirPath.resolve("assets");
             FilePath buildDirPath = projectDirPath.resolve("build");
             FilePath pagesDirPath = projectDirPath.resolve("src/xml/pages");

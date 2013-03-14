@@ -13,13 +13,19 @@ import java.io.IOException;
  */
 public class Assertions {
    public static boolean fileExists(File file){
-      if(file==null || !file.exists() || !file.isFile()){
+      if(file==null || !file.isFile()){
          return false;
       }
       return true;
    }
    public static boolean fileExists(FilePath file){
       return fileExists(file.toFile());
+   }
+   public static boolean dirExists(File dir){
+      if(dir==null || !dir.isDirectory()){
+         return false;
+      }
+      return true;
    }
 
    public static void fileExistsOrFail(File file) throws IOException {

@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,7 +39,8 @@ public class HTMLBuilder {
    private final DocumentBuilder docBuilder;
    private final TransformerFactory transformerFactory;
    private StreamSource xslStream;
-   private Transformer xslTransformer;
+   private Transformer defaultXSLTransformer;
+   private Map<String, Transformer> pageTransformers;
 
    public HTMLBuilder(FilePath buildDirPath, FilePath pagesDirPath) throws ParserConfigurationException {
       docBuilderFactory = DocumentBuilderFactory.newInstance();
@@ -53,12 +56,10 @@ public class HTMLBuilder {
    }
 
    public void setDefaultStylesheet(File defaultStylesheet) throws IOException, TransformerConfigurationException {
-      if(defaultStylesheet==null || !defaultStylesheet.isFile() || !defaultStylesheet.exists()){
-         throw new IOException("Can't set a stylesheet that isn't an existing file.");
-      }
+      assertStylesheetExists(defaultStylesheet);
       this.defaultStylesheet=defaultStylesheet;
       xslStream = new StreamSource(defaultStylesheet);
-      xslTransformer = transformerFactory.newTransformer(xslStream);
+      defaultXSLTransformer = transformerFactory.newTransformer(xslStream);
    }
 
    public void buildPages() throws IOException, SAXException, TransformerException {
@@ -76,11 +77,19 @@ public class HTMLBuilder {
       }
    }
 
+   /**
+    * Builds an xml file within the xmlPagesDir.  Converts it to HTML in the
+    * build directory.
+    *
+    * @param xmlFilePath
+    * @throws SAXException
+    * @throws TransformerException
+    * @throws IOException
+    */
    public void buildPage(Path xmlFilePath) throws SAXException, TransformerException, IOException {
       Document xmlDocument = docBuilder.parse(xmlFilePath.toFile());
       FilePath outputFilePath = buildDirPath.resolve(xmlFilePath.toString().substring(xmlPagesDirStringLength+1).replaceFirst("\\.xml$", ".html"));
       File htmlFile = outputFilePath.toFile();
-      File alternateHTMLFile=null;
 
       Node alternateNameNode = xmlDocument.getFirstChild().getAttributes().getNamedItem("alternate-name");
 
@@ -95,6 +104,68 @@ public class HTMLBuilder {
       FileUtils.createFile(outputFile);
       DOMSource xmlDoc = new DOMSource(xmlDocument);
       StreamResult resultStream = new StreamResult(outputFile);
-      xslTransformer.transform(xmlDoc, resultStream);
+
+      Node stylesheetAttribute = xmlDocument.getFirstChild().getAttributes().getNamedItem("stylesheet");
+      if(stylesheetAttribute != null){
+         String stylesheet = stylesheetAttribute.getNodeValue();
+         if(stylesheet.trim().length() > 0){
+            getTransformer(stylesheet).transform(xmlDoc, resultStream);
+         } else {
+            throw new IllegalArgumentException("stylesheet attributes may not be empty.");
+         }
+      } else {
+         defaultXSLTransformer.transform(xmlDoc, resultStream);
+      }
+   }
+
+   /**
+    * Get a transformer from a path relative to src/xsl.  The path gets '.xsl'
+    * appended to it prior to processing.
+    *
+    * @param stylesheet
+    * @return Transformer
+    * @throws TransformerConfigurationException
+    * @throws IOException
+    */
+   private Transformer getTransformer(String stylesheet) throws
+           TransformerConfigurationException,
+           IOException
+   {
+      if(stylesheet == null){
+         throw new IllegalArgumentException("stylsheet may not be null or empty.");
+      }
+
+      if(pageTransformers == null){
+         pageTransformers = new HashMap<String, Transformer>();
+      }
+
+      if(pageTransformers.containsKey(stylesheet)){
+         return pageTransformers.get(stylesheet);
+      } else {
+         FilePath stylesheetPath = StaticPages.xslDirPath.resolve(stylesheet.concat(".xsl"));
+         File stylesheetFile = stylesheetPath.toFile();
+
+         assertStylesheetExists(stylesheetFile);
+
+         StreamSource stylesheetStream = new StreamSource(stylesheetFile);
+         Transformer XSLTransformer = transformerFactory.newTransformer(stylesheetStream);
+         pageTransformers.put(stylesheet, XSLTransformer);
+         return XSLTransformer;
+      }
+   }
+
+   /**
+    * Asserts that a file exists.
+    *
+    * @param stylesheet
+    * @throws IOException
+    */
+   private void assertStylesheetExists(File stylesheet) throws IOException {
+      if(!Assertions.fileExists(stylesheet)){
+         if(stylesheet==null){
+            throw new IOException("stylesheet was null.");
+         }
+         throw new IOException("This stylesheet doesn't exist:\n   "+stylesheet.getAbsolutePath());
+      }
    }
 }
