@@ -20,12 +20,7 @@ phrases.xml:  Couldn't find phrase with id: <xsl:value-of select="$id"/>
                   </xsl:message>
                </xsl:when>
                <xsl:otherwise>
-                  <span>
-                     <xsl:apply-templates select="@*[not(local-name() = 'id' or local-name() = 'a' or local-name() = 'b')]"/>
-                     <xsl:if test="@b">&#160;</xsl:if>
-                        <xsl:apply-templates select="$phrase"/>
-                     <xsl:if test="@a">&#160;</xsl:if>
-                  </span>
+                  <xsl:apply-templates select="$phrase"/>
                </xsl:otherwise>
             </xsl:choose>
          </xsl:when>
