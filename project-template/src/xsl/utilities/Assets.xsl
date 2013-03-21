@@ -8,10 +8,12 @@
    exclude-result-prefixes="a d string assets urlutils"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
+   <xsl:param name="assetPrefixInBrowser"/>
+
    <xsl:template match="a:image[@src]">
       <xsl:variable name="path" select="concat('images/', @src)"/>
       <xsl:value-of select="assets:transferAsset($path)"/>
-      <img src="{$path}">
+      <img src="{$assetPrefixInBrowser}{$path}">
          <xsl:apply-templates select="@*[not(local-name() = 'src')]"/>
       </img>
    </xsl:template>
@@ -20,7 +22,7 @@
       <xsl:variable name="path" select="concat('css/', @href, '.css')"/>
       <xsl:value-of select="assets:validateAssetReference($path)"/>
       <xsl:value-of select="assets:transferAsset($path)"/>
-      <link href="{$path}" rel="stylesheet" type="text/css">
+      <link href="{$assetPrefixInBrowser}{$path}" rel="stylesheet" type="text/css">
          <xsl:apply-templates select="@*[
             not(local-name() = 'rel' or local-name() = 'type' or local-name() = 'href')
          ]"/>
@@ -31,7 +33,7 @@
       <xsl:variable name="path" select="concat('js/', @src, '.js')"/>
       <xsl:value-of select="assets:validateAssetReference($path)"/>
       <xsl:value-of select="assets:transferAsset($path)"/>
-      <script src="{$path}">
+      <script src="{$assetPrefixInBrowser}{$path}">
          <xsl:apply-templates select="@*[not(local-name() = 'src')]"/>
       </script>
    </xsl:template>
@@ -40,7 +42,7 @@
    <xsl:template match="a:pageLink[@src]">
       <xsl:value-of select="assets:validatePageReference(@src)"/>
 
-      <a href="{string:replaceAll(@src, '%', '%25')}.html">
+      <a href="{$assetPrefixInBrowser}{string:replaceAll(@src, '%', '%25')}.html">
          <xsl:apply-templates select="@*[name() != 'href' or name() != 'src' or name() != 'name' ]"/>
          <xsl:choose>
             <xsl:when test="not(@name)">

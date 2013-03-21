@@ -60,6 +60,7 @@ public class HTMLBuilder {
       this.defaultStylesheet=defaultStylesheet;
       xslStream = new StreamSource(defaultStylesheet);
       defaultXSLTransformer = transformerFactory.newTransformer(xslStream);
+      addDefaultParameters(defaultXSLTransformer);
    }
 
    public void buildPages() throws IOException, SAXException, TransformerException {
@@ -150,6 +151,7 @@ public class HTMLBuilder {
          StreamSource stylesheetStream = new StreamSource(stylesheetFile);
          Transformer XSLTransformer = transformerFactory.newTransformer(stylesheetStream);
          pageTransformers.put(stylesheet, XSLTransformer);
+         addDefaultParameters(XSLTransformer);
          return XSLTransformer;
       }
    }
@@ -167,5 +169,14 @@ public class HTMLBuilder {
          }
          throw new IOException("This stylesheet doesn't exist:\n   "+stylesheet.getAbsolutePath());
       }
+   }
+
+   /**
+    * Adds default parameters to a Transformer.
+    *
+    * @param xslt
+    */
+   private void addDefaultParameters(Transformer xslt){
+      xslt.setParameter("assetPrefixInBrowser", StaticPages.assetPrefixInBrowser);
    }
 }

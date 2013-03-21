@@ -1,13 +1,14 @@
 package com.spencernetdevelopment.arguments;
 
-import com.spencernetdevelopment.FilePath;
 import java.io.File;
+import java.lang.String;
 public class StaticPagesTerminal {
    private static final boolean __showHelpOnNoArgs=true;
 
    public static StaticPagesArguments getArguments(String[] args) throws Throwable {
       File projectdir=null;
       File newproject=null;
+      String assetprefixinbrowser=null;
       if(__showHelpOnNoArgs && args.length == 0){
          System.out.print(StaticPagesHelp.getHelpMenu());
          System.exit(0);
@@ -18,11 +19,17 @@ public class StaticPagesTerminal {
          String key = args[i];
          String val = args[i+1];
          if("--project-dir".equals(key)){
-            projectdir = FilePath.getFilePath(val).toFile();
+            String newPath = getPath(val);
+            projectdir = new File(newPath);
             continue;
          }
          if("--new-project".equals(key)){
-            newproject = FilePath.getFilePath(val).toFile();
+            String newPath = getPath(val);
+            newproject = new File(newPath);
+            continue;
+         }
+         if("--asset-prefix-in-browser".equals(key)){
+            assetprefixinbrowser = val;
             continue;
          }
          throw new IllegalArgumentException("Unknown argument: "+key);
@@ -32,10 +39,19 @@ public class StaticPagesTerminal {
       }
       return new StaticPagesArguments(
             projectdir,
-            newproject
+            newproject,
+            assetprefixinbrowser
       );
    }
-
+   public static final String getPath(String path){
+      String pathToUse;
+      if(path.startsWith("/")){
+         pathToUse = path;
+      } else {
+         pathToUse = System.getProperty("user.dir")+"/"+path;
+      }
+      return pathToUse;
+   }
    public static final boolean getBoolean(String bool){
       if(bool != null){
          String s = bool.toLowerCase();

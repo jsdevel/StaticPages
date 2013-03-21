@@ -1,13 +1,10 @@
 #!/bin/bash
-BIN_DIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}));
-PROJECT_DIR=$(dirname $BIN_DIR);
-BUILD_DIR=$PROJECT_DIR/build;
-REFRESH_FILE=$BUILD_DIR/refresh.js;
+#This script expects start.bash to have been previously sourced.
 
 function buildPages()
 {
    clear
-   java -jar $BIN_DIR/StaticPages.jar --project-dir $PROJECT_DIR
+   java -jar $BIN_DIR/StaticPages.jar --project-dir $PROJECT_DIR $validAssetPrefixInBrowser;
    local key="sessionStorage['lastRefresh']";
    local stamp="`date +%N`";
    cat > $REFRESH_FILE << HERE
@@ -22,8 +19,3 @@ if($key && $key != $stamp){
 HERE
 }
 
-buildPages
-while RESULT=$(inotifywait -qr -e MODIFY --exclude .*\\.swp $PROJECT_DIR)
-do
-   buildPages
-done

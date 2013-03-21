@@ -3,7 +3,6 @@ package com.spencernetdevelopment;
 import com.spencernetdevelopment.arguments.StaticPagesArguments;
 import com.spencernetdevelopment.arguments.StaticPagesTerminal;
 import java.io.File;
-import java.nio.file.Path;
 
 /**
  *
@@ -22,6 +21,7 @@ public class StaticPages {
    public static FilePath xmlResourcesDirPath;
    public static FilePath srcDirPath;
    public static FilePath xslDirPath;
+   public static String assetPrefixInBrowser="/";
 
    /**
     * @param args the command line arguments
@@ -36,6 +36,10 @@ public class StaticPages {
         System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
              "com.icl.saxon.om.DocumentBuilderFactoryImpl");
          StaticPagesArguments arguments = StaticPagesTerminal.getArguments(args);
+
+         if(arguments.hasAssetprefixinbrowser()){
+            assetPrefixInBrowser=arguments.getAssetprefixinbrowser();
+         }
 
          if(arguments.hasNewproject()){
             File sampleProjectDir = jarDir.resolve("project-template").toFile();
@@ -58,8 +62,6 @@ public class StaticPages {
             srcDirPath=projectDirPath.resolve("src");
             xslDirPath=srcDirPath.resolve("xsl");
             assetsDirPath=srcDirPath.resolve("assets");
-            FilePath buildDirPath = projectDirPath.resolve("build");
-            FilePath pagesDirPath = projectDirPath.resolve("src/xml/pages");
             FilePath defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
 
             if(!Assertions.fileExists(defaultStylesheet.toFile())){

@@ -59,4 +59,14 @@ Creates a default project in the specified directory.
 "
       type="directory"
       />
+   <argument
+      name="--asset-prefix-in-browser"
+      description="
+Provides a way to prefix assets as seen in the browser.  This is always relative
+to your domain.
+When working in the filesystem, the domain portion is 'file:///'.
+"
+      type="string"
+      />
+
 </arguments>

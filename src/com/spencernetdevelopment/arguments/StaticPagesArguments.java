@@ -1,14 +1,17 @@
 package com.spencernetdevelopment.arguments;
 
 import java.io.File;
+import java.lang.String;
 public class StaticPagesArguments {
 
    private File projectdir=null;
    private File newproject=null;
+   private String assetprefixinbrowser=null;
 
    public StaticPagesArguments(
       final File projectdir,
-      final File newproject
+      final File newproject,
+      final String assetprefixinbrowser
    ) throws Throwable {
       if(projectdir != null){
          if(!projectdir.exists() || !projectdir.isDirectory()){
@@ -28,6 +31,7 @@ public class StaticPagesArguments {
       }
       this.projectdir=projectdir;
       this.newproject=newproject;
+      this.assetprefixinbrowser=assetprefixinbrowser;
    }
 
    public File getProjectdir(){
@@ -41,5 +45,11 @@ public class StaticPagesArguments {
    }
    public boolean hasNewproject(){
       return newproject!=null;
+   }
+   public String getAssetprefixinbrowser(){
+      return assetprefixinbrowser;
+   }
+   public boolean hasAssetprefixinbrowser(){
+      return assetprefixinbrowser!=null;
    }
 }
