@@ -3,7 +3,8 @@
 
 function buildPages()
 {
-   clear
+   clear;
+   preBuildPages;
    java -jar $BIN_DIR/StaticPages.jar --project-dir $PROJECT_DIR $validAssetPrefixInBrowser;
    local key="sessionStorage['lastRefresh']";
    local stamp="`date +%N`";
@@ -17,5 +18,6 @@ if($key && $key != $stamp){
    $key = $stamp;
 }
 HERE
+   postBuildPages;
 }
 

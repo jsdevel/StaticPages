@@ -4,6 +4,13 @@ PROJECT_DIR=$(dirname $BIN_DIR);
 BUILD_DIR=$PROJECT_DIR/build;
 REFRESH_FILE=$BUILD_DIR/refresh.js;
 
+#override these in config
+function preBuildPages(){
+   echo > /dev/null;
+}
+function postBuildPages(){
+   echo > /dev/null;
+}
 #handle config.bash
 if [ -f $BIN_DIR/config.bash ];then
    . $BIN_DIR/config.bash;
