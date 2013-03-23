@@ -3,6 +3,8 @@ package com.spencernetdevelopment;
 import com.spencernetdevelopment.arguments.StaticPagesArguments;
 import com.spencernetdevelopment.arguments.StaticPagesTerminal;
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -11,6 +13,7 @@ import java.io.File;
 public class StaticPages {
    public static final int exit_code_bad_argument=1;
    public static final int exit_code_missing_default_stylesheet=2;
+   private static final Logger logger = Logger.getLogger(StaticPages.class.getName());
    public static FilePath jarDir;
 
    public static FilePath assetsDirPath;
@@ -39,6 +42,10 @@ public class StaticPages {
 
          if(arguments.hasAssetprefixinbrowser()){
             assetPrefixInBrowser=arguments.getAssetprefixinbrowser();
+            if(assetPrefixInBrowser.endsWith("/")){
+               logger.log(Level.WARNING, "--asset-prefix-in-browser ended in ''/''.  Removing ''/'' from the end now.");
+               assetPrefixInBrowser = assetPrefixInBrowser.replaceAll("/+$", "");
+            }
          }
 
          if(arguments.hasNewproject()){

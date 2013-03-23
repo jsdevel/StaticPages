@@ -52,6 +52,6 @@ public class Assets {
    }
    public static String getAsset(String path) throws IOException {
       File file = StaticPages.assetsDirPath.resolve(path).toFile();
-      return FileUtils.getString(file);
+      return FileUtils.getString(file).replace("ASSET_PREFIX_IN_BROWSER", StaticPages.assetPrefixInBrowser);
    }
 }
