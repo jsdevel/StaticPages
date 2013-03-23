@@ -20,7 +20,7 @@ public class FileFunctions {
 
    public static void assertFileExists(FilePath path) throws IOException {
       if(!path.toFile().exists()){
-         throw new IOException("The following page doesn't exist: "+path);
+         throw new IOException("\nThis file doesn't exist: "+path);
       }
    }
 }

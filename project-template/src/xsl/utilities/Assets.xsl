@@ -60,14 +60,18 @@
    </xsl:template>
 
    <xsl:template match="a:style[@href]">
+      <xsl:variable name="path" select="concat('css/', @href, '.css')"/>
+      <xsl:value-of select="assets:validateAssetReference($path)"/>
       <style type="text/css">
-         <xsl:value-of select="string(assets:getAsset(@href))" disable-output-escaping="yes"/>
+         <xsl:value-of select="string(assets:getAsset($path))" disable-output-escaping="yes"/>
       </style>
    </xsl:template>
 
    <xsl:template match="a:script[@href]">
+      <xsl:variable name="path" select="concat('js/', @href, '.js')"/>
+      <xsl:value-of select="assets:validateAssetReference($path)"/>
       <script>
-         <xsl:value-of select="string(assets:getAsset(@href))" disable-output-escaping="yes"/>
+         <xsl:value-of select="string(assets:getAsset($path))" disable-output-escaping="yes"/>
       </script>
    </xsl:template>
 
