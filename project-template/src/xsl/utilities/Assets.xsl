@@ -10,6 +10,16 @@
 
    <xsl:param name="assetPrefixInBrowser"/>
 
+   <xsl:template match="a:*">
+      <xsl:message terminate="yes">
+   Unknown asset element 'a:<xsl:value-of select="local-name(.)"/>'.
+   The following attributes were found on this element:
+         <xsl:for-each select="@*">
+            <xsl:value-of select="concat(local-name(.), '=', .)"/>
+         </xsl:for-each>
+      </xsl:message>
+   </xsl:template>
+
    <xsl:template match="a:image[@src]">
       <xsl:variable name="path" select="concat('images/', @src)"/>
       <xsl:value-of select="assets:transferAsset($path)"/>
@@ -73,6 +83,11 @@
       <script>
          <xsl:value-of select="string(assets:getAsset($path))" disable-output-escaping="yes"/>
       </script>
+   </xsl:template>
+
+   <xsl:template match="a:transfer[@href]">
+      <xsl:value-of select="assets:validateAssetReference(@href)"/>
+      <xsl:value-of select="assets:transferAsset(@href)"/>
    </xsl:template>
 
    <!-- views -->
