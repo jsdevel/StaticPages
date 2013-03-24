@@ -24,15 +24,15 @@ fi
 case $1 in
    watchForChanges.bash)
       . $BIN_DIR/watchForChanges.bash;;
-   deploy.bash)
-      . $BIN_DIR/deploy.bash;;
+   deployPROD.bash)
+      . $BIN_DIR/deployPROD.bash;;
    *)
       cat <<!
 
 Unknown script: $1
 Valid scripts are:
 watchForChanges.bash
-deploy.bash
+deployPROD.bash
 
 !
       exit 1;
