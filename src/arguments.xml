@@ -68,5 +68,19 @@ When working in the filesystem, the domain portion is 'file:///'.
 "
       type="string"
       />
+   <argument
+      name="--log4j-properties"
+      description="Sets the location of the log4j.properties.  By default,
+StaticPages looks in the current dir of the jar for the properties file.
+
+This may be an absolute or relative path.  Relative paths are resolved
+against the StaticPages.jar file."
+      type="string"
+      />
+   <argument
+      name="--log4j-interval"
+      description="Sets the amount of time to watch for log4j.properties changes."
+      type="string"
+      />
 
 </arguments>

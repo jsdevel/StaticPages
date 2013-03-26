@@ -9,6 +9,8 @@ public class StaticPagesTerminal {
       File projectdir=null;
       File newproject=null;
       String assetprefixinbrowser=null;
+      String logjproperties=null;
+      String logjinterval=null;
       if(__showHelpOnNoArgs && args.length == 0){
          System.out.print(StaticPagesHelp.getHelpMenu());
          System.exit(0);
@@ -32,6 +34,14 @@ public class StaticPagesTerminal {
             assetprefixinbrowser = val;
             continue;
          }
+         if("--log4j-properties".equals(key)){
+            logjproperties = val;
+            continue;
+         }
+         if("--log4j-interval".equals(key)){
+            logjinterval = val;
+            continue;
+         }
          throw new IllegalArgumentException("Unknown argument: "+key);
       }
       if(i - len != 0){
@@ -40,7 +50,9 @@ public class StaticPagesTerminal {
       return new StaticPagesArguments(
             projectdir,
             newproject,
-            assetprefixinbrowser
+            assetprefixinbrowser,
+            logjproperties,
+            logjinterval
       );
    }
    public static final String getPath(String path){

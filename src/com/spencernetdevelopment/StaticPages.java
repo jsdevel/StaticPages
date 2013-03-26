@@ -3,8 +3,11 @@ package com.spencernetdevelopment;
 import com.spencernetdevelopment.arguments.StaticPagesArguments;
 import com.spencernetdevelopment.arguments.StaticPagesTerminal;
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 /**
  *
@@ -36,14 +39,38 @@ public class StaticPages {
 
          jarDir = argumentsXmlFilePath.getParent();
 
-        System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+         System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
              "com.icl.saxon.om.DocumentBuilderFactoryImpl");
          StaticPagesArguments arguments = StaticPagesTerminal.getArguments(args);
+
+         {//setup log4j.
+            FilePath propFile = null;
+            if(arguments.hasLogjproperties()){
+               propFile = jarDir.resolve(arguments.getLogjproperties());
+            } else if(jarDir.resolve("log4j.properties").toFile().isFile()){
+               propFile = jarDir.resolve("log4j.properties");
+            }
+
+            if(propFile != null){
+               if(arguments.hasLogjinterval()){
+                  PropertyConfigurator.configureAndWatch(propFile.toString(), Long.parseLong(arguments.getLogjinterval()));
+               } else {
+                  PropertyConfigurator.configureAndWatch(propFile.toString());
+               }
+            } else {
+               PropertyConfigurator.configure(StaticPages.class.getResourceAsStream("/log4j.properties"));
+               logger.info("Using the internal log4j.properties file.  Run java -jar StaticPages.jar for more info.");
+            }
+         }
+
+         if(logger.isDebugEnabled()){
+            logger.debug("jarDir = "+jarDir.toString());
+         }
 
          if(arguments.hasAssetprefixinbrowser()){
             assetPrefixInBrowser=arguments.getAssetprefixinbrowser();
             if(assetPrefixInBrowser.endsWith("/")){
-               logger.log(Level.WARNING, "--asset-prefix-in-browser ended in ''/''.  Removing ''/'' from the end now.");
+               logger.warn("--asset-prefix-in-browser ended in '/'.  Removing '/' from the end now.");
                assetPrefixInBrowser = assetPrefixInBrowser.replaceAll("/+$", "");
             }
          }
@@ -89,7 +116,7 @@ public class StaticPages {
       System.out.println(message);
    }
    public static void end(String message, int code){
-      System.out.println(message);
+      logger.log(Level.FATAL, message);
       System.exit(code);
    }
 }

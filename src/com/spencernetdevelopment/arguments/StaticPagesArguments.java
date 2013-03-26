@@ -7,11 +7,15 @@ public class StaticPagesArguments {
    private File projectdir=null;
    private File newproject=null;
    private String assetprefixinbrowser=null;
+   private String logjproperties=null;
+   private String logjinterval=null;
 
    public StaticPagesArguments(
       final File projectdir,
       final File newproject,
-      final String assetprefixinbrowser
+      final String assetprefixinbrowser,
+      final String logjproperties,
+      final String logjinterval
    ) throws Throwable {
       if(projectdir != null){
          if(!projectdir.exists() || !projectdir.isDirectory()){
@@ -32,6 +36,8 @@ public class StaticPagesArguments {
       this.projectdir=projectdir;
       this.newproject=newproject;
       this.assetprefixinbrowser=assetprefixinbrowser;
+      this.logjproperties=logjproperties;
+      this.logjinterval=logjinterval;
    }
 
    public File getProjectdir(){
@@ -51,5 +57,17 @@ public class StaticPagesArguments {
    }
    public boolean hasAssetprefixinbrowser(){
       return assetprefixinbrowser!=null;
+   }
+   public String getLogjproperties(){
+      return logjproperties;
+   }
+   public boolean hasLogjproperties(){
+      return logjproperties!=null;
+   }
+   public String getLogjinterval(){
+      return logjinterval;
+   }
+   public boolean hasLogjinterval(){
+      return logjinterval!=null;
    }
 }
