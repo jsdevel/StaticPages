@@ -5,39 +5,41 @@
 package com.spencernetdevelopment.xsl;
 
 import com.spencernetdevelopment.FilePath;
-import com.spencernetdevelopment.FileUtils;
 import static com.spencernetdevelopment.xsl.FileFunctions.assertFileExists;
 import static com.spencernetdevelopment.xsl.FileFunctions.assertPathHasLength;
 import com.spencernetdevelopment.StaticPages;
-import java.io.File;
 import java.io.IOException;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Joseph Spencer
  */
 public class Assets {
+   public static final Logger LOGGER = Logger.getLogger(Assets.class);
    public static void transferAsset(String path) throws IOException {
-      FileUtils.copyFile(
-         StaticPages.assetsDirPath.resolve(path).toFile(),
-         StaticPages.buildDirPath.resolve(path).toFile()
-      );
-   }
-   public static void validatePageReference(String path) throws IOException {
-      assertPathHasLength(path);
-      FilePath page = StaticPages.pagesDirPath.resolve(path +".xml");
-      assertFileExists(page);
+      try {
+         StaticPages.assetManager.transferAsset(path);
+      } catch (IOException ex){
+         LOGGER.fatal(ex.getLocalizedMessage());
+         System.exit(1);
+      }
    }
 
-   public static void validateAssetReference(String path) throws IOException {
-      assertPathHasLength(path);
-      FilePath page = StaticPages.assetsDirPath.resolve(path);
-      assertFileExists(page);
+   public static void validatePageReference(String path) {
+      try {
+         assertPathHasLength(path);
+         FilePath page = StaticPages.pagesDirPath.resolve(path +".xml");
+         assertFileExists(page);
+      } catch (IOException ex) {
+         LOGGER.fatal("The following page doesn't exist: "+path);
+         System.exit(1);
+      }
    }
 
    public static boolean assertXmlResourceExists(String path) throws IOException {
-      assertPathHasLength(path);
-      FilePath _path = StaticPages.xmlResourcesDirPath.resolve(path);
+         assertPathHasLength(path);
+         FilePath _path = StaticPages.xmlResourcesDirPath.resolve(path);
       try {
          assertFileExists(_path);
          return true;
@@ -50,8 +52,13 @@ public class Assets {
       FilePath fpath = StaticPages.viewsDirPath.resolve(path+".xml");
       return fpath.toUnix();
    }
-   public static String getAsset(String path) throws IOException {
-      File file = StaticPages.assetsDirPath.resolve(path).toFile();
-      return FileUtils.getString(file).replace("ASSET_PREFIX_IN_BROWSER", StaticPages.assetPrefixInBrowser);
+   public static String getAsset(String path) {
+      try {
+         return StaticPages.assetManager.getAsset(path);
+      } catch (IOException ex){
+         LOGGER.fatal("Couldn't find: "+path);
+         System.exit(1);
+      }
+      return null;
    }
 }

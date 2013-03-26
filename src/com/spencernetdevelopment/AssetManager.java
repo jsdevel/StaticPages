@@ -49,5 +49,8 @@ public class AssetManager {
          logger.info("The following asset wasn't transferred because it is older than the target: " + fromPath);
       }
    }
-
+   public String getAsset(String path) throws IOException {
+      File file = StaticPages.assetsDirPath.resolve(path).toFile();
+      return FileUtils.getString(file).replace("ASSET_PREFIX_IN_BROWSER", StaticPages.assetPrefixInBrowser);
+   }
 }

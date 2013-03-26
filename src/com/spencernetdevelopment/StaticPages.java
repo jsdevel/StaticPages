@@ -3,8 +3,6 @@ package com.spencernetdevelopment;
 import com.spencernetdevelopment.arguments.StaticPagesArguments;
 import com.spencernetdevelopment.arguments.StaticPagesTerminal;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -18,6 +16,7 @@ public class StaticPages {
    public static final int exit_code_missing_default_stylesheet=2;
    private static final Logger logger = Logger.getLogger(StaticPages.class.getName());
    public static FilePath jarDir;
+   public static AssetManager assetManager;
 
    public static FilePath assetsDirPath;
    public static FilePath buildDirPath;
@@ -96,6 +95,7 @@ public class StaticPages {
             srcDirPath=projectDirPath.resolve("src");
             xslDirPath=srcDirPath.resolve("xsl");
             assetsDirPath=srcDirPath.resolve("assets");
+            assetManager = new AssetManager(assetsDirPath, buildDirPath);
             FilePath defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
 
             if(!Assertions.fileExists(defaultStylesheet.toFile())){

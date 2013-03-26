@@ -30,8 +30,7 @@
 
    <xsl:template match="a:css[@href]">
       <xsl:variable name="path" select="concat('css/', @href, '.css')"/>
-      <xsl:value-of select="assets:validateAssetReference($path)"/>
-      <xsl:value-of select="assets:transferAsset($path)"/>
+      <xsl:variable name="foo" select="assets:transferAsset($path)"/>
       <link href="{$assetPrefixInBrowser}/{$path}" rel="stylesheet" type="text/css">
          <xsl:apply-templates select="@*[
             not(local-name() = 'rel' or local-name() = 'type' or local-name() = 'href')
@@ -41,7 +40,6 @@
 
    <xsl:template match="a:js[@src]">
       <xsl:variable name="path" select="concat('js/', @src, '.js')"/>
-      <xsl:value-of select="assets:validateAssetReference($path)"/>
       <xsl:value-of select="assets:transferAsset($path)"/>
       <script src="{$assetPrefixInBrowser}/{$path}">
          <xsl:apply-templates select="@*[not(local-name() = 'src')]"/>
@@ -79,14 +77,12 @@
 
    <xsl:template match="a:script[@href]">
       <xsl:variable name="path" select="concat('js/', @href, '.js')"/>
-      <xsl:value-of select="assets:validateAssetReference($path)"/>
       <script>
          <xsl:value-of select="string(assets:getAsset($path))" disable-output-escaping="yes"/>
       </script>
    </xsl:template>
 
    <xsl:template match="a:transfer[@href]">
-      <xsl:value-of select="assets:validateAssetReference(@href)"/>
       <xsl:value-of select="assets:transferAsset(@href)"/>
    </xsl:template>
 

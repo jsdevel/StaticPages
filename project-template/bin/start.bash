@@ -22,10 +22,13 @@ fi
 . $BIN_DIR/buildPages.bash;
 
 case $1 in
-   watchForChanges.bash)
-      . $BIN_DIR/watchForChanges.bash;;
+   buildPages.bash)
+      . $BIN_DIR/buildPages.bash;
+      buildPages;;
    deployPROD.bash)
       . $BIN_DIR/deployPROD.bash;;
+   watchForChanges.bash)
+      . $BIN_DIR/watchForChanges.bash;;
    *)
       cat <<!
 
