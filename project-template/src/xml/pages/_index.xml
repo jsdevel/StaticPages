@@ -1,3 +1,18 @@
-<page xmlns:fn="functions" xmlns="default">
-   <h1>This is a sample page.</h1>
+<?xml version="1.0" encoding="UTF-8"?>
+<page xmlns="default"
+   xmlns:a="assets"
+   xmlns:p="phrases"
+   alternate-name="index"
+>
+   <seo>
+      <title>Home Page Title</title>
+      <description>Description as seen by google.</description>
+      <keywords>Keywords as seen by google.</keywords>
+   </seo>
+   <head>
+      <!--<a:js src="StaticPageUtils/CheckForChange"/>-->
+   </head>
+   <body>
+
+   </body>
 </page>
