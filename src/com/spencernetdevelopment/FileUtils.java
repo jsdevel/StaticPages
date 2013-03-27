@@ -46,20 +46,15 @@ public class FileUtils {
       );
    }
    public static void copyFile(File inputFile, File outputFile) throws IOException {
-      if(inputFile == null || outputFile == null){
-         return;
+      if(inputFile == null){
+         throw new IOException("Input file was null.");
       }
-      if(!inputFile.exists()){
+      if(!inputFile.isFile()){
          throw new IOException("Can't copy a non-existent file: "+inputFile.getAbsolutePath());
       }
-      if(!outputFile.exists()) {
-         outputFile.getParentFile().mkdirs();
-         outputFile.createNewFile();
-      }
-
+      createFile(outputFile);
       FileChannel source = null;
       FileChannel destination = null;
-
       try {
          source = new FileInputStream(inputFile).getChannel();
          destination = new FileOutputStream(outputFile).getChannel();
@@ -86,13 +81,14 @@ public class FileUtils {
    }
    public static void createFile(File file) throws IOException {
       if(file == null){
-         throw new IOException("Unable to create file from null.");
+         throw new IOException("Can't create a file from null.");
       }
-      if(!file.exists()){
+      if(file.isDirectory()){
+         throw new IOException("Can't create a file that is a directory: "+file.getAbsolutePath());
+      }
+      if(!file.isFile()) {
          file.getParentFile().mkdirs();
          file.createNewFile();
-      } else if(!file.isFile()){
-         throw new IOException("The file exists, but it isn't a file.");
       }
    }
    public static void filePathsToArrayList(File directory, ArrayList<Path> filePaths) throws IOException {
@@ -136,8 +132,9 @@ public class FileUtils {
       return str.toCharArray();
    }
    public static void putString(File file, String contents ) throws IOException {
-      FileWriter output = new FileWriter( file );
-      output.write( contents, 0, contents.length() );
-      output.close();
+      createFile(file);
+      try (FileWriter output = new FileWriter( file )) {
+         output.write( contents, 0, contents.length() );
+      }
    }
 }

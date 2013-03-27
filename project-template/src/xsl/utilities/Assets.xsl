@@ -30,19 +30,19 @@
 
    <xsl:template match="a:css[@href]">
       <xsl:variable name="path" select="concat('css/', @href, '.css')"/>
-      <xsl:variable name="foo" select="assets:transferAsset($path)"/>
+      <xsl:variable name="foo" select="assets:transferCSS($path, not(contains(@compress, 'false')))"/>
       <link href="{$assetPrefixInBrowser}/{$path}" rel="stylesheet" type="text/css">
          <xsl:apply-templates select="@*[
-            not(local-name() = 'rel' or local-name() = 'type' or local-name() = 'href')
+            not(local-name() = 'rel' or local-name() = 'type' or local-name() = 'href' or local-name() = 'compress')
          ]"/>
       </link>
    </xsl:template>
 
    <xsl:template match="a:js[@src]">
       <xsl:variable name="path" select="concat('js/', @src, '.js')"/>
-      <xsl:value-of select="assets:transferAsset($path)"/>
+      <xsl:value-of select="assets:transferJS($path, not(contains(@compress, 'false')))"/>
       <script src="{$assetPrefixInBrowser}/{$path}">
-         <xsl:apply-templates select="@*[not(local-name() = 'src')]"/>
+         <xsl:apply-templates select="@*[local-name() != 'src' and local-name() != 'compress']"/>
       </script>
    </xsl:template>
 
@@ -69,16 +69,15 @@
 
    <xsl:template match="a:style[@href]">
       <xsl:variable name="path" select="concat('css/', @href, '.css')"/>
-      <xsl:value-of select="assets:validateAssetReference($path)"/>
       <style type="text/css">
-         <xsl:value-of select="string(assets:getAsset($path))" disable-output-escaping="yes"/>
+         <xsl:value-of select="assets:getCSS($path, not(contains(@compress, 'false')))" disable-output-escaping="yes"/>
       </style>
    </xsl:template>
 
    <xsl:template match="a:script[@href]">
       <xsl:variable name="path" select="concat('js/', @href, '.js')"/>
       <script>
-         <xsl:value-of select="string(assets:getAsset($path))" disable-output-escaping="yes"/>
+         <xsl:value-of select="assets:getJS($path, not(contains(@compress, 'false')))" disable-output-escaping="yes"/>
       </script>
    </xsl:template>
 

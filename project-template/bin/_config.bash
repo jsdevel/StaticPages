@@ -2,6 +2,8 @@
 #Set environment values in this file.
 assetPrefixInBrowser="";
 deploy_assetPrefixInBrowser="";
+#--enable-compression false
+staticPageArguments="";
 #This needs to be the alias set in your ~/.ssh/config file.  Your alias should
 #use identity keys to automate the PROD deploy script.
 PROD_SSH_ALIAS="";

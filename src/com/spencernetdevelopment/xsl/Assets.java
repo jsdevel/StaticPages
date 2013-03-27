@@ -37,6 +37,25 @@ public class Assets {
       }
       return null;
    }
+   public static String getCSS(String path, boolean compress) {
+      try {
+         return StaticPages.assetManager.getCSS(path, compress);
+      } catch (IOException ex){
+         LOGGER.fatal("Couldn't get: "+path);
+         System.exit(1);
+      }
+      return null;
+   }
+   public static String getJS(String path, boolean compress) {
+      try {
+         return StaticPages.assetManager.getJS(path, compress);
+      } catch (IOException ex){
+         LOGGER.fatal("Couldn't get: "+path);
+         System.exit(1);
+      }
+      return null;
+   }
+
    public static String getViewPath(String path) throws IOException {
       FilePath fpath = StaticPages.viewsDirPath.resolve(path+".xml");
       return fpath.toUnix();
@@ -49,6 +68,31 @@ public class Assets {
          System.exit(1);
       }
    }
+   public static void transferCSS(String path, boolean compress) throws IOException {
+      try {
+         StaticPages.assetManager.transferCSS(path, compress);
+      } catch (IOException ex){
+         LOGGER.fatal(ex.getLocalizedMessage());
+         System.exit(1);
+      }
+   }
+   public static void transferJS(String path, boolean compress) throws IOException {
+      try {
+         StaticPages.assetManager.transferJS(path, compress);
+      } catch (IOException ex){
+         LOGGER.fatal(ex.getLocalizedMessage());
+         System.exit(1);
+      }
+   }
+   public static void transferImage(String path) throws IOException {
+      try {
+         StaticPages.assetManager.transferImage(path);
+      } catch (IOException ex){
+         LOGGER.fatal(ex.getLocalizedMessage());
+         System.exit(1);
+      }
+   }
+
    public static void validatePageReference(String path) {
       try {
          assertPathHasLength(path);

@@ -11,6 +11,7 @@ public class StaticPagesTerminal {
       String assetprefixinbrowser=null;
       String logjproperties=null;
       String logjinterval=null;
+      boolean enablecompression=false;
       if(__showHelpOnNoArgs && args.length == 0){
          System.out.print(StaticPagesHelp.getHelpMenu());
          System.exit(0);
@@ -42,6 +43,10 @@ public class StaticPagesTerminal {
             logjinterval = val;
             continue;
          }
+         if("--enable-compression".equals(key)){
+            enablecompression = getBoolean(val);
+            continue;
+         }
          throw new IllegalArgumentException("Unknown argument: "+key);
       }
       if(i - len != 0){
@@ -52,7 +57,8 @@ public class StaticPagesTerminal {
             newproject,
             assetprefixinbrowser,
             logjproperties,
-            logjinterval
+            logjinterval,
+            enablecompression
       );
    }
    public static final String getPath(String path){

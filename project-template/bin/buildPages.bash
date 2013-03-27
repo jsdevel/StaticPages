@@ -5,7 +5,7 @@ function buildPages()
 {
    clear;
    preBuildPages;
-   java -jar $BIN_DIR/StaticPages.jar --project-dir $PROJECT_DIR $validAssetPrefixInBrowser;
+   java -jar $BIN_DIR/StaticPages.jar --project-dir $PROJECT_DIR $validAssetPrefixInBrowser $staticPageArguments;
    local key="sessionStorage['lastRefresh']";
    local stamp="`date +%N`";
    cat > $REFRESH_FILE << HERE

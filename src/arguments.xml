@@ -82,5 +82,10 @@ against the StaticPages.jar file."
       description="Sets the amount of time to watch for log4j.properties changes."
       type="string"
       />
-
+   <argument
+      default="false"
+      name="--enable-compression"
+      description="Enables or disables compression."
+      type="boolean"
+      />
 </arguments>

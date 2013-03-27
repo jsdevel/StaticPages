@@ -95,7 +95,7 @@ public class StaticPages {
             srcDirPath=projectDirPath.resolve("src");
             xslDirPath=srcDirPath.resolve("xsl");
             assetsDirPath=srcDirPath.resolve("assets");
-            assetManager = new AssetManager(assetsDirPath, buildDirPath);
+            assetManager = new AssetManager(assetsDirPath, buildDirPath, arguments.getEnablecompression());
             FilePath defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
 
             if(!Assertions.fileExists(defaultStylesheet.toFile())){
