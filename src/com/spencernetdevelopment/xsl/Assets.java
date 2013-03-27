@@ -17,25 +17,6 @@ import org.apache.log4j.Logger;
  */
 public class Assets {
    public static final Logger LOGGER = Logger.getLogger(Assets.class);
-   public static void transferAsset(String path) throws IOException {
-      try {
-         StaticPages.assetManager.transferAsset(path);
-      } catch (IOException ex){
-         LOGGER.fatal(ex.getLocalizedMessage());
-         System.exit(1);
-      }
-   }
-
-   public static void validatePageReference(String path) {
-      try {
-         assertPathHasLength(path);
-         FilePath page = StaticPages.pagesDirPath.resolve(path +".xml");
-         assertFileExists(page);
-      } catch (IOException ex) {
-         LOGGER.fatal("The following page doesn't exist: "+path);
-         System.exit(1);
-      }
-   }
 
    public static boolean assertXmlResourceExists(String path) throws IOException {
          assertPathHasLength(path);
@@ -47,11 +28,6 @@ public class Assets {
          return false;
       }
    }
-
-   public static String getViewPath(String path) throws IOException {
-      FilePath fpath = StaticPages.viewsDirPath.resolve(path+".xml");
-      return fpath.toUnix();
-   }
    public static String getAsset(String path) {
       try {
          return StaticPages.assetManager.getAsset(path);
@@ -60,5 +36,27 @@ public class Assets {
          System.exit(1);
       }
       return null;
+   }
+   public static String getViewPath(String path) throws IOException {
+      FilePath fpath = StaticPages.viewsDirPath.resolve(path+".xml");
+      return fpath.toUnix();
+   }
+   public static void transferAsset(String path) throws IOException {
+      try {
+         StaticPages.assetManager.transferAsset(path);
+      } catch (IOException ex){
+         LOGGER.fatal(ex.getLocalizedMessage());
+         System.exit(1);
+      }
+   }
+   public static void validatePageReference(String path) {
+      try {
+         assertPathHasLength(path);
+         FilePath page = StaticPages.pagesDirPath.resolve(path +".xml");
+         assertFileExists(page);
+      } catch (IOException ex) {
+         LOGGER.fatal("The following page doesn't exist: "+path);
+         System.exit(1);
+      }
    }
 }
