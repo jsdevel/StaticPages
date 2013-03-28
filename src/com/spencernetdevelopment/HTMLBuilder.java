@@ -96,27 +96,30 @@ public class HTMLBuilder {
 
       if(alternateNameNode != null){
          String alternateName = alternateNameNode.getNodeValue();
-         transform(xmlDocument, outputFilePath.getParent().resolve(alternateName+".html").toFile());
+         transform(xmlDocument, outputFilePath.getParent().resolve(alternateName+".html").toFile(), xmlFilePath);
       }
-      transform(xmlDocument, htmlFile);
+      transform(xmlDocument, htmlFile, xmlFilePath);
    }
 
-   public void transform(Document xmlDocument, File outputFile) throws TransformerException, IOException {
+   public void transform(Document xmlDocument, File outputFile, Path outputFilePath) throws TransformerException, IOException {
       FileUtils.createFile(outputFile);
       DOMSource xmlDoc = new DOMSource(xmlDocument);
       StreamResult resultStream = new StreamResult(outputFile);
 
       Node stylesheetAttribute = xmlDocument.getFirstChild().getAttributes().getNamedItem("stylesheet");
+      Transformer transformer;
       if(stylesheetAttribute != null){
          String stylesheet = stylesheetAttribute.getNodeValue();
          if(stylesheet.trim().length() > 0){
-            getTransformer(stylesheet).transform(xmlDoc, resultStream);
+            transformer = getTransformer(stylesheet);
          } else {
             throw new IllegalArgumentException("stylesheet attributes may not be empty.");
          }
       } else {
-         defaultXSLTransformer.transform(xmlDoc, resultStream);
+         transformer = defaultXSLTransformer;
       }
+      transformer.setParameter("pagePath", outputFilePath.toString());
+      transformer.transform(xmlDoc, resultStream);
    }
 
    /**

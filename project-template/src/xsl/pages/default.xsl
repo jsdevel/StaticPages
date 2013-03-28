@@ -13,6 +13,8 @@
    <xsl:import href="../utilities/Resources.xsl"/>
    <xsl:import href="../utilities/Assets.xsl"/>
 
+   <xsl:param name="pagePath"/>
+
    <xsl:output method="html" indent="no" saxon:omit-meta-tag="yes"/>
 
    <xsl:template match="/">

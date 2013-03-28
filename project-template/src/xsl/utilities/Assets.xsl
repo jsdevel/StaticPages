@@ -51,7 +51,16 @@
       <xsl:value-of select="assets:validatePageReference(@src)"/>
 
       <a href="{$assetPrefixInBrowser}/{string:replaceAll(@src, '%', '%25')}.html">
-         <xsl:apply-templates select="@*[name() != 'href' or name() != 'src' or name() != 'name' ]"/>
+         <xsl:apply-templates select="@*[name() != 'href' or name() != 'src' or name() != 'name' or name() != 'class']"/>
+         <xsl:variable name="isCurrentPage" select="string:endsWith($pagePath, concat(@src,'.xml'))"/>
+         <xsl:if test="@class or $isCurrentPage">
+            <xsl:attribute name="class">
+               <xsl:if test="@class">
+                  <xsl:value-of select="@class"/>
+               </xsl:if>
+               <xsl:if test="$isCurrentPage"> selected</xsl:if>
+            </xsl:attribute>
+         </xsl:if>
          <xsl:choose>
             <xsl:when test="not(@name)">
                <xsl:value-of select="string:replaceAll(@src, '%2F', '/')"/>
