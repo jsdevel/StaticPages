@@ -111,6 +111,9 @@ public class FileUtils {
    public static String getString(File file) throws IOException {
       return new String(getChars(file));
    }
+   public static byte[] getBytes(File file) throws IOException {
+      return Files.readAllBytes(file.toPath());
+   }
    public static char[] getChars(File file)
       throws IOException
    {

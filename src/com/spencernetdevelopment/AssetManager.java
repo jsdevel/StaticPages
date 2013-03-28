@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.imageio.ImageIO;
 import org.apache.log4j.Logger;
 
 /**
@@ -19,6 +22,8 @@ import org.apache.log4j.Logger;
  */
 public class AssetManager {
    private static final Logger logger = Logger.getLogger(AssetManager.class);
+   private static final Pattern CSS_URL = Pattern.compile(
+      "url\\(\\s*(['\"])?(/(?:(?!\\1\\)).)+)\\1?\\)");
    private FilePath assetPath;
    private FilePath buildPath;
    private final boolean compressAssets;
@@ -29,7 +34,8 @@ public class AssetManager {
    }
 
    public String getAsset(File file) throws IOException {
-      return FileUtils.getString(file).replace("ASSET_PREFIX_IN_BROWSER", StaticPages.assetPrefixInBrowser);
+      String contents = FileUtils.getString(file).replace("ASSET_PREFIX_IN_BROWSER", StaticPages.assetPrefixInBrowser);
+      return contents;
    }
    public String getAsset(String path) throws IOException {
       File file = StaticPages.assetsDirPath.resolve(path).toFile();
@@ -43,14 +49,39 @@ public class AssetManager {
       return handleCSS(getAsset(path), compress);
    }
    private String handleCSS(String contents, boolean compress) throws IOException {
+      String contentsToReturn;
       if((compress && compressAssets) || compressAssets){
          StringReader reader = new StringReader(contents);
          StringWriter writer = new StringWriter(contents.length());
          CssCompressor cssCompressor = new com.yahoo.platform.yui.compressor.CssCompressor(reader);
          cssCompressor.compress(writer, -1);
-         return writer.toString();
+         contentsToReturn = writer.toString();
+      } else {
+         contentsToReturn = contents;
       }
-      return contents;
+
+      //This transferes all images over that are defined in css files.
+      Matcher urls = CSS_URL.matcher(contents);
+      while(urls.find()){
+         String url = urls.group(2).substring(StaticPages.assetPrefixInBrowser.length()+1);
+         if(compress){
+            String encoded = Base64.encodeToString(FileUtils.getBytes(StaticPages.assetsDirPath.resolve(url).toFile()), false);
+            String dataType=url.toLowerCase().replaceFirst(".*\\.([^\\.]+)$", "$1");
+            switch(dataType){
+               case "gif":
+               case "jpeg":
+               case "jpg":
+               case "png":
+                  contentsToReturn = contentsToReturn.replace(urls.group(0), "url(data:image/"+dataType+";base64,"+encoded+")");
+                  break;
+            default:
+               throw new IOException("Invalid file extension detected: "+url);
+            }
+         } else {
+            transferImage(url);
+         }
+      }
+      return contentsToReturn;
    }
 
    public String getJS(File file, boolean compress) throws IOException {
@@ -124,7 +155,7 @@ public class AssetManager {
       if(to.isDirectory()){
          throw new IOException(preamble+"'s target under build is a directory: "+toPath);
       }
-      if(from.lastModified() > to.lastModified()){
+      if(from.lastModified() > to.lastModified() || !to.exists()){
          source.set(from);
          target.set(to);
          return true;
