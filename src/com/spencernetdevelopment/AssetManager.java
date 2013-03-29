@@ -13,7 +13,6 @@ import java.io.StringWriter;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.imageio.ImageIO;
 import org.apache.log4j.Logger;
 
 /**
