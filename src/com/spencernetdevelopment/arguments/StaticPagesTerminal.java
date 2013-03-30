@@ -12,6 +12,7 @@ public class StaticPagesTerminal {
       String logjproperties=null;
       String logjinterval=null;
       boolean enablecompression=false;
+      boolean enabledevmode=false;
       if(__showHelpOnNoArgs && args.length == 0){
          System.out.print(StaticPagesHelp.getHelpMenu());
          System.exit(0);
@@ -47,6 +48,10 @@ public class StaticPagesTerminal {
             enablecompression = getBoolean(val);
             continue;
          }
+         if("--enable-dev-mode".equals(key)){
+            enabledevmode = getBoolean(val);
+            continue;
+         }
          throw new IllegalArgumentException("Unknown argument: "+key);
       }
       if(i - len != 0){
@@ -58,7 +63,8 @@ public class StaticPagesTerminal {
             assetprefixinbrowser,
             logjproperties,
             logjinterval,
-            enablecompression
+            enablecompression,
+            enabledevmode
       );
    }
    public static final String getPath(String path){

@@ -16,6 +16,7 @@ public class StaticPages {
    public static FilePath jarDir;
    public static AssetManager assetManager;
 
+   public static boolean enableDevMode;
    public static FilePath assetsDirPath;
    public static FilePath buildDirPath;
    public static FilePath pagesDirPath;
@@ -39,6 +40,8 @@ public class StaticPages {
          System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
              "com.icl.saxon.om.DocumentBuilderFactoryImpl");
          StaticPagesArguments arguments = StaticPagesTerminal.getArguments(args);
+
+         enableDevMode = arguments.getEnabledevmode();
 
          {//setup log4j.
             FilePath propFile = null;

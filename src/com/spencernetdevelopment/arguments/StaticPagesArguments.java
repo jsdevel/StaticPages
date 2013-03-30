@@ -10,6 +10,7 @@ public class StaticPagesArguments {
    private String logjproperties=null;
    private String logjinterval=null;
    private boolean enablecompression=false;
+   private boolean enabledevmode=false;
 
    public StaticPagesArguments(
       final File projectdir,
@@ -17,7 +18,8 @@ public class StaticPagesArguments {
       final String assetprefixinbrowser,
       final String logjproperties,
       final String logjinterval,
-      final boolean enablecompression
+      final boolean enablecompression,
+      final boolean enabledevmode
    ) throws Throwable {
       if(projectdir != null){
          if(!projectdir.exists() || !projectdir.isDirectory()){
@@ -41,6 +43,7 @@ public class StaticPagesArguments {
       this.logjproperties=logjproperties;
       this.logjinterval=logjinterval;
       this.enablecompression=enablecompression;
+      this.enabledevmode=enabledevmode;
    }
 
    public File getProjectdir(){
@@ -78,5 +81,11 @@ public class StaticPagesArguments {
    }
    public boolean hasEnablecompression(){
       return enablecompression;
+   }
+   public boolean getEnabledevmode(){
+      return enabledevmode;
+   }
+   public boolean hasEnabledevmode(){
+      return enabledevmode;
    }
 }

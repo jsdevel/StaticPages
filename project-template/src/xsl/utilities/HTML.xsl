@@ -27,6 +27,7 @@
    <xsl:template match="d:h4"><h4><xsl:apply-templates select="@*"/><xsl:apply-templates/></h4></xsl:template>
    <xsl:template match="d:h5"><h5><xsl:apply-templates select="@*"/><xsl:apply-templates/></h5></xsl:template>
    <xsl:template match="d:i"><i><xsl:apply-templates/></i></xsl:template>
+   <xsl:template match="d:img"><img><xsl:apply-templates select="@*"/></img></xsl:template>
    <xsl:template match="d:iframe"><iframe><xsl:apply-templates select="@*"/></iframe></xsl:template>
    <xsl:template match="d:input"><input><xsl:apply-templates select="@*"/><xsl:apply-templates/></input></xsl:template>
    <xsl:template match="d:label"><label><xsl:apply-templates select="@*"/><xsl:apply-templates/></label></xsl:template>

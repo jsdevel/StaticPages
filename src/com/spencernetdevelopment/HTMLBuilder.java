@@ -181,5 +181,6 @@ public class HTMLBuilder {
     */
    private void addDefaultParameters(Transformer xslt){
       xslt.setParameter("assetPrefixInBrowser", StaticPages.assetPrefixInBrowser);
+      xslt.setParameter("enableDevMode", StaticPages.enableDevMode);
    }
 }

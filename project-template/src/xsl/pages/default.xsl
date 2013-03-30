@@ -5,8 +5,9 @@
 -->
 <xsl:stylesheet version="1.0"
    xmlns:d="default"
+   xmlns:assets="com.spencernetdevelopment.xsl.Assets"
    xmlns:saxon="http://icl.com/saxon"
-   exclude-result-prefixes="d saxon"
+   exclude-result-prefixes="assets d saxon"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" >
 
    <xsl:import href="../utilities/HTML.xsl"/>
@@ -14,6 +15,7 @@
    <xsl:import href="../utilities/Assets.xsl"/>
 
    <xsl:param name="pagePath"/>
+   <xsl:param name="enableDevMode"/>
 
    <xsl:output method="html" indent="no" saxon:omit-meta-tag="yes"/>
 
@@ -52,6 +54,11 @@
          </head>
          <body>
             <xsl:apply-templates select="d:body" mode="defaultStylesheet"/>
+            <xsl:if test="$enableDevMode">
+               <xsl:variable name="path">js/StaticPageUtils/CheckForChange.js</xsl:variable>
+               <xsl:value-of select="assets:transferJS($path, false())"/>
+               <script src="{$assetPrefixInBrowser}/{$path}"/>
+            </xsl:if>
          </body>
       </html>
    </xsl:template>
