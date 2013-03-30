@@ -33,8 +33,7 @@ public class AssetManager {
    }
 
    public String getAsset(File file) throws IOException {
-      String contents = FileUtils.getString(file).replace("ASSET_PREFIX_IN_BROWSER", StaticPages.assetPrefixInBrowser);
-      return contents;
+      return FileUtils.getString(file);
    }
    public String getAsset(String path) throws IOException {
       File file = StaticPages.assetsDirPath.resolve(path).toFile();
@@ -77,7 +76,17 @@ public class AssetManager {
                throw new IOException("Invalid file extension detected: "+url);
             }
          } else {
-            contentsToReturn = contentsToReturn.replace(url, StaticPages.assetPrefixInBrowser+url);
+            String prefix;
+            if(StaticPages.assetPrefixInBrowser.endsWith("/")){
+               if(StaticPages.assetPrefixInBrowser.length() > 1){
+                  prefix = StaticPages.assetPrefixInBrowser.substring(0, StaticPages.assetPrefixInBrowser.length()-1);
+               } else {
+                  prefix = "";
+               }
+            } else {
+               prefix = StaticPages.assetPrefixInBrowser;
+            }
+            contentsToReturn = contentsToReturn.replace(url, prefix+url);
             transferImage(url);
          }
       }
@@ -98,7 +107,7 @@ public class AssetManager {
          javaScriptCompressor.compress(writer, -1, true, false, false, false);
          return writer.toString();
       }
-      return contents;
+      return contents.replace("ASSET_PREFIX_IN_BROWSER", StaticPages.assetPrefixInBrowser);
    }
 
    public void transferCSS(String path, boolean compress) throws IOException {
