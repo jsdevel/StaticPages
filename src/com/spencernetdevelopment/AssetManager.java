@@ -20,16 +20,16 @@ import org.apache.log4j.Logger;
  * @author Joseph Spencer
  */
 public class AssetManager {
-   private static final Logger logger = Logger.getLogger(AssetManager.class);
-   private static final Pattern CSS_URL = Pattern.compile(
-      "url\\(\\s*(['\"])?(/(?:(?!\\1\\)).)+)\\1?\\)");
+   private static final Logger LOGGER = Logger.getLogger(AssetManager.class);
+   private static final Pattern CSS_URL = Pattern.compile("url\\(\\s*(['\"])?(/(?:(?!\\1\\)).)+)\\1?\\)");
+   private final boolean COMPRESS_ASSETS;
+
    private FilePath assetPath;
    private FilePath buildPath;
-   private final boolean compressAssets;
    public AssetManager(FilePath assets, FilePath build, boolean compress) throws IOException{
       assetPath=assets;
       buildPath=build;
-      compressAssets=compress;
+      COMPRESS_ASSETS=compress;
    }
 
    public String getAsset(File file) throws IOException {
@@ -48,7 +48,7 @@ public class AssetManager {
    }
    private String handleCSS(String contents, boolean compress) throws IOException {
       String contentsToReturn;
-      if((compress && compressAssets) || compressAssets){
+      if((compress && COMPRESS_ASSETS) || COMPRESS_ASSETS){
          StringReader reader = new StringReader(contents);
          StringWriter writer = new StringWriter(contents.length());
          CssCompressor cssCompressor = new com.yahoo.platform.yui.compressor.CssCompressor(reader);
@@ -100,7 +100,7 @@ public class AssetManager {
       return handleJS(getAsset(path), compress);
    }
    private String handleJS(String contents, boolean compress) throws IOException {
-      if((compress && compressAssets) || compressAssets){
+      if((compress && COMPRESS_ASSETS) || COMPRESS_ASSETS){
          StringReader reader = new StringReader(contents);
          StringWriter writer = new StringWriter(contents.length());
          JavaScriptCompressor javaScriptCompressor = new JavaScriptCompressor(reader, JSErrorReporter.INSTANCE);
@@ -169,7 +169,7 @@ public class AssetManager {
          target.set(to);
          return true;
       }
-      logger.info("The following asset wasn't transferred because it is older than the target: " + fromPath);
+      LOGGER.info("The following asset wasn't transferred because it is older than the target: " + fromPath);
       return false;
    }
 }
