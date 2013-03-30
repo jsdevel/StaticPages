@@ -2,7 +2,7 @@
 <page xmlns="default"
    xmlns:a="assets"
    xmlns:p="phrases"
-   alternate-name="index"
+   alternate-name="_index"
 >
    <seo>
       <title>Home Page Title</title>
@@ -10,9 +10,7 @@
       <keywords>Keywords as seen by google.</keywords>
    </seo>
    <head>
-      <!--<a:js src="StaticPageUtils/CheckForChange"/>-->
    </head>
    <body>
-
    </body>
 </page>
