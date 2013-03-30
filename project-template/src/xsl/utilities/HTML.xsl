@@ -43,6 +43,7 @@
    <xsl:template match="d:source"><source><xsl:apply-templates select="@*"/><xsl:apply-templates/></source></xsl:template>
    <xsl:template match="d:textarea"><textarea><xsl:apply-templates select="@*"/><xsl:apply-templates/></textarea></xsl:template>
    <xsl:template match="d:textarea"><textarea><xsl:apply-templates select="@*"/><xsl:apply-templates/></textarea></xsl:template>
+   <xsl:template match="d:u"><u><xsl:apply-templates/></u></xsl:template>
    <xsl:template match="d:ul"><ul><xsl:apply-templates select="@*"/><xsl:apply-templates/></ul></xsl:template>
    <xsl:template match="d:video"><video><xsl:apply-templates select="@*"/><xsl:apply-templates/></video></xsl:template>
 
