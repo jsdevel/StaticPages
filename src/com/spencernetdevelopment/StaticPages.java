@@ -12,9 +12,7 @@ import org.apache.log4j.PropertyConfigurator;
  * @author Joseph Spencer
  */
 public class StaticPages {
-   public static final int exit_code_bad_argument=1;
-   public static final int exit_code_missing_default_stylesheet=2;
-   private static final Logger logger = Logger.getLogger(StaticPages.class.getName());
+   private static final Logger LOGGER = Logger.getLogger(StaticPages.class.getName());
    public static FilePath jarDir;
    public static AssetManager assetManager;
 
@@ -58,18 +56,18 @@ public class StaticPages {
                }
             } else {
                PropertyConfigurator.configure(StaticPages.class.getResourceAsStream("/log4j.properties"));
-               logger.info("Using the internal log4j.properties file.  Run java -jar StaticPages.jar for more info.");
+               LOGGER.info("Using the internal log4j.properties file.  Run java -jar StaticPages.jar for more info.");
             }
          }
 
-         if(logger.isDebugEnabled()){
-            logger.debug("jarDir = "+jarDir.toString());
+         if(LOGGER.isDebugEnabled()){
+            LOGGER.debug("jarDir = "+jarDir.toString());
          }
 
          if(arguments.hasAssetprefixinbrowser()){
             assetPrefixInBrowser=arguments.getAssetprefixinbrowser();
             if(assetPrefixInBrowser.endsWith("/")){
-               logger.warn("--asset-prefix-in-browser ended in '/'.  Removing '/' from the end now.");
+               LOGGER.warn("--asset-prefix-in-browser ended in '/'.  Removing '/' from the end now.");
                assetPrefixInBrowser = assetPrefixInBrowser.replaceAll("/+$", "");
             }
          }
@@ -99,7 +97,7 @@ public class StaticPages {
             FilePath defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
 
             if(!Assertions.fileExists(defaultStylesheet.toFile())){
-               end("No default stylesheet found.", exit_code_missing_default_stylesheet);
+               end("No default stylesheet found.", 1);
             }
 
             HTMLBuilder htmlBuilder = new HTMLBuilder(buildDirPath, pagesDirPath);
@@ -116,7 +114,7 @@ public class StaticPages {
       System.out.println(message);
    }
    public static void end(String message, int code){
-      logger.log(Level.FATAL, message);
+      LOGGER.log(Level.FATAL, message);
       System.exit(code);
    }
 }
