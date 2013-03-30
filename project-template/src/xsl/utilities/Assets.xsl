@@ -28,8 +28,8 @@
       </img>
    </xsl:template>
 
-   <xsl:template match="a:css[@href]">
-      <xsl:variable name="path" select="concat('css/', @href, '.css')"/>
+   <xsl:template match="a:css[@src]">
+      <xsl:variable name="path" select="concat('css/', @src, '.css')"/>
       <xsl:variable name="foo" select="assets:transferCSS($path, not(contains(@compress, 'false')))"/>
       <link href="{$assetPrefixInBrowser}/{$path}" rel="stylesheet" type="text/css">
          <xsl:apply-templates select="@*[
@@ -76,22 +76,22 @@
       <xsl:value-of select="string(assets:getAsset(@asset))" disable-output-escaping="yes"/>
    </xsl:template>
 
-   <xsl:template match="a:style[@href]">
-      <xsl:variable name="path" select="concat('css/', @href, '.css')"/>
+   <xsl:template match="a:style[@src]">
+      <xsl:variable name="path" select="concat('css/', @src, '.css')"/>
       <style type="text/css">
          <xsl:value-of select="assets:getCSS($path, not(contains(@compress, 'false')))" disable-output-escaping="yes"/>
       </style>
    </xsl:template>
 
-   <xsl:template match="a:script[@href]">
-      <xsl:variable name="path" select="concat('js/', @href, '.js')"/>
+   <xsl:template match="a:script[@src]">
+      <xsl:variable name="path" select="concat('js/', @src, '.js')"/>
       <script>
          <xsl:value-of select="assets:getJS($path, not(contains(@compress, 'false')))" disable-output-escaping="yes"/>
       </script>
    </xsl:template>
 
-   <xsl:template match="a:transfer[@href]">
-      <xsl:value-of select="assets:transferAsset(@href)"/>
+   <xsl:template match="a:transfer[@src]">
+      <xsl:value-of select="assets:transferAsset(@src)"/>
    </xsl:template>
 
    <!-- views -->
