@@ -62,7 +62,7 @@ public class AssetManager {
       //This transferes all images over that are defined in css files.
       Matcher urls = CSS_URL.matcher(contents);
       while(urls.find()){
-         String url = urls.group(2).substring(StaticPages.assetPrefixInBrowser.length()+1);
+         String url = urls.group(2);
          if(compress){
             String encoded = Base64.encodeToString(FileUtils.getBytes(StaticPages.assetsDirPath.resolve(url).toFile()), false);
             String dataType=url.toLowerCase().replaceFirst(".*\\.([^\\.]+)$", "$1");
@@ -77,6 +77,7 @@ public class AssetManager {
                throw new IOException("Invalid file extension detected: "+url);
             }
          } else {
+            contentsToReturn = contentsToReturn.replace(url, StaticPages.assetPrefixInBrowser+url);
             transferImage(url);
          }
       }
