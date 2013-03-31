@@ -9,7 +9,6 @@ html {
    width:  100%;
 }
 body {
-   background-color: gray;
    color: #333333;
    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
    font-size: 14px;
@@ -45,9 +44,6 @@ body.no-scroll-bars {
 }
 h2 {
    font-size: 30px;
-}
-.highlighted-text {
-   color: #fc0;
 }
 
 /*shadow*/
