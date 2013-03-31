@@ -25,7 +25,11 @@
       <xsl:variable name="foo" select="assets:transferCSS($path, not(contains(@compress, 'false')))"/>
       <link href="{$assetPrefixInBrowser}/{$path}" rel="stylesheet" type="text/css">
          <xsl:apply-templates select="@*[
-            not(local-name() = 'rel' or local-name() = 'type' or local-name() = 'href' or local-name() = 'compress' or local-name() = 'src')
+            local-name() != 'rel' and
+            local-name() != 'type' and
+            local-name() != 'href' and
+            local-name() != 'compress' and
+            local-name() != 'src'
          ]"/>
       </link>
    </xsl:template>
@@ -34,7 +38,7 @@
       <xsl:variable name="path" select="concat('images/', @src)"/>
       <xsl:value-of select="assets:transferAsset($path)"/>
       <img src="{$assetPrefixInBrowser}/{$path}">
-         <xsl:apply-templates select="@*[not(local-name() = 'src')]"/>
+         <xsl:apply-templates select="@*[local-name() != 'src']"/>
       </img>
    </xsl:template>
 
@@ -55,7 +59,12 @@
       <xsl:value-of select="assets:validatePageReference(@src)"/>
 
       <a href="{$assetPrefixInBrowser}/{string:replaceAll(@src, '%', '%25')}.html">
-         <xsl:apply-templates select="@*[name() != 'href' or name() != 'src' or name() != 'name' or name() != 'class']"/>
+         <xsl:apply-templates select="@*[
+            local-name() != 'href' and
+            local-name() != 'src' and
+            local-name() != 'name' and
+            local-name() != 'class'
+         ]"/>
          <xsl:variable name="isCurrentPage" select="string:endsWith($pagePath, concat(@src,'.xml'))"/>
          <xsl:if test="@class or $isCurrentPage">
             <xsl:attribute name="class">
