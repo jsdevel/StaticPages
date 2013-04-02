@@ -82,7 +82,7 @@ against the StaticPages.jar file."
    <argument
       default="32768"
       name="--max-data-uri-size-in-bytes"
-      description="Sets the maximum size (in bytes) of data uri embedded resources within css.  The default is the limit imposed by IE8."
+      description="Sets the maximum size (in bytes) of data uri embedded resources within css.  The default is the limit imposed by IE8 (32768)."
       type="int"
       />
 </arguments>
