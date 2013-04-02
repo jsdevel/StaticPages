@@ -30,21 +30,6 @@ StaticPages builds static HTML files using XML + XSL.
    terminal="true"
    title="StaticPages"
 >
-   <!--<argument
-      name="src-dir"
-      description="
-The directory that contains your source files.\n
-
-The directory should have the following contents:\n
-   xml/\n
-   xsl/\n
-   images/\n
-   css/\n
-   js/\n
-"
-      overwrite="false"
-      type="directory"/>-->
-
    <argument
       name="--project-dir"
       description="
