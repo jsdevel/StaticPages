@@ -65,32 +65,37 @@ public class AssetManager {
          if(compress){
             byte[] bytes = FileUtils.getBytes(StaticPages.assetsDirPath.resolve(url).toFile());
             String encoded = Base64.encodeToString(bytes, false);
-            //byte[] encodedBytes = encoded.getBytes();
-            String dataType=url.toLowerCase().replaceFirst(".*\\.([^\\.]+)$", "$1");
-            switch(dataType){
-               case "gif":
-               case "jpeg":
-               case "jpg":
-               case "png":
-                  contentsToReturn = contentsToReturn.replace(urls.group(0), "url(data:image/"+dataType+";base64,"+encoded+")");
-                  break;
-            default:
-               throw new IOException("Invalid file extension detected: "+url);
-            }
-         } else {
-            String prefix;
-            if(StaticPages.assetPrefixInBrowser.endsWith("/")){
-               if(StaticPages.assetPrefixInBrowser.length() > 1){
-                  prefix = StaticPages.assetPrefixInBrowser.substring(0, StaticPages.assetPrefixInBrowser.length()-1);
-               } else {
-                  prefix = "";
+            byte[] encodedBytes = encoded.getBytes();
+            if(StaticPages.maxDataURISizeInBytes > 0 &&
+               encodedBytes.length <= StaticPages.maxDataURISizeInBytes
+            ){
+               String dataType=url.toLowerCase().replaceFirst(".*\\.([^\\.]+)$", "$1");
+               switch(dataType){
+                  case "gif":
+                  case "jpeg":
+                  case "jpg":
+                  case "png":
+                     contentsToReturn = contentsToReturn.replace(urls.group(0), "url(data:image/"+dataType+";base64,"+encoded+")");
+                     continue;
+               default:
+                  throw new IOException("Invalid file extension detected: "+url);
                }
             } else {
-               prefix = StaticPages.assetPrefixInBrowser;
+               LOGGER.info("The following resource exceeded the max size in bytes specified in the arguments: "+url);
             }
-            contentsToReturn = contentsToReturn.replace(url, prefix+url);
-            transferImage(url);
          }
+         String prefix;
+         if(StaticPages.assetPrefixInBrowser.endsWith("/")){
+            if(StaticPages.assetPrefixInBrowser.length() > 1){
+               prefix = StaticPages.assetPrefixInBrowser.substring(0, StaticPages.assetPrefixInBrowser.length()-1);
+            } else {
+               prefix = "";
+            }
+         } else {
+            prefix = StaticPages.assetPrefixInBrowser;
+         }
+         contentsToReturn = contentsToReturn.replace(url, prefix+url);
+         transferImage(url);
       }
       return contentsToReturn;
    }

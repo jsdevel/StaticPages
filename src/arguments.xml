@@ -79,4 +79,10 @@ against the StaticPages.jar file."
       description="Enables dev mode.  Certain features are only available when dev mode is enabled."
       type="boolean"
       />
+   <argument
+      default="32768"
+      name="--max-data-uri-size-in-bytes"
+      description="Sets the maximum size (in bytes) of data uri embedded resources within css.  The default is the limit imposed by IE8."
+      type="int"
+      />
 </arguments>

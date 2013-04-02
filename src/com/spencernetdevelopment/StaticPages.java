@@ -26,6 +26,7 @@ public class StaticPages {
    public static FilePath srcDirPath;
    public static FilePath xslDirPath;
    public static String assetPrefixInBrowser="/";
+   public static int maxDataURISizeInBytes;
 
    /**
     * @param args the command line arguments
@@ -97,6 +98,7 @@ public class StaticPages {
             xslDirPath=srcDirPath.resolve("xsl");
             assetsDirPath=srcDirPath.resolve("assets");
             assetManager = new AssetManager(assetsDirPath, buildDirPath, arguments.getEnablecompression());
+            maxDataURISizeInBytes=arguments.getMaxdataurisizeinbytes();
             FilePath defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
 
             if(!Assertions.fileExists(defaultStylesheet.toFile())){

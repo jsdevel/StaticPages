@@ -13,6 +13,7 @@ public class StaticPagesTerminal {
       String logjinterval=null;
       boolean enablecompression=false;
       boolean enabledevmode=false;
+      int maxdataurisizeinbytes=32768;
       if(__showHelpOnNoArgs && args.length == 0){
          System.out.print(StaticPagesHelp.getHelpMenu());
          System.exit(0);
@@ -52,6 +53,10 @@ public class StaticPagesTerminal {
             enabledevmode = getBoolean(val);
             continue;
          }
+         if("--max-data-uri-size-in-bytes".equals(key)){
+            maxdataurisizeinbytes = getInt(val);
+            continue;
+         }
          throw new IllegalArgumentException("Unknown argument: "+key);
       }
       if(i - len != 0){
@@ -64,7 +69,8 @@ public class StaticPagesTerminal {
             logjproperties,
             logjinterval,
             enablecompression,
-            enabledevmode
+            enabledevmode,
+            maxdataurisizeinbytes
       );
    }
    public static final String getPath(String path){
@@ -84,5 +90,11 @@ public class StaticPagesTerminal {
          }
       }
       return false;
+   }
+   public static final int getInt(String in){
+      if(in != null && !in.isEmpty()){
+         return Integer.parseInt(in);
+      }
+      return 0;
    }
 }

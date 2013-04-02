@@ -11,6 +11,7 @@ public class StaticPagesArguments {
    private String logjinterval=null;
    private boolean enablecompression=false;
    private boolean enabledevmode=false;
+   private int maxdataurisizeinbytes=32768;
 
    public StaticPagesArguments(
       final File projectdir,
@@ -19,7 +20,8 @@ public class StaticPagesArguments {
       final String logjproperties,
       final String logjinterval,
       final boolean enablecompression,
-      final boolean enabledevmode
+      final boolean enabledevmode,
+      final int maxdataurisizeinbytes
    ) throws Throwable {
       if(projectdir != null){
          if(!projectdir.exists() || !projectdir.isDirectory()){
@@ -44,6 +46,7 @@ public class StaticPagesArguments {
       this.logjinterval=logjinterval;
       this.enablecompression=enablecompression;
       this.enabledevmode=enabledevmode;
+      this.maxdataurisizeinbytes=maxdataurisizeinbytes;
    }
 
    public File getProjectdir(){
@@ -87,5 +90,11 @@ public class StaticPagesArguments {
    }
    public boolean hasEnabledevmode(){
       return enabledevmode;
+   }
+   public int getMaxdataurisizeinbytes(){
+      return maxdataurisizeinbytes;
+   }
+   public boolean hasMaxdataurisizeinbytes(){
+      return maxdataurisizeinbytes!=0;
    }
 }
