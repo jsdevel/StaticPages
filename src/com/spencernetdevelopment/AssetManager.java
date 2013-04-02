@@ -63,7 +63,9 @@ public class AssetManager {
       while(urls.find()){
          String url = urls.group(2);
          if(compress){
-            String encoded = Base64.encodeToString(FileUtils.getBytes(StaticPages.assetsDirPath.resolve(url).toFile()), false);
+            byte[] bytes = FileUtils.getBytes(StaticPages.assetsDirPath.resolve(url).toFile());
+            String encoded = Base64.encodeToString(bytes, false);
+            //byte[] encodedBytes = encoded.getBytes();
             String dataType=url.toLowerCase().replaceFirst(".*\\.([^\\.]+)$", "$1");
             switch(dataType){
                case "gif":
