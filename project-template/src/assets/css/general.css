@@ -47,6 +47,17 @@ h2 {
 }
 
 /*shadow*/
+.box.outlined {
+           box-shadow: 0px 0px 1px gray;
+       -ms-box-shadow: 0px 0px 1px gray;
+      -moz-box-shadow: 0px 0px 1px gray;
+        -o-box-shadow: 0px 0px 1px gray;
+   -webkit-box-shadow: 0px 0px 1px gray;
+}
+.text.outlined.black {
+   text-shadow: 0 0 1px black;
+}
+
 .raised {
            box-shadow: 0px 0px 5px black;
        -ms-box-shadow: 0px 0px 5px black;
