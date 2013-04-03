@@ -107,14 +107,15 @@ public class AssetManager {
       return handleJS(getAsset(path), compress);
    }
    private String handleJS(String contents, boolean compress) throws IOException {
+      String minified=null;
       if((compress && COMPRESS_ASSETS) || COMPRESS_ASSETS){
          StringReader reader = new StringReader(contents);
          StringWriter writer = new StringWriter(contents.length());
          JavaScriptCompressor javaScriptCompressor = new JavaScriptCompressor(reader, JSErrorReporter.INSTANCE);
          javaScriptCompressor.compress(writer, -1, true, false, false, false);
-         return writer.toString();
+         minified=writer.toString();
       }
-      return contents.replace("ASSET_PREFIX_IN_BROWSER", StaticPages.assetPrefixInBrowser);
+      return (minified == null ? contents : minified).replace("ASSET_PREFIX_IN_BROWSER", StaticPages.assetPrefixInBrowser);
    }
 
    public void transferCSS(String path, boolean compress) throws IOException {
