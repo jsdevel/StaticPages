@@ -42,6 +42,9 @@ body.no-scroll-bars {
 .centered-text {
    text-align: center;
 }
+button {
+   cursor: pointer;
+}
 h2 {
    font-size: 30px;
 }
@@ -64,6 +67,13 @@ h2 {
       -moz-box-shadow: 0px 0px 5px black;
         -o-box-shadow: 0px 0px 5px black;
    -webkit-box-shadow: 0px 0px 5px black;
+}
+.raised.gray {
+           box-shadow: 0px 0px 5px gray;
+       -ms-box-shadow: 0px 0px 5px gray;
+      -moz-box-shadow: 0px 0px 5px gray;
+        -o-box-shadow: 0px 0px 5px gray;
+   -webkit-box-shadow: 0px 0px 5px gray;
 }
 /*border-radius*/
 .border-radius-5px {
