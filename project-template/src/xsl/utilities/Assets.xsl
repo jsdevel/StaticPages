@@ -57,13 +57,23 @@
 
    <xsl:template match="a:pageLink[@src]">
       <xsl:value-of select="assets:validatePageReference(@src)"/>
+      <xsl:if test="@frag">
+         <xsl:value-of select="assets:validateFragmentReference(@src, @frag)"/>
+      </xsl:if>
 
-      <a href="{$assetPrefixInBrowser}/{string:replaceAll(@src, '%', '%25')}.html">
+      <xsl:variable name="frag">
+         <xsl:if test="@frag">
+            <xsl:value-of select="concat('#', @frag)"/>
+         </xsl:if>
+      </xsl:variable>
+
+      <a href="{$assetPrefixInBrowser}/{string:replaceAll(@src, '%', '%25')}.html{$frag}">
          <xsl:apply-templates select="@*[
+            local-name() != 'class' and
+            local-name() != 'frag' and
             local-name() != 'href' and
             local-name() != 'src' and
-            local-name() != 'name' and
-            local-name() != 'class'
+            local-name() != 'name'
          ]"/>
          <xsl:variable name="isCurrentPage" select="string:endsWith($pagePath, concat(@src,'.xml'))"/>
          <xsl:if test="@class or $isCurrentPage">

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0"
    xmlns:d="default"
+   xmlns:assets="com.spencernetdevelopment.xsl.Assets"
    xmlns:fn="functions"
-   exclude-result-prefixes="d fn"
+   exclude-result-prefixes="d fn assets"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
    <xsl:template name="HTML5Doctype">
@@ -90,6 +91,13 @@
 
    <xsl:template match="d:phrase">
       <xsl:apply-templates/>
+   </xsl:template>
+
+   <!-- misc -->
+   <xsl:template name="Favicon">
+      <xsl:variable name="path">images/favicon.png</xsl:variable>
+      <xsl:value-of select="assets:transferImage($path)"/>
+      <link rel="icon" type="image/png" href="{$assetPrefixInBrowser}/{$path}"/>
    </xsl:template>
 
 </xsl:stylesheet>
