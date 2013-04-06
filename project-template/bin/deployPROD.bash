@@ -34,7 +34,7 @@ echo "Building output dir...";
 ssh "$PROD_SSH_ALIAS" "mkdir -p $PROD_PATH_TO_BUILD ;";
 echo "Copying tarball with scp...";
 scp $tarball "$PROD_SSH_ALIAS":~/$PROD_PATH_TO_BUILD > /dev/null;
-echo "Unpacking on remove server...";
+echo "Unpacking on remote server...";
 sleep 1;
 ssh "$PROD_SSH_ALIAS" "cd $PROD_PATH_TO_BUILD ; tar -zxvf build.tar.gz --strip-components=1 ; rm build.tar.gz ;" > /dev/null;
 rm $tarball;
