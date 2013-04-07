@@ -46,12 +46,7 @@
 
    <xsl:template match="d:page">
       <xsl:call-template name="HTML5Doctype"/>
-      <xsl:text disable-output-escaping="yes"
-      >&lt;!--[if IE]&gt;&lt;html class="ie no-js"&gt;&lt;[endif]--&gt;</xsl:text>
-      <xsl:text disable-output-escaping="yes"
-      >&lt;!--[if !IE]&gt;&lt;!--&gt;</xsl:text>
       <html class="no-js">
-         <xsl:text disable-output-escaping="yes">&lt;!--&lt;[endif]--&gt;</xsl:text>
          <head>
             <meta charset="utf-8"/>
             <xsl:apply-templates select="d:seo" mode="defaultStylesheet"/>
