@@ -85,11 +85,14 @@
             </xsl:attribute>
          </xsl:if>
          <xsl:choose>
-            <xsl:when test="not(@name)">
+            <xsl:when test="count(node()) = 0 and not(@name)">
                <xsl:value-of select="string:replaceAll(@src, '%2F', '/')"/>
             </xsl:when>
-            <xsl:otherwise>
+            <xsl:when test="@name and count(node()) = 0">
                <xsl:value-of select="@name"/>
+            </xsl:when>
+            <xsl:otherwise>
+               <xsl:apply-templates select="node()"/>
             </xsl:otherwise>
          </xsl:choose>
       </a>
