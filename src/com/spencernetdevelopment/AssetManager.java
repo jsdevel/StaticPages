@@ -177,7 +177,7 @@ public class AssetManager {
          target.set(to);
          return true;
       }
-      LOGGER.info("The following asset wasn't transferred because it is older than the target: " + fromPath);
+      //LOGGER.info("The following asset wasn't transferred because it is older than the target: " + fromPath);
       return false;
    }
 }
