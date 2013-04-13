@@ -68,7 +68,7 @@ public class HTMLBuilder {
          throw new IOException("A default stylesheet is required to process xml files.");
       }
 
-      ArrayList<Path> xmlPagesToBuild = new ArrayList<Path>();
+      ArrayList<Path> xmlPagesToBuild = new ArrayList<>();
 
       FileUtils.clearDirectory(buildDir);
       FileUtils.filePathsToArrayList(xmlPagesDirPath.toFile(), xmlPagesToBuild, ".xml");
@@ -140,7 +140,7 @@ public class HTMLBuilder {
       }
 
       if(pageTransformers == null){
-         pageTransformers = new HashMap<String, Transformer>();
+         pageTransformers = new HashMap<>();
       }
 
       if(pageTransformers.containsKey(stylesheet)){
