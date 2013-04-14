@@ -27,6 +27,7 @@ public class StaticPages {
    public static FilePath xslDirPath;
    public static String assetPrefixInBrowser="/";
    public static int maxDataURISizeInBytes;
+   public static int maxTimeToWaitForExternalLinkValidation;
 
    /**
     * @param args the command line arguments
@@ -99,6 +100,7 @@ public class StaticPages {
             assetsDirPath=srcDirPath.resolve("assets");
             assetManager = new AssetManager(assetsDirPath, buildDirPath, arguments.getEnablecompression());
             maxDataURISizeInBytes=arguments.getMaxdataurisizeinbytes();
+            maxTimeToWaitForExternalLinkValidation=arguments.getMaxwaittimetovalidateexternallink();
             FilePath defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
 
             if(!Assertions.fileExists(defaultStylesheet.toFile())){

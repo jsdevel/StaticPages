@@ -54,6 +54,28 @@
       </script>
    </xsl:template>
 
+   <xsl:template match="a:externalLink[@src]">
+      <xsl:value-of select="assets:validateExternalURL(@src)"/>
+
+      <a href="{@src}">
+         <xsl:apply-templates select="@*[
+            local-name() != 'href' and
+            local-name() != 'src' and
+            local-name() != 'name'
+         ]"/>
+         <xsl:choose>
+            <xsl:when test="count(node()) = 0 and not(@name)">
+               <xsl:value-of select="@src"/>
+            </xsl:when>
+            <xsl:when test="@name and count(node()) = 0">
+               <xsl:value-of select="@name"/>
+            </xsl:when>
+            <xsl:otherwise>
+               <xsl:apply-templates select="node()"/>
+            </xsl:otherwise>
+         </xsl:choose>
+      </a>
+   </xsl:template>
 
    <xsl:template match="a:pageLink[@src]">
       <xsl:value-of select="assets:validatePageReference(@src)"/>

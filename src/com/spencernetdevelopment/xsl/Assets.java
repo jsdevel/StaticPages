@@ -5,12 +5,18 @@
 package com.spencernetdevelopment.xsl;
 
 import com.spencernetdevelopment.FilePath;
+import com.spencernetdevelopment.HttpExternalLinkResponse;
 import static com.spencernetdevelopment.xsl.FileFunctions.assertFileExists;
 import static com.spencernetdevelopment.xsl.FileFunctions.assertPathHasLength;
 import com.spencernetdevelopment.StaticPages;
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -32,6 +38,7 @@ public class Assets {
    public static final Logger LOGGER = Logger.getLogger(Assets.class);
    private static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
    private static XPathFactory xpathFactory = XPathFactory.newInstance();
+   private static Map<String, HttpExternalLinkResponse> externalResponses = new HashMap<>();
 
    public static boolean assertXmlResourceExists(String path) throws IOException {
       assertPathHasLength(path);
@@ -104,6 +111,39 @@ public class Assets {
          StaticPages.assetManager.transferImage(path);
       } catch (IOException ex){
          LOGGER.fatal(ex.getLocalizedMessage());
+         System.exit(1);
+      }
+   }
+
+   public static void validateExternalURL(String path) {
+      try {
+         if(!externalResponses.containsKey(path)){
+            LOGGER.info("Validating: "+path);
+            assertPathHasLength(path);
+            URL url = new URL(path);
+            HttpURLConnection http = (HttpURLConnection)url.openConnection();
+            http.setRequestMethod("GET");
+            http.setConnectTimeout(StaticPages.maxTimeToWaitForExternalLinkValidation);
+            http.connect();
+
+            externalResponses.put(path, new HttpExternalLinkResponse(path, "GET", http.getHeaderFields(), http.getResponseCode()));
+
+            switch(http.getResponseCode()){
+               case 200:
+               case 302:
+                  break;
+               default:
+                  LOGGER.fatal("External link validation failed for the following URL: "+path);
+                  LOGGER.fatal("The status code of the http connection was: "+http.getResponseCode());
+                  System.exit(1);
+            }
+         }
+      } catch (SocketTimeoutException ex){
+         LOGGER.fatal("A connection to the following URL couldn't be established during the configured timeout period: "+path);
+         System.exit(1);
+      } catch (IOException ex) {
+         LOGGER.fatal("An IOException occurred while attempting to validate the following external URL: "+path);
+         LOGGER.fatal("Here is the detailed message: "+ex.getMessage());
          System.exit(1);
       }
    }

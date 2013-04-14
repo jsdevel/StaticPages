@@ -14,6 +14,7 @@ public class StaticPagesTerminal {
       boolean enablecompression=false;
       boolean enabledevmode=false;
       int maxdataurisizeinbytes=32768;
+      int maxwaittimetovalidateexternallink=5000;
       if(__showHelpOnNoArgs && args.length == 0){
          System.out.print(StaticPagesHelp.getHelpMenu());
          System.exit(0);
@@ -57,6 +58,10 @@ public class StaticPagesTerminal {
             maxdataurisizeinbytes = getInt(val);
             continue;
          }
+         if("--max-wait-time-to-validate-external-link".equals(key)){
+            maxwaittimetovalidateexternallink = getInt(val);
+            continue;
+         }
          throw new IllegalArgumentException("Unknown argument: "+key);
       }
       if(i - len != 0){
@@ -70,7 +75,8 @@ public class StaticPagesTerminal {
             logjinterval,
             enablecompression,
             enabledevmode,
-            maxdataurisizeinbytes
+            maxdataurisizeinbytes,
+            maxwaittimetovalidateexternallink
       );
    }
    public static final String getPath(String path){

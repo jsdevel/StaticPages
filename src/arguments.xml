@@ -85,4 +85,11 @@ against the StaticPages.jar file."
       description="Sets the maximum size (in bytes) of data uri embedded resources within css.  The default is the limit imposed by IE8 (32768)."
       type="int"
       />
+   <argument
+      default="5000"
+      name="--max-wait-time-to-validate-external-link"
+      description="Sets the number of milliseconds to wait for an external link reference to return."
+      type="int"
+      />
+
 </arguments>

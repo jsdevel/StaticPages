@@ -4,6 +4,8 @@ PROJECT_DIR=$(dirname $BIN_DIR);
 BUILD_DIR=$PROJECT_DIR/build;
 REFRESH_FILE=$BUILD_DIR/refresh.js;
 
+cd $BIN_DIR;
+
 #override these in config
 function preBuildPages(){
    echo > /dev/null;
