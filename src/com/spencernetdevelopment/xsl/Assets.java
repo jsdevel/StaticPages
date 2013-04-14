@@ -15,8 +15,10 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -39,12 +41,19 @@ public class Assets {
    private static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
    private static XPathFactory xpathFactory = XPathFactory.newInstance();
    private static Map<String, HttpExternalLinkResponse> externalResponses = new HashMap<>();
+   private static Set<String> validatedPages = new HashSet<>();
+   private static Set<String> validatedFragments = new HashSet<>();
+   private static Set<String> validatedXMLResources = new HashSet<>();
 
    public static boolean assertXmlResourceExists(String path) throws IOException {
+      if(validatedXMLResources.contains(path)){
+         return true;
+      }
       assertPathHasLength(path);
       FilePath _path = StaticPages.xmlResourcesDirPath.resolve(path);
       try {
          assertFileExists(_path);
+         validatedXMLResources.add(path);
          return true;
       } catch(Throwable e){
          return false;
@@ -149,10 +158,14 @@ public class Assets {
    }
 
    public static void validatePageReference(String path) {
+      if(validatedPages.contains(path)){
+         return;
+      }
       try {
          assertPathHasLength(path);
          FilePath page = StaticPages.pagesDirPath.resolve(path +".xml");
          assertFileExists(page);
+         validatedPages.add(path);
       } catch (IOException ex) {
          LOGGER.fatal("The following page doesn't exist: "+path);
          System.exit(1);
@@ -166,6 +179,9 @@ public class Assets {
     * @param path
     */
    public static void validateFragmentReference(String path, String fragment) {
+      if(validatedFragments.contains(path+fragment)){
+         return;
+      }
       try {
          assertPathHasLength(path);
          FilePath page = StaticPages.pagesDirPath.resolve(path +".xml");
@@ -201,6 +217,7 @@ public class Assets {
          if(elementById == null){
             throw new IOException("Couldn't find the following fragment: "+page+"#"+fragment);
          }
+         validatedFragments.add(path+fragment);
       } catch (IOException ex) {
          LOGGER.fatal(ex.getMessage());
          System.exit(1);
