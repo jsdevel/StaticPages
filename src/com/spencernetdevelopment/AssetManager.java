@@ -95,7 +95,7 @@ public class AssetManager {
             prefix = StaticPages.assetPrefixInBrowser;
          }
          contentsToReturn = contentsToReturn.replace(url, prefix+url);
-         transferImage(url);
+         transferAsset(url.replaceFirst("(?:\\?|#).*$", ""));
       }
       return contentsToReturn;
    }
