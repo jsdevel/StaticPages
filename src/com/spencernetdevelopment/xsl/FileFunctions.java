@@ -13,8 +13,11 @@ import java.io.*;
  */
 public class FileFunctions {
    public static void assertPathHasLength(String path) throws IOException {
-      if(path == null || path.length() == 0){
-         throw new IOException("Invalid Path: '"+path+"'.");
+      if(path == null){
+         throw new IOException("Invalid Path: null.");
+      }
+      if(path.trim().isEmpty()){
+         throw new IOException("Invalid Path: Empty path given.");
       }
    }
 
