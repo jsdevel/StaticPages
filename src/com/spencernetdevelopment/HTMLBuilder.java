@@ -29,7 +29,6 @@ import org.xml.sax.SAXException;
  * @author Joseph Spencer
  */
 public class HTMLBuilder {
-   private final File buildDir;
    private final FilePath buildDirPath;
    private final FilePath xmlPagesDirPath;
    private final String xmlPagesDirString;
@@ -49,7 +48,6 @@ public class HTMLBuilder {
       transformerFactory = TransformerFactory.newInstance();
 
       this.buildDirPath = buildDirPath;
-      buildDir=buildDirPath.toFile();
       this.xmlPagesDirPath = pagesDirPath;
       xmlPagesDirString=xmlPagesDirPath.toString();
       xmlPagesDirStringLength=xmlPagesDirString.length();
@@ -65,12 +63,11 @@ public class HTMLBuilder {
 
    public void buildPages() throws IOException, SAXException, TransformerException {
       if(defaultStylesheet==null){
-         throw new IOException("A default stylesheet is required to process xml files.");
+         throw new IllegalStateException("A default stylesheet is required to process xml files.");
       }
 
       ArrayList<Path> xmlPagesToBuild = new ArrayList<>();
 
-      FileUtils.clearDirectory(buildDir);
       FileUtils.filePathsToArrayList(xmlPagesDirPath.toFile(), xmlPagesToBuild, ".xml");
 
       for(Path xmlFilePath : xmlPagesToBuild){
