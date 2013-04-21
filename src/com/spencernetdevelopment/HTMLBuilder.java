@@ -86,18 +86,19 @@ public class HTMLBuilder {
      * @throws IOException
      */
     public void buildPage(Path xmlFilePath) throws SAXException, TransformerException, IOException {
+        if(xmlFilePath != null && !xmlFilePath.toFile().getName().startsWith("_")){
+            Document xmlDocument = docBuilder.parse(xmlFilePath.toFile());
+            FilePath outputFilePath = buildDirPath.resolve(xmlFilePath.toString().substring(xmlPagesDirStringLength + 1).replaceFirst("\\.xml$", ".html"));
+            File htmlFile = outputFilePath.toFile();
 
-        Document xmlDocument = docBuilder.parse(xmlFilePath.toFile());
-        FilePath outputFilePath = buildDirPath.resolve(xmlFilePath.toString().substring(xmlPagesDirStringLength + 1).replaceFirst("\\.xml$", ".html"));
-        File htmlFile = outputFilePath.toFile();
+            Node alternateNameNode = xmlDocument.getFirstChild().getAttributes().getNamedItem("alternate-name");
 
-        Node alternateNameNode = xmlDocument.getFirstChild().getAttributes().getNamedItem("alternate-name");
-
-        if (alternateNameNode != null) {
-            String alternateName = alternateNameNode.getNodeValue();
-            transform(xmlDocument, outputFilePath.getParent().resolve(alternateName + ".html").toFile(), xmlFilePath);
+            if (alternateNameNode != null) {
+                String alternateName = alternateNameNode.getNodeValue();
+                transform(xmlDocument, outputFilePath.getParent().resolve(alternateName + ".html").toFile(), xmlFilePath);
+            }
+            transform(xmlDocument, htmlFile, xmlFilePath);
         }
-        transform(xmlDocument, htmlFile, xmlFilePath);
     }
 
     public void transform(Document xmlDocument, File outputFile, Path outputFilePath) throws TransformerException, IOException {
