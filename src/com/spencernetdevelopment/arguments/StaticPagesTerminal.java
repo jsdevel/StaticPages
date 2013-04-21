@@ -8,14 +8,14 @@ public class StaticPagesTerminal {
    public static StaticPagesArguments getArguments(String[] args) throws Throwable {
       File projectdir=null;
       File newproject=null;
-      String assetprefixinbrowser=null;
+      String assetprefixinbrowser="/";
       String logjproperties=null;
       String logjinterval=null;
       boolean enablecompression=false;
       boolean enabledevmode=false;
       int maxdataurisizeinbytes=32768;
       int maxwaittimetovalidateexternallink=5000;
-      String prefixtoignorefiles=null;
+      String prefixtoignorefiles="_";
       if(__showHelpOnNoArgs && args.length == 0){
          System.out.print(StaticPagesHelp.getHelpMenu());
          System.exit(0);

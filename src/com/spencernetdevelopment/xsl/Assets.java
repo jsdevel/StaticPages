@@ -66,7 +66,7 @@ public class Assets {
          LOGGER.fatal("Couldn't find: "+path);
          System.exit(1);
       }
-      return null;
+      return "";
    }
    public static String getCSS(String path, boolean compress) {
       try {
@@ -75,7 +75,7 @@ public class Assets {
          LOGGER.fatal("Couldn't get: "+path);
          System.exit(1);
       }
-      return null;
+      return "";
    }
    public static String getJS(String path, boolean compress) {
       try {
@@ -84,12 +84,24 @@ public class Assets {
          LOGGER.fatal("Couldn't get: "+path);
          System.exit(1);
       }
-      return null;
+      return "";
    }
 
    public static String getViewPath(String path) throws IOException {
       FilePath fpath = StaticPages.viewsDirPath.resolve(path+".xml");
       return fpath.toUnix();
+   }
+   public static void rewritePage(String from, String to){
+      if(from == null || from.isEmpty()){
+         LOGGER.fatal("Can't rewrite a non-existent page.  From was: "+from+".  To was: "+to);
+         System.exit(1);
+      }
+      if(to == null || to.isEmpty()){
+         LOGGER.fatal("Can't rewrite a page to a non-existent location. From was: "+from+".  To was: "+to);
+         System.exit(1);
+      }
+      System.out.println("From: "+from);
+      System.out.println("To:   "+to);
    }
    public static void transferAsset(String path) throws IOException {
       try {

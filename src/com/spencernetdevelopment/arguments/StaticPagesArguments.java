@@ -6,14 +6,14 @@ public class StaticPagesArguments {
 
    private File projectdir=null;
    private File newproject=null;
-   private String assetprefixinbrowser=null;
+   private String assetprefixinbrowser="/";
    private String logjproperties=null;
    private String logjinterval=null;
    private boolean enablecompression=false;
    private boolean enabledevmode=false;
    private int maxdataurisizeinbytes=32768;
    private int maxwaittimetovalidateexternallink=5000;
-   private String prefixtoignorefiles=null;
+   private String prefixtoignorefiles="_";
 
    public StaticPagesArguments(
       final File projectdir,
