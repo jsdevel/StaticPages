@@ -46,6 +46,7 @@ Creates a default project in the specified directory.
       />
    <argument
       name="--asset-prefix-in-browser"
+      default="/"
       description="
 Provides a way to prefix assets as seen in the browser.  This is always relative
 to your domain.
@@ -91,5 +92,11 @@ against the StaticPages.jar file."
       description="Sets the number of milliseconds to wait for an external link reference to return."
       type="int"
       />
+   <argument
+       default="_"
+       name="--prefix-to-ignore-files"
+       desctiption="Files with this prefix will be ignored."
+       type="string"
+       />
 
 </arguments>

@@ -86,7 +86,7 @@ public class HTMLBuilder {
      * @throws IOException
      */
     public void buildPage(Path xmlFilePath) throws SAXException, TransformerException, IOException {
-        if(xmlFilePath != null && !xmlFilePath.toFile().getName().startsWith("_")){
+        if(xmlFilePath != null && !xmlFilePath.toFile().getName().startsWith(StaticPages.prefixToIgnoreFilesWith)){
             Document xmlDocument = docBuilder.parse(xmlFilePath.toFile());
             FilePath outputFilePath = buildDirPath.resolve(xmlFilePath.toString().substring(xmlPagesDirStringLength + 1).replaceFirst("\\.xml$", ".html"));
             File htmlFile = outputFilePath.toFile();

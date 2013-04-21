@@ -25,7 +25,8 @@ public class StaticPages {
    public static FilePath xmlResourcesDirPath;
    public static FilePath srcDirPath;
    public static FilePath xslDirPath;
-   public static String assetPrefixInBrowser="/";
+   public static String assetPrefixInBrowser;
+   public static String prefixToIgnoreFilesWith;
    public static int maxDataURISizeInBytes;
    public static int maxTimeToWaitForExternalLinkValidation;
 
@@ -69,13 +70,12 @@ public class StaticPages {
             LOGGER.debug("jarDir = "+jarDir.toString());
          }
 
-         if(arguments.hasAssetprefixinbrowser()){
-            assetPrefixInBrowser=arguments.getAssetprefixinbrowser();
-            if(assetPrefixInBrowser.endsWith("/")){
-               LOGGER.warn("--asset-prefix-in-browser ended in '/'.  Removing '/' from the end now.");
-               assetPrefixInBrowser = assetPrefixInBrowser.replaceAll("/+$", "");
-            }
-         }
+        assetPrefixInBrowser=arguments.getAssetprefixinbrowser();
+        if(!"/".equals(assetPrefixInBrowser) && assetPrefixInBrowser.endsWith("/")){
+            LOGGER.warn("--asset-prefix-in-browser ended in '/'.  Removing '/' from the end now.");
+            assetPrefixInBrowser = assetPrefixInBrowser.replaceAll("/+$", "");
+        }
+        prefixToIgnoreFilesWith=arguments.getPrefixtoignorefiles();
 
          if(arguments.hasNewproject()){
             File sampleProjectDir = jarDir.resolve("project-template").toFile();

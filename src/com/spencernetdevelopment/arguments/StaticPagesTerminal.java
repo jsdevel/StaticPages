@@ -15,6 +15,7 @@ public class StaticPagesTerminal {
       boolean enabledevmode=false;
       int maxdataurisizeinbytes=32768;
       int maxwaittimetovalidateexternallink=5000;
+      String prefixtoignorefiles=null;
       if(__showHelpOnNoArgs && args.length == 0){
          System.out.print(StaticPagesHelp.getHelpMenu());
          System.exit(0);
@@ -62,6 +63,10 @@ public class StaticPagesTerminal {
             maxwaittimetovalidateexternallink = getInt(val);
             continue;
          }
+         if("--prefix-to-ignore-files".equals(key)){
+            prefixtoignorefiles = val;
+            continue;
+         }
          throw new IllegalArgumentException("Unknown argument: "+key);
       }
       if(i - len != 0){
@@ -76,7 +81,8 @@ public class StaticPagesTerminal {
             enablecompression,
             enabledevmode,
             maxdataurisizeinbytes,
-            maxwaittimetovalidateexternallink
+            maxwaittimetovalidateexternallink,
+            prefixtoignorefiles
       );
    }
    public static final String getPath(String path){
