@@ -6,7 +6,7 @@ public class StaticPagesArguments {
 
    private File projectdir=null;
    private File newproject=null;
-   private String assetprefixinbrowser="/";
+   private String assetprefixinbrowser=null;
    private String logjproperties=null;
    private String logjinterval=null;
    private boolean enablecompression=false;

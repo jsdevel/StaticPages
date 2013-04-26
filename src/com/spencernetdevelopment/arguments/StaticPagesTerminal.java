@@ -8,7 +8,7 @@ public class StaticPagesTerminal {
    public static StaticPagesArguments getArguments(String[] args) throws Throwable {
       File projectdir=null;
       File newproject=null;
-      String assetprefixinbrowser="/";
+      String assetprefixinbrowser=null;
       String logjproperties=null;
       String logjinterval=null;
       boolean enablecompression=false;
