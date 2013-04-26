@@ -46,12 +46,12 @@ Creates a default project in the specified directory.
       />
    <argument
       name="--asset-prefix-in-browser"
-      default=""
       description="
 Provides a way to prefix assets as seen in the browser.  This is always relative
 to your domain.  The resulting prefix is never allowed to end in '/'.  This means
 that '/' would be converted to '' and '/url/' would be converted to '/url'.
-When working in the filesystem, the domain portion is 'file:///'.
+
+The default value is '' which will result in all assets being prefixed with '/'. :)
 "
       type="string"
       />

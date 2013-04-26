@@ -71,10 +71,14 @@ public class StaticPages {
             LOGGER.debug("jarDir = "+jarDir.toString());
          }
 
-        assetPrefixInBrowser=arguments.getAssetprefixinbrowser();
-        if("/".equals(assetPrefixInBrowser) && assetPrefixInBrowser.endsWith("/")){
-            assetPrefixInBrowser = assetPrefixInBrowser.replaceAll("/+$", "");
-        }
+         if(arguments.hasAssetprefixinbrowser()){
+            assetPrefixInBrowser = arguments.getAssetprefixinbrowser();
+            if("/".equals(assetPrefixInBrowser) || assetPrefixInBrowser.endsWith("/")){
+               assetPrefixInBrowser = assetPrefixInBrowser.replaceAll("/+$", "");
+            }
+         } else {
+            assetPrefixInBrowser="";
+         }
         prefixToIgnoreFilesWith=arguments.getPrefixtoignorefiles();
 
          if(arguments.hasNewproject()){
