@@ -21,7 +21,7 @@ import org.apache.log4j.Logger;
  */
 public class AssetManager {
    private static final Logger LOGGER = Logger.getLogger(AssetManager.class);
-   private static final Pattern CSS_URL = Pattern.compile("url\\(\\s*(['\"])?(/(?:(?!\\1\\)).)+)\\1?\\)");
+   private static final Pattern CSS_URL = Pattern.compile("url\\(\\s*(['\"])?/((?:(?!\\1\\)).)+)\\1?\\)");
    private final boolean COMPRESS_ASSETS;
 
    private FilePath assetPath;
@@ -62,6 +62,7 @@ public class AssetManager {
       Matcher urls = CSS_URL.matcher(contents);
       while(urls.find()){
          String url = urls.group(2);
+         System.out.println("URL found in CSS file:"+url);
          if(compress){
             byte[] bytes = FileUtils.getBytes(StaticPages.assetsDirPath.resolve(url).toFile());
             String encoded = Base64.encodeToString(bytes, false);
@@ -94,7 +95,7 @@ public class AssetManager {
          } else {
             prefix = StaticPages.assetPrefixInBrowser;
          }
-         contentsToReturn = contentsToReturn.replace(url, prefix+url);
+         contentsToReturn = contentsToReturn.replace("/"+url, prefix+"/"+url);
          transferAsset(url.replaceFirst("(?:\\?|#).*$", ""));
       }
       return contentsToReturn;
