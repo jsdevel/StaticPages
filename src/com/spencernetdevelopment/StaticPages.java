@@ -112,10 +112,15 @@ public class StaticPages {
                end("No default stylesheet found.", 1);
             }
 
+            if(arguments.getClean()){
+               FileUtils.clearDirectory(buildDirPath.toFile());
+            }
             HTMLBuilder htmlBuilder = new HTMLBuilder(buildDirPath, pagesDirPath);
             htmlBuilder.setDefaultStylesheet(defaultStylesheet.toFile());
             htmlBuilder.buildPages();
             rewriteManager.applyRewrites();
+         } else {
+            LOGGER.warn("No project dir was specified.  Some arguments may be ignored.");
          }
       } catch(Throwable exc){
          end("Failed for the following reason: "+exc, 1);

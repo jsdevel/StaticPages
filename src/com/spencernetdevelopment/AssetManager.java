@@ -62,7 +62,6 @@ public class AssetManager {
       Matcher urls = CSS_URL.matcher(contents);
       while(urls.find()){
          String url = urls.group(2);
-         System.out.println("URL found in CSS file:"+url);
          if(compress){
             byte[] bytes = FileUtils.getBytes(StaticPages.assetsDirPath.resolve(url).toFile());
             String encoded = Base64.encodeToString(bytes, false);

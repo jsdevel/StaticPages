@@ -10,6 +10,7 @@ public class StaticPagesArguments {
    private String logjproperties=null;
    private String logjinterval=null;
    private boolean enablecompression=false;
+   private boolean clean=false;
    private boolean enabledevmode=false;
    private int maxdataurisizeinbytes=32768;
    private int maxwaittimetovalidateexternallink=5000;
@@ -22,6 +23,7 @@ public class StaticPagesArguments {
       final String logjproperties,
       final String logjinterval,
       final boolean enablecompression,
+      final boolean clean,
       final boolean enabledevmode,
       final int maxdataurisizeinbytes,
       final int maxwaittimetovalidateexternallink,
@@ -49,6 +51,7 @@ public class StaticPagesArguments {
       this.logjproperties=logjproperties;
       this.logjinterval=logjinterval;
       this.enablecompression=enablecompression;
+      this.clean=clean;
       this.enabledevmode=enabledevmode;
       this.maxdataurisizeinbytes=maxdataurisizeinbytes;
       this.maxwaittimetovalidateexternallink=maxwaittimetovalidateexternallink;
@@ -90,6 +93,12 @@ public class StaticPagesArguments {
    }
    public boolean hasEnablecompression(){
       return enablecompression;
+   }
+   public boolean getClean(){
+      return clean;
+   }
+   public boolean hasClean(){
+      return clean;
    }
    public boolean getEnabledevmode(){
       return enabledevmode;
