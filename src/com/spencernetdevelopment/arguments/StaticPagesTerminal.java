@@ -12,7 +12,7 @@ public class StaticPagesTerminal {
       String logjproperties=null;
       String logjinterval=null;
       boolean enablecompression=false;
-      boolean clean=true;
+      boolean clean=false;
       boolean enabledevmode=false;
       int maxdataurisizeinbytes=32768;
       int maxwaittimetovalidateexternallink=5000;

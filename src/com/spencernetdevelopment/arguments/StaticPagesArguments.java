@@ -10,7 +10,7 @@ public class StaticPagesArguments {
    private String logjproperties=null;
    private String logjinterval=null;
    private boolean enablecompression=false;
-   private boolean clean=true;
+   private boolean clean=false;
    private boolean enabledevmode=false;
    private int maxdataurisizeinbytes=32768;
    private int maxwaittimetovalidateexternallink=5000;
