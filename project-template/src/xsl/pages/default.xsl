@@ -14,7 +14,6 @@
    <xsl:import href="../utilities/Resources.xsl"/>
    <xsl:import href="../utilities/Assets.xsl"/>
 
-   <xsl:param name="pagePath"/>
    <xsl:param name="enableDevMode"/>
 
    <xsl:output method="html" indent="no" saxon:omit-meta-tag="yes"/>

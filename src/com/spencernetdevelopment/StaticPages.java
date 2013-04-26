@@ -15,6 +15,7 @@ public class StaticPages {
    private static final Logger LOGGER = Logger.getLogger(StaticPages.class.getName());
    public static FilePath jarDir;
    public static AssetManager assetManager;
+   public static RewriteManager rewriteManager;
 
    public static boolean enableDevMode;
    public static FilePath assetsDirPath;
@@ -99,6 +100,7 @@ public class StaticPages {
             xslDirPath=srcDirPath.resolve("xsl");
             assetsDirPath=srcDirPath.resolve("assets");
             assetManager = new AssetManager(assetsDirPath, buildDirPath, arguments.getEnablecompression());
+            rewriteManager = new RewriteManager(buildDirPath);
             maxDataURISizeInBytes=arguments.getMaxdataurisizeinbytes();
             maxTimeToWaitForExternalLinkValidation=arguments.getMaxwaittimetovalidateexternallink();
             FilePath defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
@@ -110,6 +112,7 @@ public class StaticPages {
             HTMLBuilder htmlBuilder = new HTMLBuilder(buildDirPath, pagesDirPath);
             htmlBuilder.setDefaultStylesheet(defaultStylesheet.toFile());
             htmlBuilder.buildPages();
+            rewriteManager.applyRewrites();
          }
       } catch(Throwable exc){
          end("Failed for the following reason: "+exc, 1);

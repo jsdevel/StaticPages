@@ -13,4 +13,7 @@ public class ProjectPaths {
    public static String getXmlResourcesPath(){
       return StaticPages.xmlResourcesDirPath.toUnix();
    }
+   public static String getXmlPagesPath(){
+      return StaticPages.pagesDirPath.toUnix();
+   }
 }

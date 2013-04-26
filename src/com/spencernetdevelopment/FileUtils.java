@@ -108,6 +108,28 @@ public class FileUtils {
       }
    }
 
+   /**
+    * Forces paths to fit the following format:
+    * <ul>
+    *    <li>Leading File.separators are removed</li>
+    *    <li>Proceeding File.separators are removed</li>
+    * </ul>
+    * @param path
+    * @return
+    */
+   public static String getForcedRelativePath(String path){
+      if(path == null){
+         throw new NullPointerException(
+            "Can't force a relative path from null"
+         );
+      }
+      String pathToReturn = path;
+      if(path.startsWith(File.separator)){
+         pathToReturn = path.substring(1);
+      }
+      pathToReturn = pathToReturn.replaceFirst(File.separator+"+$", "");
+      return pathToReturn;
+   }
    public static String getString(File file) throws IOException {
       return new String(getChars(file));
    }

@@ -5,6 +5,7 @@
 package com.spencernetdevelopment.xsl;
 
 import com.spencernetdevelopment.FilePath;
+import com.spencernetdevelopment.FileUtils;
 import com.spencernetdevelopment.HttpExternalLinkResponse;
 import static com.spencernetdevelopment.xsl.FileFunctions.assertFileExists;
 import static com.spencernetdevelopment.xsl.FileFunctions.assertPathHasLength;
@@ -87,21 +88,29 @@ public class Assets {
       return "";
    }
 
+   public static String getNormalizedRewritePath(String rewritePath){
+      String normalizedPath = "/"+FileUtils.getForcedRelativePath(rewritePath);
+      if(!normalizedPath.endsWith(".html")){
+         normalizedPath += "/";
+      }
+      return normalizedPath;
+   }
+
    public static String getViewPath(String path) throws IOException {
       FilePath fpath = StaticPages.viewsDirPath.resolve(path+".xml");
       return fpath.toUnix();
    }
-   public static void rewritePage(String from, String to){
-      if(from == null || from.isEmpty()){
-         LOGGER.fatal("Can't rewrite a non-existent page.  From was: "+from+".  To was: "+to);
+
+   public static void rewritePage(String page, String to){
+      if(page == null || page.isEmpty()){
+         LOGGER.fatal("Can't rewrite a non-existent page.  Page was: "+page+".  To was: "+to);
          System.exit(1);
       }
       if(to == null || to.isEmpty()){
-         LOGGER.fatal("Can't rewrite a page to a non-existent location. From was: "+from+".  To was: "+to);
+         LOGGER.fatal("Can't rewrite a page to a non-existent location. Page was: "+page+".  To was: "+to);
          System.exit(1);
       }
-      System.out.println("From: "+from);
-      System.out.println("To:   "+to);
+      StaticPages.rewriteManager.queueRewrite(page, to);
    }
    public static void transferAsset(String path) throws IOException {
       try {

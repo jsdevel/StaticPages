@@ -6,6 +6,11 @@
    exclude-result-prefixes="d fn assets"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
+   <xsl:param name="pagePath"/>
+   <!-- something like /index.html -->
+   <xsl:param name="domainRelativePagePath"/>
+   <xsl:param name="enableRewrites" select="false()"/>
+
    <xsl:template name="HTML5Doctype">
       <xsl:text disable-output-escaping="yes">&lt;!DOCTYPE html&gt;</xsl:text>
    </xsl:template>
@@ -87,6 +92,11 @@
             <xsl:value-of select="."/>
          </xsl:attribute>
       </meta>
+   </xsl:template>
+   <xsl:template match="d:seo/d:rewrites/d:url" mode="seo">
+      <xsl:if test="$enableRewrites">
+         <xsl:value-of select="assets:rewritePage($domainRelativePagePath, text())"/>
+      </xsl:if>
    </xsl:template>
 
    <xsl:template match="d:phrase">

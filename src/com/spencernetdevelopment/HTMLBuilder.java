@@ -93,33 +93,17 @@ public class HTMLBuilder {
 
          Node alternateNameNode = xmlDocument.getFirstChild().getAttributes().getNamedItem("alternate-name");
 
+         WrappedTransformer transformer;
          if (alternateNameNode != null) {
             String alternateName = alternateNameNode.getNodeValue();
-            transform(xmlDocument, outputFilePath.getParent().resolve(alternateName + ".html").toFile(), xmlFilePath);
+            transformer = getTransformer(xmlDocument, outputFilePath.getParent().resolve(alternateName + ".html").toFile(), xmlFilePath);
+            transformer.setParameter("enableRewrites", false);
+            transformer.transform();
          }
-         transform(xmlDocument, htmlFile, xmlFilePath);
+         transformer = getTransformer(xmlDocument, htmlFile, xmlFilePath);
+         transformer.setParameter("enableRewrites", true);
+         transformer.transform();
       }
-   }
-
-   public void transform(Document xmlDocument, File outputFile, Path outputFilePath) throws TransformerException, IOException {
-      FileUtils.createFile(outputFile);
-      DOMSource xmlDoc = new DOMSource(xmlDocument);
-      StreamResult resultStream = new StreamResult(outputFile);
-
-      Node stylesheetAttribute = xmlDocument.getFirstChild().getAttributes().getNamedItem("stylesheet");
-      Transformer transformer;
-      if (stylesheetAttribute != null) {
-         String stylesheet = stylesheetAttribute.getNodeValue();
-         if (stylesheet.trim().length() > 0) {
-            transformer = getTransformer(stylesheet);
-         } else {
-            throw new IllegalArgumentException("stylesheet attributes may not be empty.");
-         }
-      } else {
-         transformer = defaultXSLTransformer;
-      }
-      transformer.setParameter("pagePath", outputFilePath.toString());
-      transformer.transform(xmlDoc, resultStream);
    }
 
    /**
@@ -131,31 +115,47 @@ public class HTMLBuilder {
     * @throws TransformerConfigurationException
     * @throws IOException
     */
-   private Transformer getTransformer(String stylesheet) throws
-           TransformerConfigurationException,
-           IOException {
-      if (stylesheet == null) {
-         throw new IllegalArgumentException("stylsheet may not be null or empty.");
-      }
+   public WrappedTransformer getTransformer(
+      Document xmlDocument,
+      File outputFile,
+      Path outputFilePath
+   ) throws TransformerException, IOException {
+      FileUtils.createFile(outputFile);
+      DOMSource xmlDoc = new DOMSource(xmlDocument);
+      StreamResult resultStream = new StreamResult(outputFile);
 
-      if (pageTransformers == null) {
-         pageTransformers = new HashMap<>();
-      }
+      Node stylesheetAttribute = xmlDocument.getFirstChild().getAttributes().getNamedItem("stylesheet");
+      Transformer transformer;
+      if (stylesheetAttribute != null) {
+         String stylesheet = stylesheetAttribute.getNodeValue();
+         if (stylesheet.trim().length() > 0) {
+            if (pageTransformers == null) {
+               pageTransformers = new HashMap<>();
+            }
 
-      if (pageTransformers.containsKey(stylesheet)) {
-         return pageTransformers.get(stylesheet);
+            if (pageTransformers.containsKey(stylesheet)) {
+               transformer = pageTransformers.get(stylesheet);
+            } else {
+               FilePath stylesheetPath = StaticPages.xslDirPath.resolve(stylesheet.concat(".xsl"));
+               File stylesheetFile = stylesheetPath.toFile();
+
+               assertStylesheetExists(stylesheetFile);
+
+               StreamSource stylesheetStream = new StreamSource(stylesheetFile);
+               Transformer XSLTransformer = transformerFactory.newTransformer(stylesheetStream);
+               pageTransformers.put(stylesheet, XSLTransformer);
+               addDefaultParameters(XSLTransformer);
+               transformer = XSLTransformer;
+            }
+         } else {
+            throw new IllegalArgumentException("stylesheet attributes may not be empty.");
+         }
       } else {
-         FilePath stylesheetPath = StaticPages.xslDirPath.resolve(stylesheet.concat(".xsl"));
-         File stylesheetFile = stylesheetPath.toFile();
-
-         assertStylesheetExists(stylesheetFile);
-
-         StreamSource stylesheetStream = new StreamSource(stylesheetFile);
-         Transformer XSLTransformer = transformerFactory.newTransformer(stylesheetStream);
-         pageTransformers.put(stylesheet, XSLTransformer);
-         addDefaultParameters(XSLTransformer);
-         return XSLTransformer;
+         transformer = defaultXSLTransformer;
       }
+      transformer.setParameter("pagePath", outputFilePath.toString());
+      transformer.setParameter("domainRelativePagePath", outputFile.getAbsolutePath().substring(StaticPages.buildDirPath.toString().length()));
+      return new WrappedTransformer(transformer, xmlDoc, resultStream);
    }
 
    /**

@@ -4,11 +4,12 @@
    xmlns:d="default"
    xmlns:string="java.lang.String"
    xmlns:assets="com.spencernetdevelopment.xsl.Assets"
-   xmlns:urlutils="com.spencernetdevelopment.URLUtils"
-   exclude-result-prefixes="a d string assets urlutils"
+   xmlns:pp="com.spencernetdevelopment.xsl.ProjectPaths"
+   exclude-result-prefixes="a d string assets"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
    <xsl:param name="assetPrefixInBrowser"/>
+   <xsl:param name="pagePath"/>
 
    <xsl:template match="a:*">
       <xsl:message terminate="yes">
@@ -79,6 +80,15 @@
 
    <xsl:template match="a:pageLink[@src]">
       <xsl:value-of select="assets:validatePageReference(@src)"/>
+      <xsl:variable name="referencedPagePath"
+                    select="concat(pp:getXmlPagesPath(), '/', @src, '.xml')"
+         />
+      <xsl:variable name="referencedPageDocument"
+                    select="document($referencedPagePath)/d:page"
+         />
+      <xsl:variable name="rewritePath"
+                    select="$referencedPageDocument/d:seo/d:rewrites/d:url[@default][1]/text()"
+         />
       <xsl:if test="@frag">
          <xsl:value-of select="assets:validateFragmentReference(@src, @frag)"/>
       </xsl:if>
@@ -89,7 +99,7 @@
          </xsl:if>
       </xsl:variable>
 
-      <a href="{$assetPrefixInBrowser}/{string:replaceAll(@src, '%', '%25')}.html{$frag}">
+      <a>
          <xsl:apply-templates select="@*[
             local-name() != 'class' and
             local-name() != 'frag' and
@@ -97,6 +107,26 @@
             local-name() != 'src' and
             local-name() != 'name'
          ]"/>
+         <xsl:attribute name="href">
+            <xsl:choose>
+               <xsl:when
+                  test="string($rewritePath) != ''">
+                  <xsl:value-of select="concat(
+                        $assetPrefixInBrowser,
+                        assets:getNormalizedRewritePath($rewritePath)
+                     )"/>
+               </xsl:when>
+               <xsl:otherwise>
+                  <xsl:value-of select="concat(
+                        $assetPrefixInBrowser,
+                        '/',
+                        string:replaceAll(@src, '%', '%25'),
+                        '.html'
+                     )"/>
+               </xsl:otherwise>
+            </xsl:choose>
+            <xsl:value-of select="$frag"/>
+         </xsl:attribute>
          <xsl:variable name="isCurrentPage" select="string:endsWith($pagePath, concat(@src,'.xml'))"/>
          <xsl:if test="@class or $isCurrentPage">
             <xsl:attribute name="class">

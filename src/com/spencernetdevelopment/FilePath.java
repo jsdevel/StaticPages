@@ -11,7 +11,7 @@ public class FilePath {
    private static final String separator = File.separator;
    private static final String root      = new File(File.separator).getAbsolutePath();
    private static final boolean isUnix   = "/".equals(separator);
-   private static final String cwd       = System.getProperty("user.dir");
+   public  static final String cwd       = System.getProperty("user.dir");
 
    private final String path;
 
@@ -61,7 +61,14 @@ public class FilePath {
       }
    }
    private static String getAbsolutePath(String parent, String child) throws IOException {
-      return new File(parent, child).getCanonicalPath();
+      if(child == null){
+         throw new NullPointerException("child path must not be null");
+      }
+      if(child.startsWith(separator)){
+         return new File(child).getCanonicalPath();
+      } else {
+         return new File(parent, child).getCanonicalPath();
+      }
    }
    public static FilePath getFilePath(String path) throws IOException {
       assertSuppliedPath(path);
@@ -73,6 +80,9 @@ public class FilePath {
 
       FilePath instance = new FilePath(pathToUse);
       return instance;
+   }
+   public static FilePath getFilePath() throws IOException {
+      return getFilePath(cwd);
    }
    public FilePath resolve(String path) throws IOException {
       return new FilePath(getAbsolutePath(this.path, path));
