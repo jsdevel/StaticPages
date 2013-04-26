@@ -72,7 +72,7 @@ public class StaticPages {
          }
 
         assetPrefixInBrowser=arguments.getAssetprefixinbrowser();
-        if(!"/".equals(assetPrefixInBrowser) && assetPrefixInBrowser.endsWith("/")){
+        if("/".equals(assetPrefixInBrowser) && assetPrefixInBrowser.endsWith("/")){
             LOGGER.warn("--asset-prefix-in-browser ended in '/'.  Removing '/' from the end now.");
             assetPrefixInBrowser = assetPrefixInBrowser.replaceAll("/+$", "");
         }
