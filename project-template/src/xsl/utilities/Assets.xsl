@@ -5,7 +5,7 @@
    xmlns:string="java.lang.String"
    xmlns:assets="com.spencernetdevelopment.xsl.Assets"
    xmlns:pp="com.spencernetdevelopment.xsl.ProjectPaths"
-   exclude-result-prefixes="a d string assets"
+   exclude-result-prefixes="a d string assets pp"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
    <xsl:param name="assetPrefixInBrowser"/>
