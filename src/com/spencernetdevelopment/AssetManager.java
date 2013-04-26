@@ -84,16 +84,7 @@ public class AssetManager {
                LOGGER.info("The following resource exceeded the max size in bytes specified in the arguments: "+url);
             }
          }
-         String prefix;
-         if(StaticPages.assetPrefixInBrowser.endsWith("/")){
-            if(StaticPages.assetPrefixInBrowser.length() > 1){
-               prefix = StaticPages.assetPrefixInBrowser.substring(0, StaticPages.assetPrefixInBrowser.length()-1);
-            } else {
-               prefix = "";
-            }
-         } else {
-            prefix = StaticPages.assetPrefixInBrowser;
-         }
+         String prefix = StaticPages.assetPrefixInBrowser;
          contentsToReturn = contentsToReturn.replace("/"+url, prefix+"/"+url);
          transferAsset(url.replaceFirst("(?:\\?|#).*$", ""));
       }
