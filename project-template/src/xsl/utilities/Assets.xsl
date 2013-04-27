@@ -3,9 +3,10 @@
    xmlns:a="assets"
    xmlns:d="default"
    xmlns:string="java.lang.String"
+   xmlns:groupedAsset="com.spencernetdevelopment.GroupedAssetTransaction"
    xmlns:assets="com.spencernetdevelopment.xsl.Assets"
    xmlns:pp="com.spencernetdevelopment.xsl.ProjectPaths"
-   exclude-result-prefixes="a d string assets pp"
+   exclude-result-prefixes="a d string assets pp groupedAsset"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
    <xsl:param name="assetPrefixInBrowser"/>
@@ -56,6 +57,51 @@
             </xsl:otherwise>
          </xsl:choose>
       </a>
+   </xsl:template>
+
+   <xsl:template match="a:group[@type = 'js' or @type = 'css']">
+      <xsl:variable name="group" select="groupedAsset:new(
+            @type,
+            not(contains(@compress, 'false'))
+         )"/>
+      <xsl:for-each select="d:url">
+         <xsl:value-of select="groupedAsset:addURL($group, text())"/>
+      </xsl:for-each>
+      <xsl:value-of select="groupedAsset:close($group)"/>
+      <xsl:variable name="identifier"
+                    select="groupedAsset:getIdentifier($group)"/>
+
+      <xsl:value-of select="assets:buildGroupedAsset($group)"/>
+      <xsl:choose>
+         <xsl:when test="@type = 'css'">
+            <xsl:variable name="cssPath"
+                          select="assets:getCSSPath($identifier)"/>
+            <link href="{$assetPrefixInBrowser}/{$cssPath}" rel="stylesheet"
+                  type="text/css"
+            >
+               <xsl:apply-templates select="@*[
+                  local-name() != 'rel' and
+                  local-name() != 'type' and
+                  local-name() != 'href' and
+                  local-name() != 'compress' and
+                  local-name() != 'src'
+               ]"/>
+            </link>
+         </xsl:when>
+         <xsl:otherwise>
+            <xsl:variable name="jsPath"
+                          select="assets:getJSPath($identifier)"/>
+            <script src="{$assetPrefixInBrowser}/{$jsPath}"
+                    type="text/javascript"
+            >
+               <xsl:apply-templates select="@*[
+                     local-name() != 'src' and
+                     local-name() != 'type' and
+                     local-name() != 'compress'
+                  ]"/>
+            </script>
+         </xsl:otherwise>
+      </xsl:choose>
    </xsl:template>
 
    <xsl:template match="a:image[@src]">

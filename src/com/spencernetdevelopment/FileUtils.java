@@ -109,25 +109,40 @@ public class FileUtils {
    }
 
    /**
-    * Forces paths to fit the following format:
-    * <ul>
-    *    <li>Leading File.separators are removed</li>
-    *    <li>Proceeding File.separators are removed</li>
-    * </ul>
+    * Platform independent method to retrieve a relative path.
+    * {@link #getForcedRelativePath(java.lang.String, java.lang.String)}
     * @param path
     * @return
     */
    public static String getForcedRelativePath(String path){
+      return getForcedRelativePath(path, File.separator);
+   }
+
+   /**
+    * Forces paths to fit the following format:
+    * <ul>
+    *    <li>Leading separator values are removed</li>
+    *    <li>Proceeding separator values are removed</li>
+    * </ul>
+    * @param path
+    * @param separator The separator value to use for normalization.
+    * @throws IllegalArgumentException if either path or separator are null.
+    * @return
+    */
+   public static String getForcedRelativePath(String path, String separator){
       if(path == null){
-         throw new NullPointerException(
+         throw new IllegalArgumentException(
             "Can't force a relative path from null"
          );
       }
+      if(separator == null){
+         throw new IllegalArgumentException("seperator was null");
+      }
       String pathToReturn = path;
-      if(path.startsWith(File.separator)){
+      if(path.startsWith(separator)){
          pathToReturn = path.substring(1);
       }
-      pathToReturn = pathToReturn.replaceFirst(File.separator+"+$", "");
+      pathToReturn = pathToReturn.replaceFirst(separator+"+$", "");
       return pathToReturn;
    }
    public static String getString(File file) throws IOException {

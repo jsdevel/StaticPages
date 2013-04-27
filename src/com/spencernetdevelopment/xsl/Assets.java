@@ -6,6 +6,7 @@ package com.spencernetdevelopment.xsl;
 
 import com.spencernetdevelopment.FilePath;
 import com.spencernetdevelopment.FileUtils;
+import com.spencernetdevelopment.GroupedAssetTransaction;
 import com.spencernetdevelopment.HttpExternalLinkResponse;
 import static com.spencernetdevelopment.xsl.FileFunctions.assertFileExists;
 import static com.spencernetdevelopment.xsl.FileFunctions.assertPathHasLength;
@@ -60,6 +61,35 @@ public class Assets {
          return false;
       }
    }
+   public static void buildGroupedAsset(GroupedAssetTransaction group){
+      try {
+         String contents = StaticPages.groupedAssetTransactionManager.
+            process(group);
+         String type = group.getType();
+         String path;
+         switch (type) {
+            case "css":
+               path = getCSSPath(group.getIdentifier());
+               break;
+            case "js":
+               path = getJSPath(group.getIdentifier());
+               break;
+            default:
+               return;//ignore
+         }
+         FileUtils.putString(
+            StaticPages.buildDirPath.resolve(path).toFile(),
+            contents
+         );
+      } catch (IOException ex) {
+         LOGGER.fatal("Couldn't process group because of an IOException.", ex);
+      } catch (IllegalArgumentException ex) {
+         if(!group.isClosed()){
+            LOGGER.fatal("The group wasn't closed.");
+            System.exit(1);
+         }
+      }
+   }
    public static String getAsset(String path) {
       try {
          return StaticPages.assetManager.getAsset(path);
@@ -78,6 +108,9 @@ public class Assets {
       }
       return "";
    }
+   public static String getCSSPath(String path){
+      return "css/"+FileUtils.getForcedRelativePath(path, "/")+".css";
+   }
    public static String getJS(String path, boolean compress) {
       try {
          return StaticPages.assetManager.getJS(path, compress);
@@ -86,6 +119,9 @@ public class Assets {
          System.exit(1);
       }
       return "";
+   }
+   public static String getJSPath(String path){
+      return "js/"+FileUtils.getForcedRelativePath(path, "/")+".js";
    }
 
    public static String getNormalizedRewritePath(String rewritePath){

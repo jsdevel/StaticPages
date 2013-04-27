@@ -16,6 +16,7 @@ public class StaticPages {
    public static FilePath jarDir;
    public static AssetManager assetManager;
    public static RewriteManager rewriteManager;
+   public static GroupedAssetTransactionManager groupedAssetTransactionManager;
 
    public static boolean enableDevMode;
    public static FilePath assetsDirPath;
@@ -103,6 +104,7 @@ public class StaticPages {
             xslDirPath=srcDirPath.resolve("xsl");
             assetsDirPath=srcDirPath.resolve("assets");
             assetManager = new AssetManager(assetsDirPath, buildDirPath, arguments.getEnablecompression());
+            groupedAssetTransactionManager = new GroupedAssetTransactionManager(assetManager);
             rewriteManager = new RewriteManager(buildDirPath);
             maxDataURISizeInBytes=arguments.getMaxdataurisizeinbytes();
             maxTimeToWaitForExternalLinkValidation=arguments.getMaxwaittimetovalidateexternallink();
