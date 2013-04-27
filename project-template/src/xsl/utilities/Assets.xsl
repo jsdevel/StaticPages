@@ -35,26 +35,6 @@
       </link>
    </xsl:template>
 
-   <xsl:template match="a:image[@src]">
-      <xsl:variable name="path" select="concat('images/', @src)"/>
-      <xsl:value-of select="assets:transferAsset($path)"/>
-      <img src="{$assetPrefixInBrowser}/{$path}">
-         <xsl:apply-templates select="@*[local-name() != 'src']"/>
-      </img>
-   </xsl:template>
-
-   <xsl:template match="a:include[@asset]">
-      <xsl:value-of select="string(assets:getAsset(@asset))" disable-output-escaping="yes"/>
-   </xsl:template>
-
-   <xsl:template match="a:js[@src]">
-      <xsl:variable name="path" select="concat('js/', @src, '.js')"/>
-      <xsl:value-of select="assets:transferJS($path, not(contains(@compress, 'false')))"/>
-      <script src="{$assetPrefixInBrowser}/{$path}">
-         <xsl:apply-templates select="@*[local-name() != 'src' and local-name() != 'compress']"/>
-      </script>
-   </xsl:template>
-
    <xsl:template match="a:externalLink[@src]">
       <xsl:value-of select="assets:validateExternalURL(@src)"/>
 
@@ -76,6 +56,26 @@
             </xsl:otherwise>
          </xsl:choose>
       </a>
+   </xsl:template>
+
+   <xsl:template match="a:image[@src]">
+      <xsl:variable name="path" select="concat('images/', @src)"/>
+      <xsl:value-of select="assets:transferAsset($path)"/>
+      <img src="{$assetPrefixInBrowser}/{$path}">
+         <xsl:apply-templates select="@*[local-name() != 'src']"/>
+      </img>
+   </xsl:template>
+
+   <xsl:template match="a:include[@asset]">
+      <xsl:value-of select="string(assets:getAsset(@asset))" disable-output-escaping="yes"/>
+   </xsl:template>
+
+   <xsl:template match="a:js[@src]">
+      <xsl:variable name="path" select="concat('js/', @src, '.js')"/>
+      <xsl:value-of select="assets:transferJS($path, not(contains(@compress, 'false')))"/>
+      <script src="{$assetPrefixInBrowser}/{$path}">
+         <xsl:apply-templates select="@*[local-name() != 'src' and local-name() != 'compress']"/>
+      </script>
    </xsl:template>
 
    <xsl:template match="a:pageLink[@src]">
