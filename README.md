@@ -1,4 +1,4 @@
 StaticPages
 ==========
 
-Build static html sites with XSL
+Build amazing sites with static html!
