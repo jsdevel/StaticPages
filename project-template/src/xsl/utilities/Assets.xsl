@@ -38,7 +38,7 @@
    </xsl:template>
 
    <xsl:template match="a:css[@src]">
-      <xsl:variable name="path" select="concat('css/', @src, '.css')"/>
+      <xsl:variable name="path" select="assets:getCSSPath(@src)"/>
       <xsl:variable name="foo" select="assets:transferCSS($path, not(contains(@compress, 'false')))"/>
       <link href="{$assetPrefixInBrowser}/{$path}" rel="stylesheet" type="text/css">
          <xsl:apply-templates select="@*[
@@ -132,7 +132,7 @@
    </xsl:template>
 
    <xsl:template match="a:js[@src]">
-      <xsl:variable name="path" select="concat('js/', @src, '.js')"/>
+      <xsl:variable name="path" select="assets:getJSPath(@src)"/>
       <xsl:value-of select="assets:transferJS($path, not(contains(@compress, 'false')))"/>
       <script src="{$assetPrefixInBrowser}/{$path}">
          <xsl:apply-templates select="@*[local-name() != 'src' and local-name() != 'compress']"/>
@@ -216,16 +216,18 @@
    </xsl:template>
 
    <xsl:template match="a:script[@src]">
-      <xsl:variable name="path" select="concat('js/', @src, '.js')"/>
+      <xsl:variable name="path" select="assets:getJSPath(@src)"/>
       <script>
          <xsl:value-of select="assets:getJS($path, not(contains(@compress, 'false')))" disable-output-escaping="yes"/>
       </script>
    </xsl:template>
 
    <xsl:template match="a:style[@src]">
-      <xsl:variable name="path" select="concat('css/', @src, '.css')"/>
+      <xsl:variable name="path" select="assets:getCSSPath(@src)"/>
       <style type="text/css">
-         <xsl:value-of select="assets:getCSS($path, not(contains(@compress, 'false')))" disable-output-escaping="yes"/>
+         <xsl:value-of select="assets:getCSS(
+            $path,
+            not(contains(@compress, 'false')))" disable-output-escaping="yes"/>
       </style>
    </xsl:template>
 
