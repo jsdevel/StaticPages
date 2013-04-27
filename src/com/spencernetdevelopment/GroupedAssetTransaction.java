@@ -37,11 +37,9 @@ import java.util.List;
  * on the underlying data.
  *    </li>
  *    <li>
- * The identifier is <i>based</i> on a Base64 encoded unique representation for
- * any given set of URLs.  The identifier will <i>not</i> contain any '/' or '='
- * which are apart of the Base64 character set.  It is assumed that the
- * identifier will be used in the filename of the resulting asset once
- * processing is complete.
+ * The identifier is a unique representation in an MD5 format for any given set
+ * of URLs.  It is assumed that the identifier will be used in the filename of
+ * the resulting asset once processing is complete.
  *    </li>
  *    <li>
  * List is used to hold assets in the transaction, and ordering is guaranteed
@@ -123,12 +121,11 @@ public class GroupedAssetTransaction {
     * @throws IllegalStateException If the transaction hasn't been closed.
     * @return an identifier based on the following algorithm:
     * <ol>
-    *    <li>Create a new string as the value of the number of URLs to identify.</li>
-    *    <li>Create temporary URLs prefixed with '_'</li>
-    *    <li>Join all temporary URLs with '_'</li>
-    *    <li>Base64 encode the result</li>
-    *    <li>Replace any '/' characters with '_'</li>
-    *    <li>Strip all '=' padding</li>
+    *    <li>
+    *    Create a new string as the value of the number of URLs to identify.
+    *    </li>
+    *    <li>Join URLs to the new string prefixing each with '_'</li>
+    *    <li>Hash the result with MD5</li>
     * </ol>
     */
    public String getIdentifier() throws IllegalStateException {
@@ -139,11 +136,7 @@ public class GroupedAssetTransaction {
             identifier += "_";
             identifier += url;
          }
-         //use base64 to avoid a URL with directories, but replace '/' with '_'
-         //and strip '='.
-         identifier = Base64.encodeToString(
-               identifier.getBytes(), false
-            ).replace('/', '_').replace("=", "");
+         identifier = CryptoUtils.md5(identifier);
       }
       return identifier;
    }

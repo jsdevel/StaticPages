@@ -144,11 +144,12 @@ public class GroupedAssetTransactionTest {
       transaction.addURL("script");
       transaction.close();
       String identifier = transaction.getIdentifier();
-      assertEquals("Ml9zY3JpcHRfc2NyaXB0", identifier);
+      System.out.println(identifier);
+      assertEquals("a840c76592633e0af0704479fc1b11df", identifier);
    }
    @Test
    public void identifiers_avoid_collisions(){
-      String attemptToDuplicate = "Ml9zY3JpcHRfc2NyaXB0";
+      String attemptToDuplicate = "a840c76592633e0af0704479fc1b11df";
       String identifier;
       transaction.addURL("script");
       transaction.addURL("script");
