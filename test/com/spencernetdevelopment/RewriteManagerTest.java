@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Assert;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class RewriteManagerTest {
    public void constructor_requires_existing_base_file_path() {
       try {
          new RewriteManager(FilePath.getFilePath("/asdfasdfasdf"));
-         Assert.fail("no IOExceptions were thrown for non-existent directories");
+         fail("no IOExceptions were thrown for non-existent directories");
       } catch (IOException ex) {}
    }
 
@@ -92,7 +92,7 @@ public class RewriteManagerTest {
       manager.applyRewrites();
       for(String target:rewritesToApply){
          File toFile = buildFilePath.resolve(target+"/"+targetPostfix).toFile();
-         Assert.assertTrue(toFile.isFile());
+         assertTrue(toFile.isFile());
       }
    }
 }
