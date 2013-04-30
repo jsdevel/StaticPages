@@ -15,6 +15,7 @@
  */
 package com.spencernetdevelopment;
 
+import com.spencernetdevelopment.xsl.Assets;
 import com.yahoo.platform.yui.compressor.CssCompressor;
 import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
 import java.io.File;
@@ -96,8 +97,12 @@ public class AssetManager {
             }
          }
          String prefix = StaticPages.assetPrefixInBrowser;
-         contentsToReturn = contentsToReturn.replace("/"+url, prefix+"/"+url);
-         transferAsset(url.replaceFirst("(?:\\?|#).*$", ""));
+         contentsToReturn = contentsToReturn.replace(
+            "/"+url,
+            prefix+"/"+Assets.getAssetPath(url)
+         );
+         String path = getURLWithoutFragOrQuery(url);
+         transferAsset(path, Assets.getAssetPath(path));
       }
       return contentsToReturn;
    }
@@ -120,21 +125,43 @@ public class AssetManager {
       return (minified == null ? contents : minified).replace("ASSET_PREFIX_IN_BROWSER", StaticPages.assetPrefixInBrowser);
    }
 
-   public void transferCSS(String path, boolean compress) throws IOException {
+   public void transferCSS(
+      String srcPath,
+      String targetPath,
+      boolean compress
+   ) throws
+      IOException
+   {
       AtomicReference<File> source = new AtomicReference<>();
       AtomicReference<File> target = new AtomicReference<>();
-      if(prepareAssetTransfer(path, source, target)){
+      if(prepareAssetTransfer(
+         srcPath,
+         source,
+         targetPath,
+         target
+      )){
          FileUtils.putString(target.get(), getCSS(source.get(), compress));
       }
 
    }
    public void transferImage(String path) throws IOException {
-      transferAsset(path);
+      transferAsset(path, Assets.getAssetPath(path));
    }
-   public void transferJS(String path, boolean compress) throws IOException {
+   public void transferJS(
+      String srcPath,
+      String targetPath,
+      boolean compress
+   ) throws
+      IOException
+   {
       AtomicReference<File> source = new AtomicReference<>();
       AtomicReference<File> target = new AtomicReference<>();
-      if(prepareAssetTransfer(path, source, target)){
+      if(prepareAssetTransfer(
+         srcPath,
+         source,
+         targetPath,
+         target
+      )){
          FileUtils.putString(target.get(), getJS(source.get(), compress));
       }
    }
@@ -145,23 +172,45 @@ public class AssetManager {
     * @param path
     * @throws IOException
     */
-   public void transferAsset(String path) throws IOException {
+   public void transferAsset(
+      String srcPath,
+      String targetPath
+   ) throws
+      IOException
+   {
       AtomicReference<File> source = new AtomicReference<>();
       AtomicReference<File> target = new AtomicReference<>();
-      if(prepareAssetTransfer(path, source, target)){
+      if(prepareAssetTransfer(srcPath, source, targetPath, target)){
          FileUtils.copyFile(source.get(), target.get());
       }
    }
 
+
+   /**
+    * Returns the URL without a '#' fragment or '?' query string.
+    *
+    * @param url
+    * @return
+    */
+   private String getURLWithoutFragOrQuery(String url){
+      return url.replaceFirst("(?:\\?|#).*$", "");
+   }
    /**
     * Prepares assets for transferring if the source is newer than the target.
     *
     * @param path
     * @return true the asset can be transferred.
     */
-   private boolean prepareAssetTransfer(String path, AtomicReference<File> source, AtomicReference<File> target) throws IOException {
-      File from = assetPath.resolve(path).toFile();
-      File to = buildPath.resolve(path).toFile();
+   private boolean prepareAssetTransfer(
+      String srcPath,
+      AtomicReference<File> source,
+      String targetPath,
+      AtomicReference<File> target
+   ) throws
+      IOException
+   {
+      File from = assetPath.resolve(srcPath).toFile();
+      File to = buildPath.resolve(targetPath).toFile();
       String fromPath = from.getAbsolutePath();
       String toPath = to.getAbsolutePath();
       String preamble = "Couldn't transfer the following asset because it";

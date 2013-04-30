@@ -81,6 +81,16 @@ against the StaticPages.jar file."
       description="Cleans all resources in the given projce build directory when true."
       type="boolean"
       />
+   <argument
+      default="false"
+      name="--enable-asset-fingerprinting"
+      description="Enables or disables asset fingerprinting.  An asset
+fingerprint contains a unix timestamp of the following format just before the
+file extension: 'file.UTC23452345345.js'.  The benefit of using a fingerprint
+in this manner, is that you can easily write a recursive directory scanner that
+can clean up old assets from time to time."
+      type="boolean"
+      />
 
    <argument
       default="false"

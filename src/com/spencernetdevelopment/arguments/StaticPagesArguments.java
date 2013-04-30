@@ -11,6 +11,7 @@ public class StaticPagesArguments {
    private String logjinterval=null;
    private boolean enablecompression=false;
    private boolean clean=false;
+   private boolean enableassetfingerprinting=false;
    private boolean enabledevmode=false;
    private int maxdataurisizeinbytes=32768;
    private int maxwaittimetovalidateexternallink=5000;
@@ -24,6 +25,7 @@ public class StaticPagesArguments {
       final String logjinterval,
       final boolean enablecompression,
       final boolean clean,
+      final boolean enableassetfingerprinting,
       final boolean enabledevmode,
       final int maxdataurisizeinbytes,
       final int maxwaittimetovalidateexternallink,
@@ -52,6 +54,7 @@ public class StaticPagesArguments {
       this.logjinterval=logjinterval;
       this.enablecompression=enablecompression;
       this.clean=clean;
+      this.enableassetfingerprinting=enableassetfingerprinting;
       this.enabledevmode=enabledevmode;
       this.maxdataurisizeinbytes=maxdataurisizeinbytes;
       this.maxwaittimetovalidateexternallink=maxwaittimetovalidateexternallink;
@@ -99,6 +102,12 @@ public class StaticPagesArguments {
    }
    public boolean hasClean(){
       return clean;
+   }
+   public boolean getEnableassetfingerprinting(){
+      return enableassetfingerprinting;
+   }
+   public boolean hasEnableassetfingerprinting(){
+      return enableassetfingerprinting;
    }
    public boolean getEnabledevmode(){
       return enabledevmode;

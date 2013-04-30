@@ -34,6 +34,7 @@ public class StaticPages {
    public static GroupedAssetTransactionManager groupedAssetTransactionManager;
 
    public static boolean enableDevMode;
+   public static String assetFingerprint="";
    public static FilePath assetsDirPath;
    public static FilePath buildDirPath;
    public static FilePath pagesDirPath;
@@ -95,7 +96,10 @@ public class StaticPages {
          } else {
             assetPrefixInBrowser="";
          }
-        prefixToIgnoreFilesWith=arguments.getPrefixtoignorefiles();
+         if(arguments.getEnableassetfingerprinting()){
+            assetFingerprint = ".UTC"+(System.currentTimeMillis()/1000);
+         }
+         prefixToIgnoreFilesWith=arguments.getPrefixtoignorefiles();
 
          if(arguments.hasNewproject()){
             File sampleProjectDir = jarDir.resolve("project-template").toFile();

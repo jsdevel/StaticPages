@@ -13,6 +13,7 @@ public class StaticPagesTerminal {
       String logjinterval=null;
       boolean enablecompression=false;
       boolean clean=false;
+      boolean enableassetfingerprinting=false;
       boolean enabledevmode=false;
       int maxdataurisizeinbytes=32768;
       int maxwaittimetovalidateexternallink=5000;
@@ -56,6 +57,10 @@ public class StaticPagesTerminal {
             clean = getBoolean(val);
             continue;
          }
+         if("--enable-asset-fingerprinting".equals(key)){
+            enableassetfingerprinting = getBoolean(val);
+            continue;
+         }
          if("--enable-dev-mode".equals(key)){
             enabledevmode = getBoolean(val);
             continue;
@@ -85,6 +90,7 @@ public class StaticPagesTerminal {
             logjinterval,
             enablecompression,
             clean,
+            enableassetfingerprinting,
             enabledevmode,
             maxdataurisizeinbytes,
             maxwaittimetovalidateexternallink,

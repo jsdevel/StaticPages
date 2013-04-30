@@ -110,7 +110,72 @@ public class Assets {
       }
       return "";
    }
+
+   /**
+    * Returns a URL with an optional fingerprint depending on what is
+    * configured.
+    *
+    * @param url
+    * @throws NullPointerException if the URL is null.
+    * @throws IllegalArgumentException if the URL has no file extension.
+    * @throws IllegalArgumentException if the URL no path
+    * @return
+    */
+   public static String getAssetPath(String url){
+      if(url == null){
+         throw new NullPointerException("url was null");
+      }
+      String fileExtension = url.replaceFirst(".+(\\.[a-zA-Z]+)$", "$1");
+      String pathWithoutExtension = url.replaceFirst("(.+)\\.[a-zA-Z]+$", "$1");
+      if(fileExtension.length() == 0){
+         throw new IllegalArgumentException("no file extension was found");
+      }
+      if(pathWithoutExtension.length() == 0){
+         throw new IllegalArgumentException("no path was found");
+      }
+      return pathWithoutExtension+StaticPages.assetFingerprint+fileExtension;
+   }
+
+   /**
+    * Returns the path to the desired css resource without a fingerprint.
+    *
+    * @param path
+    * @return
+    */
+   public static String getCleanCSSPath(String path){
+      return "css/"+FileUtils.getForcedRelativePath(path, "/")+".css";
+   }
+
+   /**
+    * Returns the path to the desired image resource without a fingerprint.
+    *
+    * @param path
+    * @return
+    */
+   public static String getCleanImagePath(String path){
+      return "images/"+FileUtils.getForcedRelativePath(path, "/");
+   }
+
+   /**
+    * Returns the path to the desired javascript resource without a fingerprint.
+    *
+    * @param path
+    * @return
+    */
+   public static String getCleanJSPath(String path){
+      return "js/"+FileUtils.getForcedRelativePath(path, "/")+".js";
+   }
+
+   /**
+    * Returns the contents of the requested css file.
+    *
+    * @param path Path relative to the src/assets/css directory without a file
+    * extension.
+    * @param compress
+    * @return
+    */
    public static String getCSS(String path, boolean compress) {
+      path = getCleanCSSPath(path);
       try {
          return StaticPages.assetManager.getCSS(path, compress);
       } catch (IOException ex){
@@ -119,10 +184,42 @@ public class Assets {
       }
       return "";
    }
+
+   /**
+    * Returns the path to the desired css resource.  This path may or may
+    * not have a fingerprint depending on the arguments given to the program.
+    * @param path
+    * @return
+    */
    public static String getCSSPath(String path){
-      return "css/"+FileUtils.getForcedRelativePath(path, "/")+".css";
+      return "css/"+
+              FileUtils.getForcedRelativePath(path, "/")+
+              StaticPages.assetFingerprint+
+              ".css";
    }
+
+   /**
+    * Returns the path to the desired image resource.  This path may or may
+    * not have a fingerprint depending on the arguments given to the program.
+    * @param path
+    * @return
+    */
+   public static String getImagePath(String path){
+      return "images/"+getAssetPath(
+         FileUtils.getForcedRelativePath(path, "/")
+      );
+   }
+
+   /**
+    * Returns the contents of the requested js file.
+    *
+    * @param path Path relative to the src/assets/js directory without a file
+    * extension.
+    * @param compress
+    * @return
+    */
    public static String getJS(String path, boolean compress) {
+      path = getCleanJSPath(path);
       try {
          return StaticPages.assetManager.getJS(path, compress);
       } catch (IOException ex){
@@ -131,8 +228,17 @@ public class Assets {
       }
       return "";
    }
+
+   /**
+    * Returns the path to the desired javascript resource.  This path may or may
+    * not have a fingerprint depending on the arguments given to the program.
+    * @param path
+    * @return
+    */
    public static String getJSPath(String path){
-      return "js/"+FileUtils.getForcedRelativePath(path, "/")+".js";
+      return "js/"+
+              FileUtils.getForcedRelativePath(path, "/")+
+              StaticPages.assetFingerprint+".js";
    }
 
    public static String getNormalizedRewritePath(String rewritePath){
@@ -161,7 +267,7 @@ public class Assets {
    }
    public static void transferAsset(String path) throws IOException {
       try {
-         StaticPages.assetManager.transferAsset(path);
+         StaticPages.assetManager.transferAsset(path, path);
       } catch (IOException ex){
          LOGGER.fatal(ex.getLocalizedMessage());
          System.exit(1);
@@ -169,15 +275,11 @@ public class Assets {
    }
    public static void transferCSS(String path, boolean compress) throws IOException {
       try {
-         StaticPages.assetManager.transferCSS(path, compress);
-      } catch (IOException ex){
-         LOGGER.fatal(ex.getLocalizedMessage());
-         System.exit(1);
-      }
-   }
-   public static void transferJS(String path, boolean compress) throws IOException {
-      try {
-         StaticPages.assetManager.transferJS(path, compress);
+         StaticPages.assetManager.transferCSS(
+            getCleanCSSPath(path),
+            getCSSPath(path),
+            compress
+         );
       } catch (IOException ex){
          LOGGER.fatal(ex.getLocalizedMessage());
          System.exit(1);
@@ -185,7 +287,21 @@ public class Assets {
    }
    public static void transferImage(String path) throws IOException {
       try {
-         StaticPages.assetManager.transferImage(path);
+         StaticPages.assetManager.transferImage(
+            FileUtils.getForcedRelativePath(path, "/")
+         );
+      } catch (IOException ex){
+         LOGGER.fatal(ex.getLocalizedMessage());
+         System.exit(1);
+      }
+   }
+   public static void transferJS(String path, boolean compress) throws IOException {
+      try {
+         StaticPages.assetManager.transferJS(
+            getCleanJSPath(path),
+            getJSPath(path),
+            compress
+         );
       } catch (IOException ex){
          LOGGER.fatal(ex.getLocalizedMessage());
          System.exit(1);
