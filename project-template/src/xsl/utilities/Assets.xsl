@@ -42,7 +42,9 @@
             @src,
             @compress
          )"/>
-      <link href="{$assetPrefixInBrowser}/{assets:getCSSPath(@src)}" rel="stylesheet" type="text/css">
+      <link href="{$assetPrefixInBrowser}/{assets:getCSSPath(@src)}"
+            rel="stylesheet" type="text/css"
+      >
          <xsl:apply-templates select="@*[
             local-name() != 'rel' and
             local-name() != 'type' and
@@ -132,7 +134,8 @@
    </xsl:template>
 
    <xsl:template match="a:include[@asset]">
-      <xsl:value-of select="string(assets:getAsset(@asset))" disable-output-escaping="yes"/>
+      <xsl:value-of select="string(assets:getAsset(@asset))"
+                    disable-output-escaping="yes"/>
    </xsl:template>
 
    <xsl:template match="a:js[@src]">
@@ -141,7 +144,8 @@
          @compress
       )"/>
       <script src="{$assetPrefixInBrowser}/{assets:getJSPath(@src)}">
-         <xsl:apply-templates select="@*[local-name() != 'src' and local-name() != 'compress']"/>
+         <xsl:apply-templates
+            select="@*[local-name() != 'src' and local-name() != 'compress']"/>
       </script>
    </xsl:template>
 
@@ -154,8 +158,10 @@
                     select="document($referencedPagePath)/d:page"
          />
       <xsl:variable name="rewritePath"
-                    select="$referencedPageDocument/d:seo/d:rewrites/d:url[@default][1]/text()"
-         />
+                    select="$referencedPageDocument/d:seo/d:rewrites/d:url[
+                           @default
+                        ][1]/text()
+                     "/>
       <xsl:if test="@frag">
          <xsl:value-of select="assets:validateFragmentReference(@src, @frag)"/>
       </xsl:if>
@@ -194,7 +200,11 @@
             </xsl:choose>
             <xsl:value-of select="$frag"/>
          </xsl:attribute>
-         <xsl:variable name="isCurrentPage" select="string:endsWith($pagePath, concat(@src,'.xml'))"/>
+         <xsl:variable name="isCurrentPage"
+                       select="string:endsWith(
+                           $pagePath,
+                           concat(@src,'.xml'))
+                        "/>
          <xsl:if test="@class or $isCurrentPage">
             <xsl:attribute name="class">
                <xsl:if test="@class">
