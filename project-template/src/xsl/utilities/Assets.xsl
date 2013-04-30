@@ -40,7 +40,7 @@
    <xsl:template match="a:css[@src]">
       <xsl:value-of select="assets:transferCSS(
             @src,
-            not(contains(@compress, 'false'))
+            @compress
          )"/>
       <link href="{$assetPrefixInBrowser}/{assets:getCSSPath(@src)}" rel="stylesheet" type="text/css">
          <xsl:apply-templates select="@*[
@@ -79,7 +79,7 @@
    <xsl:template match="a:group[@type = 'js' or @type = 'css']">
       <xsl:variable name="group" select="groupedAsset:new(
             @type,
-            not(contains(@compress, 'false'))
+            assets:getEnableCompression(@compress)
          )"/>
       <xsl:for-each select="d:url">
          <xsl:value-of select="groupedAsset:addURL($group, text())"/>
@@ -138,7 +138,7 @@
    <xsl:template match="a:js[@src]">
       <xsl:value-of select="assets:transferJS(
          @src,
-         not(contains(@compress, 'false'))
+         @compress
       )"/>
       <script src="{$assetPrefixInBrowser}/{assets:getJSPath(@src)}">
          <xsl:apply-templates select="@*[local-name() != 'src' and local-name() != 'compress']"/>
@@ -223,7 +223,10 @@
 
    <xsl:template match="a:script[@src]">
       <script>
-         <xsl:value-of select="assets:getJS(@src, not(contains(@compress, 'false')))" disable-output-escaping="yes"/>
+         <xsl:value-of select="assets:getJS(
+            @src,
+            @compress
+         )" disable-output-escaping="yes"/>
       </script>
    </xsl:template>
 
@@ -231,7 +234,8 @@
       <style type="text/css">
          <xsl:value-of select="assets:getCSS(
             @src,
-            not(contains(@compress, 'false')))" disable-output-escaping="yes"/>
+            @compress
+         )" disable-output-escaping="yes"/>
       </style>
    </xsl:template>
 

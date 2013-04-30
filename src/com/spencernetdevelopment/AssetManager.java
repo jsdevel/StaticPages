@@ -34,14 +34,12 @@ import org.apache.log4j.Logger;
 public class AssetManager {
    private static final Logger LOGGER = Logger.getLogger(AssetManager.class);
    private static final Pattern CSS_URL = Pattern.compile("url\\(\\s*(['\"])?/((?:(?!\\1\\)).)+)\\1?\\)");
-   private final boolean COMPRESS_ASSETS;
 
    private FilePath assetPath;
    private FilePath buildPath;
-   public AssetManager(FilePath assets, FilePath build, boolean compress) throws IOException{
+   public AssetManager(FilePath assets, FilePath build) throws IOException{
       assetPath=assets;
       buildPath=build;
-      COMPRESS_ASSETS=compress;
    }
 
    public String getAsset(File file) throws IOException {
@@ -60,7 +58,7 @@ public class AssetManager {
    }
    private String handleCSS(String contents, boolean compress) throws IOException {
       String contentsToReturn;
-      if((compress && COMPRESS_ASSETS) || COMPRESS_ASSETS){
+      if(compress){
          StringReader reader = new StringReader(contents);
          StringWriter writer = new StringWriter(contents.length());
          CssCompressor cssCompressor = new com.yahoo.platform.yui.compressor.CssCompressor(reader);
@@ -115,7 +113,7 @@ public class AssetManager {
    }
    private String handleJS(String contents, boolean compress) throws IOException {
       String minified=null;
-      if((compress && COMPRESS_ASSETS) || COMPRESS_ASSETS){
+      if(compress){
          StringReader reader = new StringReader(contents);
          StringWriter writer = new StringWriter(contents.length());
          JavaScriptCompressor javaScriptCompressor = new JavaScriptCompressor(reader, JSErrorReporter.INSTANCE);

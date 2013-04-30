@@ -34,6 +34,7 @@ public class StaticPages {
    public static GroupedAssetTransactionManager groupedAssetTransactionManager;
 
    public static boolean enableDevMode;
+   public static boolean enableCompression;
    public static String assetFingerprint="";
    public static FilePath assetsDirPath;
    public static FilePath buildDirPath;
@@ -63,6 +64,7 @@ public class StaticPages {
          StaticPagesArguments arguments = StaticPagesTerminal.getArguments(args);
 
          enableDevMode = arguments.getEnabledevmode();
+         enableCompression = arguments.getEnablecompression();
 
          {//setup log4j.
             FilePath propFile = null;
@@ -122,7 +124,7 @@ public class StaticPages {
             srcDirPath=projectDirPath.resolve("src");
             xslDirPath=srcDirPath.resolve("xsl");
             assetsDirPath=srcDirPath.resolve("assets");
-            assetManager = new AssetManager(assetsDirPath, buildDirPath, arguments.getEnablecompression());
+            assetManager = new AssetManager(assetsDirPath, buildDirPath);
             groupedAssetTransactionManager = new GroupedAssetTransactionManager(assetManager);
             rewriteManager = new RewriteManager(buildDirPath);
             maxDataURISizeInBytes=arguments.getMaxdataurisizeinbytes();

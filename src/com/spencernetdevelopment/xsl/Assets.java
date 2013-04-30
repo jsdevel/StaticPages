@@ -174,10 +174,11 @@ public class Assets {
     * @param compress
     * @return
     */
-   public static String getCSS(String path, boolean compress) {
+   public static String getCSS(String path, String compress) {
       path = getCleanCSSPath(path);
+      boolean isCompress = getEnableCompression(compress);
       try {
-         return StaticPages.assetManager.getCSS(path, compress);
+         return StaticPages.assetManager.getCSS(path, isCompress);
       } catch (IOException ex){
          LOGGER.fatal("Couldn't get: "+path);
          System.exit(1);
@@ -218,10 +219,11 @@ public class Assets {
     * @param compress
     * @return
     */
-   public static String getJS(String path, boolean compress) {
+   public static String getJS(String path, String compress) {
       path = getCleanJSPath(path);
+      boolean isCompress = getEnableCompression(compress);
       try {
-         return StaticPages.assetManager.getJS(path, compress);
+         return StaticPages.assetManager.getJS(path, isCompress);
       } catch (IOException ex){
          LOGGER.fatal("Couldn't get: "+path);
          System.exit(1);
@@ -273,12 +275,13 @@ public class Assets {
          System.exit(1);
       }
    }
-   public static void transferCSS(String path, boolean compress) throws IOException {
+   public static void transferCSS(String path, String compress) throws IOException {
+      boolean isCompress = getEnableCompression(compress);
       try {
          StaticPages.assetManager.transferCSS(
             getCleanCSSPath(path),
             getCSSPath(path),
-            compress
+            isCompress
          );
       } catch (IOException ex){
          LOGGER.fatal(ex.getLocalizedMessage());
@@ -295,12 +298,13 @@ public class Assets {
          System.exit(1);
       }
    }
-   public static void transferJS(String path, boolean compress) throws IOException {
+   public static void transferJS(String path, String compress) throws IOException {
+      boolean isCompress = getEnableCompression(compress);
       try {
          StaticPages.assetManager.transferJS(
             getCleanJSPath(path),
             getJSPath(path),
-            compress
+            isCompress
          );
       } catch (IOException ex){
          LOGGER.fatal(ex.getLocalizedMessage());
@@ -411,4 +415,21 @@ public class Assets {
       }
    }
 
+   /**
+    * Returns a boolean value based on an attribute value.  If the attribute was
+    * not one of 'false' or 'true', then the configured value is used.
+    *
+    * @param attributeValue
+    * @return
+    */
+   public static boolean getEnableCompression(String attributeValue){
+      switch (attributeValue) {
+         case "true":
+            return true;
+         case "false":
+            return false;
+         default:
+            return StaticPages.enableCompression;
+      }
+   }
 }
