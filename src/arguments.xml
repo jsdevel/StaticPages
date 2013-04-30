@@ -20,9 +20,9 @@ limitations under the License.
    class="StaticPages"
    copyright="2012 Joseph Spencer"
    description="
-StaticPages builds static HTML files using XML + XSL.
+StaticPages builds extremely optimized websites based on static assets.
 "
-   example="java -jar --src-dir my/dir/src --build-dir my/dir/build"
+   example="java -jar --project-dir /some/path ...(options)..."
    indent="   "
    license="http://www.apache.org/licenses/LICENSE-2.0"
    package="com.spencernetdevelopment.arguments"
@@ -33,14 +33,17 @@ StaticPages builds static HTML files using XML + XSL.
    <argument
       name="--project-dir"
       description="
-The base path of your project.
+The base path of your project.  This builds all the pages in your project.  Only
+the assets that are declared in your pages and views will be built.
 "
       type="directory"
       />
    <argument
       name="--new-project"
       description="
-Creates a default project in the specified directory.
+Creates a default project in the specified directory.  This overwrites the
+default files / resources provided by the framework.  All other existing files
+are left untouched.  Nothing is built by using this option.
 "
       type="directory"
       />
@@ -113,7 +116,7 @@ can clean up old assets from time to time."
    <argument
        default="_"
        name="--prefix-to-ignore-files"
-       desctiption="Files with this prefix will be ignored."
+       description="Files with this prefix will be ignored."
        type="string"
        />
 
