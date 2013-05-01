@@ -1,0 +1,30 @@
+{
+   "name": "static-pages",
+   "version": "1.0.0",
+   "description": "Build amazingly optimzed static html pages!!",
+   "preferGlobal": true,
+   "author": "Joseph Spencer <js.developer.undefined@gmail.com>",
+   "keywords": [
+      "html",
+      "css",
+      "minified",
+      "framework",
+      "website",
+      "webpage",
+      "optimization",
+      "javascript"
+   ],
+   "bin":{
+      "static-pages":"./static-pages.js"
+   },
+   "analyze": false,
+   "license": "apache 2.0",
+   "repository": {
+      "type": "git",
+      "url": "https://github.com/jsdevel/StaticPages.git"
+   },
+   "readmeFilename": "README.md",
+   "engines": { 
+      "node": "*"
+   }
+}

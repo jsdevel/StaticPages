@@ -1,0 +1,7 @@
+{
+   "clean":false,
+   "enable-asset-fingerprinting":true,
+   "enable-compression":true,
+   "new-project":".",
+   "project-dir":"."
+}
