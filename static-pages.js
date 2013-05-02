@@ -56,7 +56,7 @@ java.on('close', function(code, signal){
 
 function startStaticPages(config){
    var option;
-   var args = [ '-jar', 'StaticPages.jar'];
+   var args = [ '-jar', path.join(__dirname, 'StaticPages.jar')];
    for(option in config){
       args.push('--'+option);
       switch(option){
@@ -69,7 +69,7 @@ function startStaticPages(config){
          break;
       }
    }
-   var java = spawn('java', args, {cwd:__dirname});
+   var java = spawn('java', args, {cwd:process.cwd()});
    java.stdout.pipe(process.stdout);
    java.stderr.pipe(process.stderr);
 }
