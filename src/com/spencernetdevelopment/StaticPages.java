@@ -68,10 +68,15 @@ public class StaticPages {
                case 2:
                case 3:
                case 4:
+               case 5:
                   Logger.logLevel = arguments.getLogginglevel();
                   break;
                default:
-                  Logger.fatal("Invalid argument for logging level.  Expecting one of 0, 1, 2, 3 or 4.", 1);
+                  Logger.fatal(
+                     "Invalid argument for logging level.\n"+
+                     "Expecting one of 0, 1, 2, 3, 4 or 5.",
+                     1
+                  );
             }
          }
 
@@ -111,7 +116,7 @@ public class StaticPages {
             File sampleProjectDir = jarDir.resolve("project-template").toFile();
             if(isDebug)debug("sample project dir: "+sampleProjectDir.getAbsolutePath());
             if(!sampleProjectDir.exists()){
-               end("Couldn't create a new project.  The project-template wasn't found next to the jar.", 1);
+               fatal("Couldn't create a new project.  The project-template wasn't found next to the jar.", 1);
             }
             FileUtils.copyDirContentsToDir(sampleProjectDir, arguments.getNewproject());
             FileUtils.copyDirContentsToDir(sampleProjectDir, arguments.getNewproject().toPath().resolve("bin/project-template").toFile());
@@ -149,7 +154,7 @@ public class StaticPages {
             maxTimeToWaitForExternalLinkValidation=arguments.getMaxwaittimetovalidateexternallink();
 
             if(!Assertions.fileExists(defaultStylesheet.toFile())){
-               end("No default stylesheet found.", 1);
+               fatal("No default stylesheet found.", 1);
             }
 
             if(arguments.getClean()){
@@ -163,15 +168,12 @@ public class StaticPages {
             Logger.warn("No project dir was specified.  Some arguments may be ignored.");
          }
       } catch(Throwable exc){
-         end("Failed for the following reason: "+exc, 1);
+         fatal("Failed for the following reason: "+exc, 1);
       }
    }
 
 
    public static void msg(String message){
       System.out.println(message);
-   }
-   public static void end(String message, int code){
-      Logger.fatal(message, code);
    }
 }

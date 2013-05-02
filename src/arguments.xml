@@ -146,6 +146,7 @@ Controls the level of logging.\n
 2 outputs the line number the log was called
 3 outputs the file name where the log was called
 4 outputs the method name where the log was called
+5 outputs a full stack trace on fatal logs
 "
       type="int"
       />

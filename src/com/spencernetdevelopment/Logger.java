@@ -51,6 +51,9 @@ public class Logger {
    public static void fatal(String msg, Integer code){
        if(isFatal){
          msg("FATAL "+msg);
+         if(logLevel > 4){
+            new Exception().printStackTrace(System.out);
+         }
          if(code != null){
             System.exit(code);
          }
