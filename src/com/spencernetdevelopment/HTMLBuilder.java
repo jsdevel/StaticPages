@@ -35,6 +35,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import static com.spencernetdevelopment.Logger.*;
+import org.w3c.dom.NamedNodeMap;
 
 /**
  *
@@ -102,10 +103,16 @@ public class HTMLBuilder {
               (xmlFilePath != null ? xmlFilePath.toString() : null));
       if (xmlFilePath != null && !xmlFilePath.toFile().getName().startsWith(StaticPages.prefixToIgnoreFilesWith)) {
          Document xmlDocument = docBuilder.parse(xmlFilePath.toFile());
+         xmlDocument.normalize();
          FilePath outputFilePath = buildDirPath.resolve(xmlFilePath.toString().substring(xmlPagesDirStringLength + 1).replaceFirst("\\.xml$", ".html"));
          File htmlFile = outputFilePath.toFile();
-
-         Node alternateNameNode = xmlDocument.getFirstChild().getAttributes().getNamedItem("alternate-name");
+         Node firstChild = xmlDocument.getFirstChild();
+         if(isDebug && firstChild == null)debug("firstChild was null");
+         else if(isDebug)debug("firstChildName: "+firstChild.getLocalName());
+         NamedNodeMap attributes = firstChild.getAttributes();
+         if(isDebug && attributes == null)debug("attributes was null");
+         Node alternateNameNode = attributes.getNamedItem("alternate-name");
+         if(isDebug && alternateNameNode == null)debug("alternateNameNode was null");
 
          WrappedTransformer transformer;
          if (alternateNameNode != null) {
@@ -135,6 +142,7 @@ public class HTMLBuilder {
       Path outputFilePath
    ) throws TransformerException, IOException {
       FileUtils.createFile(outputFile);
+      xmlDocument.normalize();
       DOMSource xmlDoc = new DOMSource(xmlDocument);
       StreamResult resultStream = new StreamResult(outputFile);
 
