@@ -48,19 +48,28 @@ public class Logger {
          msg("ERROR "+msg);
       }
    }
-   public static void fatal(String msg, Integer code){
+   public static void fatal(String msg, Integer code, Throwable ex){
        if(isFatal){
          msg("FATAL "+msg);
          if(logLevel > 4){
-            new Exception().printStackTrace(System.out);
+            Throwable throwable;
+            if(ex == null){
+               throwable = new Exception();
+            } else {
+               throwable = ex;
+            }
+            throwable.printStackTrace(System.out);
          }
          if(code != null){
             System.exit(code);
          }
       }
    }
+   public static void fatal(String msg, Integer code){
+      fatal(msg, code, null);
+   }
    public static void fatal(String msg){
-      fatal(msg, null);
+      fatal(msg, 1);
    }
    private static void msg(String msg){
       if(logLevel > 0){

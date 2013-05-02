@@ -168,7 +168,7 @@ public class StaticPages {
             Logger.warn("No project dir was specified.  Some arguments may be ignored.");
          }
       } catch(Throwable exc){
-         fatal("Failed for the following reason: "+exc, 1);
+         fatal("Failed for the following reason: ", 1, exc);
       }
    }
 
