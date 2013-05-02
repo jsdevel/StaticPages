@@ -17,6 +17,7 @@ package com.spencernetdevelopment;
 
 import com.spencernetdevelopment.arguments.StaticPagesArguments;
 import com.spencernetdevelopment.arguments.StaticPagesTerminal;
+import static com.spencernetdevelopment.Logger.*;
 import java.io.File;
 
 /**
@@ -51,10 +52,6 @@ public class StaticPages {
    public static void main(String[] args) {
       try {
          String argumentsXmlPathString = StaticPages.class.getResource("/arguments.xml").getPath().replaceAll("^(?:file:)?(?:/(?=[A-Z]:/))?|^jar:|![^!]+$", "");
-         FilePath argumentsXmlFilePath = FilePath.getFilePath(argumentsXmlPathString);
-
-         jarDir = argumentsXmlFilePath.getParent();
-
          System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
              "com.icl.saxon.om.DocumentBuilderFactoryImpl");
          StaticPagesArguments arguments = StaticPagesTerminal.getArguments(args);
@@ -78,12 +75,17 @@ public class StaticPages {
             }
          }
 
+         if(isDebug)debug("user.dir:  "+System.getProperty("user.dir"));
+         if(isDebug)debug("user.home: "+System.getProperty("user.home"));
+         if(isDebug)debug("user.name: "+System.getProperty("user.name"));
+         if(isDebug)debug("path to arguments.xml: "+argumentsXmlPathString);
+
+         FilePath argumentsXmlFilePath = FilePath.getFilePath(argumentsXmlPathString);
+         jarDir = argumentsXmlFilePath.getParent();
          enableDevMode = arguments.getEnabledevmode();
          enableCompression = arguments.getEnablecompression();
 
-         if(Logger.isDebug){
-            Logger.debug("jarDir = "+jarDir.toString());
-         }
+         if(isDebug)debug("jarDir = "+jarDir.toString());
 
          if(arguments.hasAssetprefixinbrowser()){
             assetPrefixInBrowser = arguments.getAssetprefixinbrowser();
@@ -93,13 +95,21 @@ public class StaticPages {
          } else {
             assetPrefixInBrowser="";
          }
+
+         if(isDebug)debug("asset prefix in browser: "+assetPrefixInBrowser);
+
          if(arguments.getEnableassetfingerprinting()){
             assetFingerprint = ".UTC"+(System.currentTimeMillis()/1000);
          }
+         if(isDebug)debug("asset fingerprint: "+assetFingerprint);
+
          prefixToIgnoreFilesWith=arguments.getPrefixtoignorefiles();
+
+         if(isDebug)debug("prefix to ignore files with: "+prefixToIgnoreFilesWith);
 
          if(arguments.hasNewproject()){
             File sampleProjectDir = jarDir.resolve("project-template").toFile();
+            if(isDebug)debug("sample project dir: "+sampleProjectDir.getAbsolutePath());
             if(!sampleProjectDir.exists()){
                end("Couldn't create a new project.  The project-template wasn't found next to the jar.", 1);
             }
@@ -111,20 +121,32 @@ public class StaticPages {
          if(arguments.hasProjectdir()){
             System.out.println("Building all pages...");
             File projectDir = arguments.getProjectdir();
+            if(isDebug)debug("projectDir: "+projectDir.getAbsolutePath());
             projectDirPath = FilePath.getFilePath(projectDir.getAbsolutePath());
+            if(isDebug)debug("projectDirPath: "+projectDirPath.toString());
             pagesDirPath=projectDirPath.resolve("src/xml/pages");
+            if(isDebug)debug("pagesDirPath: "+pagesDirPath.toString());
             viewsDirPath=projectDirPath.resolve("src/xml/views");
+            if(isDebug)debug("viewsDirPath: "+viewsDirPath.toString());
             xmlResourcesDirPath=projectDirPath.resolve("src/xml/resources");
+            if(isDebug)debug("xmlResourcesDirPath: "+xmlResourcesDirPath.toString());
             buildDirPath=projectDirPath.resolve("build");
+            if(isDebug)debug("buildDirDirPath: "+buildDirPath.toString());
             srcDirPath=projectDirPath.resolve("src");
+            if(isDebug)debug("srcDirDirPath: "+srcDirPath.toString());
             xslDirPath=srcDirPath.resolve("xsl");
+            if(isDebug)debug("xslDirDirPath: "+xslDirPath.toString());
             assetsDirPath=srcDirPath.resolve("assets");
+            if(isDebug)debug("assetDirDirPath: "+assetsDirPath.toString());
+            FilePath defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
+            if(isDebug)debug("defaultStylesheet: "+defaultStylesheet.toString());
+
             assetManager = new AssetManager(assetsDirPath, buildDirPath);
             groupedAssetTransactionManager = new GroupedAssetTransactionManager(assetManager);
             rewriteManager = new RewriteManager(buildDirPath);
+
             maxDataURISizeInBytes=arguments.getMaxdataurisizeinbytes();
             maxTimeToWaitForExternalLinkValidation=arguments.getMaxwaittimetovalidateexternallink();
-            FilePath defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
 
             if(!Assertions.fileExists(defaultStylesheet.toFile())){
                end("No default stylesheet found.", 1);
