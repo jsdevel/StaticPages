@@ -59,20 +59,6 @@ The default value is '' which will result in all assets being prefixed with '/'.
       type="string"
       />
    <argument
-      name="--log4j-properties"
-      description="Sets the location of the log4j.properties.  By default,
-StaticPages looks in the current dir of the jar for the properties file.
-
-This may be an absolute or relative path.  Relative paths are resolved
-against the StaticPages.jar file."
-      type="string"
-      />
-   <argument
-      name="--log4j-interval"
-      description="Sets the amount of time to watch for log4j.properties changes."
-      type="string"
-      />
-   <argument
       default="false"
       name="--enable-compression"
       description="Enables or disables compression."
@@ -119,5 +105,50 @@ can clean up old assets from time to time."
        description="Files with this prefix will be ignored."
        type="string"
        />
+   <!-- logging -->
+   <argument
+      default="true"
+      name="--enable-logging-info"
+      description="Enables INFO level logging."
+      type="boolean"
+      />
+   <argument
+      default="true"
+      name="--enable-logging-warn"
+      description="Enables WARN level logging."
+      type="boolean"
+      />
+   <argument
+      default="true"
+      name="--enable-logging-error"
+      description="Enables ERROR level logging."
+      type="boolean"
+      />
+   <argument
+      default="true"
+      name="--enable-logging-fatal"
+      description="Enables FATAL level logging."
+      type="boolean"
+      />
+   <argument
+      default="false"
+      name="--enable-logging-debug"
+      description="Enables DEBUG level logging."
+      type="boolean"
+      />
+   <argument
+      default="0"
+      name="--logging-level"
+      description="
+Controls the level of logging.\n
+0 (default) outputs the type of log in caps, I.E. INFO message\n
+1 outputs the classname
+2 outputs the line number the log was called
+3 outputs the file name where the log was called
+4 outputs the method name where the log was called
+"
+      type="int"
+      />
+
 
 </arguments>

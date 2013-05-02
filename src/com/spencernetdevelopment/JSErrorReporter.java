@@ -15,7 +15,6 @@
  */
 package com.spencernetdevelopment;
 
-import org.apache.log4j.Logger;
 import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
 
@@ -25,17 +24,16 @@ import org.mozilla.javascript.EvaluatorException;
  */
 public class JSErrorReporter implements ErrorReporter {
    public static final JSErrorReporter INSTANCE = new JSErrorReporter();
-   private static final Logger LOGGER = Logger.getLogger(JSErrorReporter.class.getName());
    private JSErrorReporter(){}
 
    @Override
    public void warning(String message, String source, int line, String lineContent, int lineOffset) {
-      LOGGER.warn(reportError(message, source, line, lineContent, lineOffset));
+      Logger.warn(reportError(message, source, line, lineContent, lineOffset));
    }
 
    @Override
    public void error(String message, String source, int line, String lineContent, int lineOffset) {
-      LOGGER.error(reportError(message, source, line, lineContent, lineOffset));
+      Logger.error(reportError(message, source, line, lineContent, lineOffset));
    }
 
    @Override

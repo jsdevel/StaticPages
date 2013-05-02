@@ -18,16 +18,12 @@ package com.spencernetdevelopment;
 import com.spencernetdevelopment.arguments.StaticPagesArguments;
 import com.spencernetdevelopment.arguments.StaticPagesTerminal;
 import java.io.File;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 /**
  *
  * @author Joseph Spencer
  */
 public class StaticPages {
-   private static final Logger LOGGER = Logger.getLogger(StaticPages.class.getName());
    public static FilePath jarDir;
    public static AssetManager assetManager;
    public static RewriteManager rewriteManager;
@@ -63,31 +59,30 @@ public class StaticPages {
              "com.icl.saxon.om.DocumentBuilderFactoryImpl");
          StaticPagesArguments arguments = StaticPagesTerminal.getArguments(args);
 
-         enableDevMode = arguments.getEnabledevmode();
-         enableCompression = arguments.getEnablecompression();
-
-         {//setup log4j.
-            FilePath propFile = null;
-            if(arguments.hasLogjproperties()){
-               propFile = jarDir.resolve(arguments.getLogjproperties());
-            } else if(jarDir.resolve("log4j.properties").toFile().isFile()){
-               propFile = jarDir.resolve("log4j.properties");
-            }
-
-            if(propFile != null){
-               if(arguments.hasLogjinterval()){
-                  PropertyConfigurator.configureAndWatch(propFile.toString(), Long.parseLong(arguments.getLogjinterval()));
-               } else {
-                  PropertyConfigurator.configureAndWatch(propFile.toString());
-               }
-            } else {
-               PropertyConfigurator.configure(StaticPages.class.getResourceAsStream("/log4j.properties"));
-               LOGGER.info("Using the internal log4j.properties file.  Run java -jar StaticPages.jar for more info.");
+         Logger.isDebug = arguments.getEnableloggingdebug();
+         Logger.isError = arguments.getEnableloggingerror();
+         Logger.isFatal = arguments.getEnableloggingfatal();
+         Logger.isInfo  = arguments.getEnablelogginginfo();
+         Logger.isWarn  = arguments.getEnableloggingwarn();
+         if(arguments.hasLogginglevel()){
+            switch(arguments.getLogginglevel()){
+               case 0:
+               case 1:
+               case 2:
+               case 3:
+               case 4:
+                  Logger.logLevel = arguments.getLogginglevel();
+                  break;
+               default:
+                  Logger.fatal("Invalid argument for logging level.  Expecting one of 0, 1, 2, 3 or 4.", 1);
             }
          }
 
-         if(LOGGER.isDebugEnabled()){
-            LOGGER.debug("jarDir = "+jarDir.toString());
+         enableDevMode = arguments.getEnabledevmode();
+         enableCompression = arguments.getEnablecompression();
+
+         if(Logger.isDebug){
+            Logger.debug("jarDir = "+jarDir.toString());
          }
 
          if(arguments.hasAssetprefixinbrowser()){
@@ -143,7 +138,7 @@ public class StaticPages {
             htmlBuilder.buildPages();
             rewriteManager.applyRewrites();
          } else {
-            LOGGER.warn("No project dir was specified.  Some arguments may be ignored.");
+            Logger.warn("No project dir was specified.  Some arguments may be ignored.");
          }
       } catch(Throwable exc){
          end("Failed for the following reason: "+exc, 1);
@@ -155,7 +150,6 @@ public class StaticPages {
       System.out.println(message);
    }
    public static void end(String message, int code){
-      LOGGER.log(Level.FATAL, message);
-      System.exit(code);
+      Logger.fatal(message, code);
    }
 }

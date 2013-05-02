@@ -7,8 +7,6 @@ public class StaticPagesArguments {
    private File projectdir=null;
    private File newproject=null;
    private String assetprefixinbrowser=null;
-   private String logjproperties=null;
-   private String logjinterval=null;
    private boolean enablecompression=false;
    private boolean clean=false;
    private boolean enableassetfingerprinting=false;
@@ -16,20 +14,30 @@ public class StaticPagesArguments {
    private int maxdataurisizeinbytes=32768;
    private int maxwaittimetovalidateexternallink=5000;
    private String prefixtoignorefiles="_";
+   private boolean enablelogginginfo=true;
+   private boolean enableloggingwarn=true;
+   private boolean enableloggingerror=true;
+   private boolean enableloggingfatal=true;
+   private boolean enableloggingdebug=false;
+   private int logginglevel=0;
 
    public StaticPagesArguments(
       final File projectdir,
       final File newproject,
       final String assetprefixinbrowser,
-      final String logjproperties,
-      final String logjinterval,
       final boolean enablecompression,
       final boolean clean,
       final boolean enableassetfingerprinting,
       final boolean enabledevmode,
       final int maxdataurisizeinbytes,
       final int maxwaittimetovalidateexternallink,
-      final String prefixtoignorefiles
+      final String prefixtoignorefiles,
+      final boolean enablelogginginfo,
+      final boolean enableloggingwarn,
+      final boolean enableloggingerror,
+      final boolean enableloggingfatal,
+      final boolean enableloggingdebug,
+      final int logginglevel
    ) throws Throwable {
       if(projectdir != null){
          if(!projectdir.exists() || !projectdir.isDirectory()){
@@ -50,8 +58,6 @@ public class StaticPagesArguments {
       this.projectdir=projectdir;
       this.newproject=newproject;
       this.assetprefixinbrowser=assetprefixinbrowser;
-      this.logjproperties=logjproperties;
-      this.logjinterval=logjinterval;
       this.enablecompression=enablecompression;
       this.clean=clean;
       this.enableassetfingerprinting=enableassetfingerprinting;
@@ -59,6 +65,12 @@ public class StaticPagesArguments {
       this.maxdataurisizeinbytes=maxdataurisizeinbytes;
       this.maxwaittimetovalidateexternallink=maxwaittimetovalidateexternallink;
       this.prefixtoignorefiles=prefixtoignorefiles;
+      this.enablelogginginfo=enablelogginginfo;
+      this.enableloggingwarn=enableloggingwarn;
+      this.enableloggingerror=enableloggingerror;
+      this.enableloggingfatal=enableloggingfatal;
+      this.enableloggingdebug=enableloggingdebug;
+      this.logginglevel=logginglevel;
    }
 
    public File getProjectdir(){
@@ -78,18 +90,6 @@ public class StaticPagesArguments {
    }
    public boolean hasAssetprefixinbrowser(){
       return assetprefixinbrowser!=null;
-   }
-   public String getLogjproperties(){
-      return logjproperties;
-   }
-   public boolean hasLogjproperties(){
-      return logjproperties!=null;
-   }
-   public String getLogjinterval(){
-      return logjinterval;
-   }
-   public boolean hasLogjinterval(){
-      return logjinterval!=null;
    }
    public boolean getEnablecompression(){
       return enablecompression;
@@ -132,5 +132,41 @@ public class StaticPagesArguments {
    }
    public boolean hasPrefixtoignorefiles(){
       return prefixtoignorefiles!=null;
+   }
+   public boolean getEnablelogginginfo(){
+      return enablelogginginfo;
+   }
+   public boolean hasEnablelogginginfo(){
+      return enablelogginginfo;
+   }
+   public boolean getEnableloggingwarn(){
+      return enableloggingwarn;
+   }
+   public boolean hasEnableloggingwarn(){
+      return enableloggingwarn;
+   }
+   public boolean getEnableloggingerror(){
+      return enableloggingerror;
+   }
+   public boolean hasEnableloggingerror(){
+      return enableloggingerror;
+   }
+   public boolean getEnableloggingfatal(){
+      return enableloggingfatal;
+   }
+   public boolean hasEnableloggingfatal(){
+      return enableloggingfatal;
+   }
+   public boolean getEnableloggingdebug(){
+      return enableloggingdebug;
+   }
+   public boolean hasEnableloggingdebug(){
+      return enableloggingdebug;
+   }
+   public int getLogginglevel(){
+      return logginglevel;
+   }
+   public boolean hasLogginglevel(){
+      return logginglevel!=0;
    }
 }

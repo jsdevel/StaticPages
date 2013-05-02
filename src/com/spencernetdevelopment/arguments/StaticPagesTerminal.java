@@ -9,8 +9,6 @@ public class StaticPagesTerminal {
       File projectdir=null;
       File newproject=null;
       String assetprefixinbrowser=null;
-      String logjproperties=null;
-      String logjinterval=null;
       boolean enablecompression=false;
       boolean clean=false;
       boolean enableassetfingerprinting=false;
@@ -18,6 +16,12 @@ public class StaticPagesTerminal {
       int maxdataurisizeinbytes=32768;
       int maxwaittimetovalidateexternallink=5000;
       String prefixtoignorefiles="_";
+      boolean enablelogginginfo=true;
+      boolean enableloggingwarn=true;
+      boolean enableloggingerror=true;
+      boolean enableloggingfatal=true;
+      boolean enableloggingdebug=false;
+      int logginglevel=0;
       if(__showHelpOnNoArgs && args.length == 0){
          System.out.print(StaticPagesHelp.getHelpMenu());
          System.exit(0);
@@ -39,14 +43,6 @@ public class StaticPagesTerminal {
          }
          if("--asset-prefix-in-browser".equals(key)){
             assetprefixinbrowser = val;
-            continue;
-         }
-         if("--log4j-properties".equals(key)){
-            logjproperties = val;
-            continue;
-         }
-         if("--log4j-interval".equals(key)){
-            logjinterval = val;
             continue;
          }
          if("--enable-compression".equals(key)){
@@ -77,6 +73,30 @@ public class StaticPagesTerminal {
             prefixtoignorefiles = val;
             continue;
          }
+         if("--enable-logging-info".equals(key)){
+            enablelogginginfo = getBoolean(val);
+            continue;
+         }
+         if("--enable-logging-warn".equals(key)){
+            enableloggingwarn = getBoolean(val);
+            continue;
+         }
+         if("--enable-logging-error".equals(key)){
+            enableloggingerror = getBoolean(val);
+            continue;
+         }
+         if("--enable-logging-fatal".equals(key)){
+            enableloggingfatal = getBoolean(val);
+            continue;
+         }
+         if("--enable-logging-debug".equals(key)){
+            enableloggingdebug = getBoolean(val);
+            continue;
+         }
+         if("--logging-level".equals(key)){
+            logginglevel = getInt(val);
+            continue;
+         }
          throw new IllegalArgumentException("Unknown argument: "+key);
       }
       if(i - len != 0){
@@ -86,15 +106,19 @@ public class StaticPagesTerminal {
             projectdir,
             newproject,
             assetprefixinbrowser,
-            logjproperties,
-            logjinterval,
             enablecompression,
             clean,
             enableassetfingerprinting,
             enabledevmode,
             maxdataurisizeinbytes,
             maxwaittimetovalidateexternallink,
-            prefixtoignorefiles
+            prefixtoignorefiles,
+            enablelogginginfo,
+            enableloggingwarn,
+            enableloggingerror,
+            enableloggingfatal,
+            enableloggingdebug,
+            logginglevel
       );
    }
    public static final String getPath(String path){

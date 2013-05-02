@@ -19,6 +19,7 @@ import com.spencernetdevelopment.FilePath;
 import com.spencernetdevelopment.FileUtils;
 import com.spencernetdevelopment.GroupedAssetTransaction;
 import com.spencernetdevelopment.HttpExternalLinkResponse;
+import com.spencernetdevelopment.Logger;
 import static com.spencernetdevelopment.xsl.FileFunctions.assertFileExists;
 import static com.spencernetdevelopment.xsl.FileFunctions.assertPathHasLength;
 import com.spencernetdevelopment.StaticPages;
@@ -40,7 +41,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
@@ -50,7 +50,6 @@ import org.xml.sax.SAXException;
  * @author Joseph Spencer
  */
 public class Assets {
-   public static final Logger LOGGER = Logger.getLogger(Assets.class);
    private static DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
    private static XPathFactory xpathFactory = XPathFactory.newInstance();
    private static Map<String, HttpExternalLinkResponse> externalResponses = new HashMap<>();
@@ -93,10 +92,10 @@ public class Assets {
             contents
          );
       } catch (IOException ex) {
-         LOGGER.fatal("Couldn't process group because of an IOException.", ex);
+         Logger.fatal("Couldn't process group because of an IOException: "+ex.getMessage());
       } catch (IllegalArgumentException ex) {
          if(!group.isClosed()){
-            LOGGER.fatal("The group wasn't closed.");
+            Logger.fatal("The group wasn't closed.");
             System.exit(1);
          }
       }
@@ -105,7 +104,7 @@ public class Assets {
       try {
          return StaticPages.assetManager.getAsset(path);
       } catch (IOException ex){
-         LOGGER.fatal("Couldn't find: "+path);
+         Logger.fatal("Couldn't find: "+path);
          System.exit(1);
       }
       return "";
@@ -180,7 +179,7 @@ public class Assets {
       try {
          return StaticPages.assetManager.getCSS(path, isCompress);
       } catch (IOException ex){
-         LOGGER.fatal("Couldn't get: "+path);
+         Logger.fatal("Couldn't get: "+path);
          System.exit(1);
       }
       return "";
@@ -225,7 +224,7 @@ public class Assets {
       try {
          return StaticPages.assetManager.getJS(path, isCompress);
       } catch (IOException ex){
-         LOGGER.fatal("Couldn't get: "+path);
+         Logger.fatal("Couldn't get: "+path);
          System.exit(1);
       }
       return "";
@@ -258,11 +257,11 @@ public class Assets {
 
    public static void rewritePage(String page, String to){
       if(page == null || page.isEmpty()){
-         LOGGER.fatal("Can't rewrite a non-existent page.  Page was: "+page+".  To was: "+to);
+         Logger.fatal("Can't rewrite a non-existent page.  Page was: "+page+".  To was: "+to);
          System.exit(1);
       }
       if(to == null || to.isEmpty()){
-         LOGGER.fatal("Can't rewrite a page to a non-existent location. Page was: "+page+".  To was: "+to);
+         Logger.fatal("Can't rewrite a page to a non-existent location. Page was: "+page+".  To was: "+to);
          System.exit(1);
       }
       StaticPages.rewriteManager.queueRewrite(page, to);
@@ -271,7 +270,7 @@ public class Assets {
       try {
          StaticPages.assetManager.transferAsset(path, path);
       } catch (IOException ex){
-         LOGGER.fatal(ex.getLocalizedMessage());
+         Logger.fatal(ex.getLocalizedMessage());
          System.exit(1);
       }
    }
@@ -284,7 +283,7 @@ public class Assets {
             isCompress
          );
       } catch (IOException ex){
-         LOGGER.fatal(ex.getLocalizedMessage());
+         Logger.fatal(ex.getLocalizedMessage());
          System.exit(1);
       }
    }
@@ -294,7 +293,7 @@ public class Assets {
             FileUtils.getForcedRelativePath(path, "/")
          );
       } catch (IOException ex){
-         LOGGER.fatal(ex.getLocalizedMessage());
+         Logger.fatal(ex.getLocalizedMessage());
          System.exit(1);
       }
    }
@@ -307,7 +306,7 @@ public class Assets {
             isCompress
          );
       } catch (IOException ex){
-         LOGGER.fatal(ex.getLocalizedMessage());
+         Logger.fatal(ex.getLocalizedMessage());
          System.exit(1);
       }
    }
@@ -315,7 +314,7 @@ public class Assets {
    public static void validateExternalURL(String path) {
       try {
          if(!externalResponses.containsKey(path)){
-            LOGGER.info("Validating: "+path);
+            Logger.info("Validating: "+path);
             assertPathHasLength(path);
             URL url = new URL(path);
             HttpURLConnection http = (HttpURLConnection)url.openConnection();
@@ -330,17 +329,17 @@ public class Assets {
                case 302:
                   break;
                default:
-                  LOGGER.fatal("External link validation failed for the following URL: "+path);
-                  LOGGER.fatal("The status code of the http connection was: "+http.getResponseCode());
+                  Logger.fatal("External link validation failed for the following URL: "+path);
+                  Logger.fatal("The status code of the http connection was: "+http.getResponseCode());
                   System.exit(1);
             }
          }
       } catch (SocketTimeoutException ex){
-         LOGGER.fatal("A connection to the following URL couldn't be established during the configured timeout period: "+path);
+         Logger.fatal("A connection to the following URL couldn't be established during the configured timeout period: "+path);
          System.exit(1);
       } catch (IOException ex) {
-         LOGGER.fatal("An IOException occurred while attempting to validate the following external URL: "+path);
-         LOGGER.fatal("Here is the detailed message: "+ex.getMessage());
+         Logger.fatal("An IOException occurred while attempting to validate the following external URL: "+path);
+         Logger.fatal("Here is the detailed message: "+ex.getMessage());
          System.exit(1);
       }
    }
@@ -355,7 +354,7 @@ public class Assets {
          assertFileExists(page);
          validatedPages.add(path);
       } catch (IOException ex) {
-         LOGGER.fatal("The following page doesn't exist: "+path);
+         Logger.fatal("The following page doesn't exist: "+path);
          System.exit(1);
       }
    }
@@ -407,10 +406,11 @@ public class Assets {
          }
          validatedFragments.add(path+fragment);
       } catch (IOException ex) {
-         LOGGER.fatal(ex.getMessage());
+         Logger.fatal(ex.getMessage());
          System.exit(1);
       } catch (ParserConfigurationException|SAXException|XPathExpressionException ex) {
-         LOGGER.fatal("Couldn't parse the following xml file: "+path, ex);
+         Logger.fatal("Couldn't parse the following xml file: "+path+"\n"+
+                 "For the following reason: "+ex.getMessage(), 1);
          System.exit(1);
       }
    }

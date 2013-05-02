@@ -25,14 +25,12 @@ import java.io.StringWriter;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
 
 /**
  *
  * @author Joseph Spencer
  */
 public class AssetManager {
-   private static final Logger LOGGER = Logger.getLogger(AssetManager.class);
    private static final Pattern CSS_URL = Pattern.compile("url\\(\\s*(['\"])?/((?:(?!\\1\\)).)+)\\1?\\)");
 
    private FilePath assetPath;
@@ -91,7 +89,7 @@ public class AssetManager {
                   throw new IOException("Invalid file extension detected: "+url);
                }
             } else {
-               LOGGER.info("The following resource exceeded the max size in bytes specified in the arguments: "+url);
+               Logger.info("The following resource exceeded the max size in bytes specified in the arguments: "+url);
             }
          }
          String prefix = StaticPages.assetPrefixInBrowser;
