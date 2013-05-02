@@ -34,6 +34,7 @@ import javax.xml.transform.stream.StreamSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import static com.spencernetdevelopment.Logger.*;
 
 /**
  *
@@ -97,6 +98,8 @@ public class HTMLBuilder {
     * @throws IOException
     */
    public void buildPage(Path xmlFilePath) throws SAXException, TransformerException, IOException {
+      if(isDebug)debug("preparing to build xml file: "+
+              (xmlFilePath != null ? xmlFilePath.toString() : null));
       if (xmlFilePath != null && !xmlFilePath.toFile().getName().startsWith(StaticPages.prefixToIgnoreFilesWith)) {
          Document xmlDocument = docBuilder.parse(xmlFilePath.toFile());
          FilePath outputFilePath = buildDirPath.resolve(xmlFilePath.toString().substring(xmlPagesDirStringLength + 1).replaceFirst("\\.xml$", ".html"));
