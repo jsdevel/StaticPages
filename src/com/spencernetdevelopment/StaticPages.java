@@ -142,13 +142,13 @@ public class StaticPages {
             xmlResourcesDirPath=projectDirPath.resolve("src/xml/resources");
             if(isDebug)debug("xmlResourcesDirPath: "+xmlResourcesDirPath.toString());
             buildDirPath=projectDirPath.resolve("build");
-            if(isDebug)debug("buildDirDirPath: "+buildDirPath.toString());
+            if(isDebug)debug("buildDirPath: "+buildDirPath.toString());
             srcDirPath=projectDirPath.resolve("src");
-            if(isDebug)debug("srcDirDirPath: "+srcDirPath.toString());
+            if(isDebug)debug("srcDirPath: "+srcDirPath.toString());
             xslDirPath=srcDirPath.resolve("xsl");
-            if(isDebug)debug("xslDirDirPath: "+xslDirPath.toString());
+            if(isDebug)debug("xslDirPath: "+xslDirPath.toString());
             assetsDirPath=srcDirPath.resolve("assets");
-            if(isDebug)debug("assetDirDirPath: "+assetsDirPath.toString());
+            if(isDebug)debug("assetDirPath: "+assetsDirPath.toString());
             FilePath defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
             if(isDebug)debug("defaultStylesheet: "+defaultStylesheet.toString());
 
