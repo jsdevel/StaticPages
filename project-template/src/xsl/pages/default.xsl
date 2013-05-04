@@ -69,8 +69,11 @@
          <body>
             <xsl:apply-templates select="d:body" mode="defaultStylesheet"/>
             <xsl:if test="$enableDevMode">
-               <xsl:variable name="path">js/StaticPageUtils/CheckForChange.js</xsl:variable>
-               <xsl:value-of select="assets:transferJS($path, false())"/>
+               <xsl:variable name="path"
+                             select="assets:getCleanJSPath(
+                                 'StaticPageUtils/CheckForChange'
+                             )"/>
+               <xsl:value-of select="assets:transferAsset($path)"/>
                <script src="{$assetPrefixInBrowser}/{$path}"/>
             </xsl:if>
          </body>
