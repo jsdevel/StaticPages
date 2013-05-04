@@ -143,6 +143,10 @@ public class StaticPages {
             if(isDebug)debug("xmlResourcesDirPath: "+xmlResourcesDirPath.toString());
             buildDirPath=projectDirPath.resolve("build");
             if(isDebug)debug("buildDirPath: "+buildDirPath.toString());
+            if(!buildDirPath.toFile().isDirectory()){
+               if(isDebug)debug("buildDir didn't exist.  Creating it now...");
+               FileUtils.createDir(buildDirPath.toFile());
+            }
             srcDirPath=projectDirPath.resolve("src");
             if(isDebug)debug("srcDirPath: "+srcDirPath.toString());
             xslDirPath=srcDirPath.resolve("xsl");
