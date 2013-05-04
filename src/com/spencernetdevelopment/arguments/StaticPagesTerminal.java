@@ -9,6 +9,7 @@ public class StaticPagesTerminal {
       File projectdir=null;
       File newproject=null;
       String assetprefixinbrowser=null;
+      String devassetprefixinbrowser=null;
       boolean enablecompression=false;
       boolean clean=false;
       boolean enableassetfingerprinting=false;
@@ -43,6 +44,10 @@ public class StaticPagesTerminal {
          }
          if("--asset-prefix-in-browser".equals(key)){
             assetprefixinbrowser = val;
+            continue;
+         }
+         if("--dev-asset-prefix-in-browser".equals(key)){
+            devassetprefixinbrowser = val;
             continue;
          }
          if("--enable-compression".equals(key)){
@@ -106,6 +111,7 @@ public class StaticPagesTerminal {
             projectdir,
             newproject,
             assetprefixinbrowser,
+            devassetprefixinbrowser,
             enablecompression,
             clean,
             enableassetfingerprinting,

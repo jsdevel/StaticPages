@@ -59,6 +59,14 @@ The default value is '' which will result in all assets being prefixed with '/'.
       type="string"
       />
    <argument
+      name="--dev-asset-prefix-in-browser"
+      description="
+The asset prefix to use when enable-dev-mode is true.  See asset-prefix-in-browser
+for more detail.
+"
+      type="string"
+      />
+   <argument
       default="false"
       name="--enable-compression"
       description="Enables or disables compression."

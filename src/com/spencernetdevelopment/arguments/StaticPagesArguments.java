@@ -7,6 +7,7 @@ public class StaticPagesArguments {
    private File projectdir=null;
    private File newproject=null;
    private String assetprefixinbrowser=null;
+   private String devassetprefixinbrowser=null;
    private boolean enablecompression=false;
    private boolean clean=false;
    private boolean enableassetfingerprinting=false;
@@ -25,6 +26,7 @@ public class StaticPagesArguments {
       final File projectdir,
       final File newproject,
       final String assetprefixinbrowser,
+      final String devassetprefixinbrowser,
       final boolean enablecompression,
       final boolean clean,
       final boolean enableassetfingerprinting,
@@ -58,6 +60,7 @@ public class StaticPagesArguments {
       this.projectdir=projectdir;
       this.newproject=newproject;
       this.assetprefixinbrowser=assetprefixinbrowser;
+      this.devassetprefixinbrowser=devassetprefixinbrowser;
       this.enablecompression=enablecompression;
       this.clean=clean;
       this.enableassetfingerprinting=enableassetfingerprinting;
@@ -90,6 +93,12 @@ public class StaticPagesArguments {
    }
    public boolean hasAssetprefixinbrowser(){
       return assetprefixinbrowser!=null;
+   }
+   public String getDevassetprefixinbrowser(){
+      return devassetprefixinbrowser;
+   }
+   public boolean hasDevassetprefixinbrowser(){
+      return devassetprefixinbrowser!=null;
    }
    public boolean getEnablecompression(){
       return enablecompression;

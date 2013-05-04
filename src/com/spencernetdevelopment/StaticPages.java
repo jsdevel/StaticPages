@@ -46,7 +46,7 @@ public class StaticPages {
    public static FilePath xmlResourcesDirPath;
    public static FilePath srcDirPath;
    public static FilePath xslDirPath;
-   public static String assetPrefixInBrowser;
+   public static String assetPrefixInBrowser="";
    public static String prefixToIgnoreFilesWith;
    public static int maxDataURISizeInBytes;
    public static int maxTimeToWaitForExternalLinkValidation;
@@ -97,13 +97,14 @@ public class StaticPages {
 
          if(isDebug)debug("jarDir = "+jarDir.toString());
 
-         if(arguments.hasAssetprefixinbrowser()){
+         if(enableDevMode && arguments.hasDevassetprefixinbrowser()){
+            assetPrefixInBrowser = arguments.getDevassetprefixinbrowser();
+         } else if(arguments.hasAssetprefixinbrowser()){
             assetPrefixInBrowser = arguments.getAssetprefixinbrowser();
-            if("/".equals(assetPrefixInBrowser) || assetPrefixInBrowser.endsWith("/")){
-               assetPrefixInBrowser = assetPrefixInBrowser.replaceAll("/+$", "");
-            }
-         } else {
-            assetPrefixInBrowser="";
+         }
+
+         if("/".equals(assetPrefixInBrowser) || assetPrefixInBrowser.endsWith("/")){
+            assetPrefixInBrowser = assetPrefixInBrowser.replaceAll("/+$", "");
          }
 
          if(isDebug)debug("asset prefix in browser: "+assetPrefixInBrowser);
