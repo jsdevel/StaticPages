@@ -50,7 +50,7 @@ public class Logger {
    }
    public static void fatal(String msg, Integer code, Throwable ex){
        if(isFatal){
-         msg("FATAL "+msg);
+         msg("FATAL "+msg+(ex!=null?ex.getMessage():""));
          if(logLevel > 4){
             Throwable throwable;
             if(ex == null){
