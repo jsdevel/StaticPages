@@ -106,7 +106,7 @@ public class HTMLBuilder {
          xmlDocument.normalize();
          FilePath outputFilePath = buildDirPath.resolve(xmlFilePath.toString().substring(xmlPagesDirStringLength + 1).replaceFirst("\\.xml$", ".html"));
          File htmlFile = outputFilePath.toFile();
-         Node firstChild = xmlDocument.getFirstChild();
+         Node firstChild = xmlDocument.getDocumentElement();
          if(isDebug && firstChild == null)debug("firstChild was null");
          else if(isDebug)debug("firstChildName: "+firstChild.getLocalName());
          NamedNodeMap attributes = firstChild.getAttributes();
