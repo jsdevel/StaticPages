@@ -19,6 +19,11 @@ import com.spencernetdevelopment.arguments.StaticPagesArguments;
 import com.spencernetdevelopment.arguments.StaticPagesTerminal;
 import static com.spencernetdevelopment.Logger.*;
 import java.io.File;
+import javax.xml.XMLConstants;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 
 /**
  *
@@ -160,7 +165,19 @@ public class StaticPages {
             if(arguments.getClean()){
                FileUtils.clearDirectory(buildDirPath.toFile());
             }
-            HTMLBuilder htmlBuilder = new HTMLBuilder(buildDirPath, pagesDirPath);
+
+            StreamSource pageXSD = new StreamSource(
+                    StaticPages.class.getResourceAsStream("/page.xsd"));
+            if(isDebug && pageXSD == null)debug("pageXSD was null");
+            SchemaFactory schemaFactory = SchemaFactory
+               .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            Schema schemaFile = schemaFactory.newSchema(pageXSD);
+            Validator validator = schemaFile.newValidator();
+            HTMLBuilder htmlBuilder = new HTMLBuilder(
+                  buildDirPath,
+                  pagesDirPath,
+                  validator
+               );
             htmlBuilder.setDefaultStylesheet(defaultStylesheet.toFile());
             htmlBuilder.buildPages();
             rewriteManager.applyRewrites();

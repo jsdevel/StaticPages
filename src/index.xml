@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!-- This file is used for testing -->
+<page xmlns="default"
+   xmlns:a="assets"
+   xmlns:p="phrases"
+   stylesheet="asdfasd"
+   alternate-name="_index"
+>
+   <seo>
+      <title>Home Page Title</title>
+      <description>Description as seen by google.</description>
+      <keywords>Keywords as seen by google.</keywords>
+      <rewrites>
+          <url>/some/url</url>
+      </rewrites>
+   </seo>
+   <head>
+   </head>
+   <body>
+      asdf
+   </body>
+</page>

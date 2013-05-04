@@ -35,6 +35,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import static com.spencernetdevelopment.Logger.*;
+import javax.xml.validation.Validator;
 import org.w3c.dom.NamedNodeMap;
 
 /**
@@ -51,11 +52,18 @@ public class HTMLBuilder {
    private final DocumentBuilderFactory docBuilderFactory;
    private final DocumentBuilder docBuilder;
    private final TransformerFactory transformerFactory;
+   private final Validator validator;
    private StreamSource xslStream;
    private Transformer defaultXSLTransformer;
    private Map<String, Transformer> pageTransformers;
 
-   public HTMLBuilder(FilePath buildDirPath, FilePath pagesDirPath) throws ParserConfigurationException {
+   public HTMLBuilder(
+      FilePath buildDirPath,
+      FilePath pagesDirPath,
+      Validator validator
+   ) throws ParserConfigurationException,
+            SAXException
+   {
       docBuilderFactory = DocumentBuilderFactory.newInstance();
       docBuilderFactory.setNamespaceAware(true);
       docBuilder = docBuilderFactory.newDocumentBuilder();
@@ -65,6 +73,7 @@ public class HTMLBuilder {
       this.xmlPagesDirPath = pagesDirPath;
       xmlPagesDirString = xmlPagesDirPath.toString();
       xmlPagesDirStringLength = xmlPagesDirString.length();
+      this.validator = validator;
    }
 
    public void setDefaultStylesheet(File defaultStylesheet) throws IOException, TransformerConfigurationException {
@@ -104,6 +113,7 @@ public class HTMLBuilder {
       if (xmlFilePath != null && !xmlFilePath.toFile().getName().startsWith(StaticPages.prefixToIgnoreFilesWith)) {
          Document xmlDocument = docBuilder.parse(xmlFilePath.toFile());
          xmlDocument.normalize();
+         validator.validate(new DOMSource(xmlDocument));
          FilePath outputFilePath = buildDirPath.resolve(xmlFilePath.toString().substring(xmlPagesDirStringLength + 1).replaceFirst("\\.xml$", ".html"));
          File htmlFile = outputFilePath.toFile();
          Node firstChild = xmlDocument.getDocumentElement();
