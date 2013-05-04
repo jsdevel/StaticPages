@@ -145,8 +145,9 @@ public class HTMLBuilder {
       xmlDocument.normalize();
       DOMSource xmlDoc = new DOMSource(xmlDocument);
       StreamResult resultStream = new StreamResult(outputFile);
-
-      Node stylesheetAttribute = xmlDocument.getFirstChild().getAttributes().getNamedItem("stylesheet");
+      Node firstChild = xmlDocument.getDocumentElement();
+      NamedNodeMap attributes = firstChild.getAttributes();
+      Node stylesheetAttribute = attributes.getNamedItem("stylesheet");
       Transformer transformer;
       if (stylesheetAttribute != null) {
          String stylesheet = stylesheetAttribute.getNodeValue();
