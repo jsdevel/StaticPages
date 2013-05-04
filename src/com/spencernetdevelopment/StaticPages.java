@@ -169,7 +169,6 @@ public class StaticPages {
 
             StreamSource pageXSD = new StreamSource(
                     StaticPages.class.getResourceAsStream("/page.xsd"));
-            if(isDebug && pageXSD == null)debug("pageXSD was null");
             SchemaFactory schemaFactory = SchemaFactory
                .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Schema schemaFile = schemaFactory.newSchema(pageXSD);
