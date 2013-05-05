@@ -20,7 +20,7 @@ function buildPages()
 {
    clear;
    preBuildPages;
-   java -jar $BIN_DIR/StaticPages.jar --project-dir $PROJECT_DIR $validAssetPrefixInBrowser $staticPageArguments;
+   (cd $PROJECT_DIR;static-pages;);
    local key="sessionStorage['lastRefresh']";
    local stamp="`date +%N`";
    cat > $REFRESH_FILE << HERE

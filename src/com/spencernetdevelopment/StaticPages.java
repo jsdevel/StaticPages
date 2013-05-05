@@ -125,8 +125,7 @@ public class StaticPages {
                fatal("Couldn't create a new project.  The project-template wasn't found next to the jar.", 1);
             }
             FileUtils.copyDirContentsToDir(sampleProjectDir, arguments.getNewproject());
-            FileUtils.copyDirContentsToDir(sampleProjectDir, arguments.getNewproject().toPath().resolve("bin/project-template").toFile());
-            msg("project-template created successfully in: "+arguments.getNewproject().toPath());
+            msg("project-template copied to: "+arguments.getNewproject().toPath());
          }
 
          if(arguments.hasProjectdir()){

@@ -29,18 +29,21 @@ function postBuildPages(){
    echo > /dev/null;
 }
 #handle config.bash
-if [ -f $BIN_DIR/config.bash ];then
-   . $BIN_DIR/config.bash;
-   if [ "$assetPrefixInBrowser" != "" ];then
-      validAssetPrefixInBrowser="--asset-prefix-in-browser $assetPrefixInBrowser";
-   fi
+if [ -f $PROJECT_DIR/config.bash ];then
+   . $PROJECT_DIR/config.bash;
+else
+   cat <<!
+'config.bash' wasn't found in the project rood directory.
+Using $PROJECT_DIR
+as project root.
+!
+exit 1;
 fi
 
 . $BIN_DIR/buildPages.bash;
 
 case $1 in
    buildPages.bash)
-      . $BIN_DIR/buildPages.bash;
       buildPages;;
    deployPROD.bash)
       . $BIN_DIR/deployPROD.bash;;
