@@ -149,12 +149,6 @@ public class StaticPages {
                if(isDebug)debug("buildDir didn't exist.  Creating it now...");
                FileUtils.createDir(buildDirPath.toFile());
             }
-            if(enableDevMode){
-               createRefreshJS(
-                  buildDirPath.resolve("refresh.js").toFile(),
-                  System.currentTimeMillis()
-               );
-            }
             srcDirPath=projectDirPath.resolve("src");
             if(isDebug)debug("srcDirPath: "+srcDirPath.toString());
             xslDirPath=srcDirPath.resolve("xsl");
@@ -193,6 +187,12 @@ public class StaticPages {
             htmlBuilder.setDefaultStylesheet(defaultStylesheet.toFile());
             htmlBuilder.buildPages();
             rewriteManager.applyRewrites();
+            if(enableDevMode){
+               createRefreshJS(
+                  buildDirPath.resolve("refresh.js").toFile(),
+                  System.currentTimeMillis()
+               );
+            }
          } else {
             Logger.warn("No project dir was specified.  Some arguments may be ignored.");
          }
