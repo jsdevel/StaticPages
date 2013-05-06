@@ -19,27 +19,21 @@ java.on('close', function(code, signal){
    switch(code){
    case 0:
       if(/^java\sversion\s"1.7./.test(javaVersion)){
-         fs.stat(CONFIG_FILE, function(err, stats){
-            var config;
-            if(err){
-               switch(err.errno){
-               case 34:
-                  log(
-                     "'"+CONFIG_FILE_NAME+"' wasn't found next to node_modules. "+
-                     "Creating it now..."
-                  );
-                  var boo=fs.readFileSync(DEFAULT_CONFIG_FILE, 'utf-8');
-                  fs.writeFileSync(CONFIG_FILE, boo, 'utf-8');
-                  break;
-               default:
-                  log("An unknown error occurred.  Exiting...");
-                  log(err);
-                  return;
-               }
+         findConfig(CWD, CONFIG_FILE_NAME,
+            function(configPath){
+               startStaticPages(configPath);
+            },
+            function(){
+               log(
+                  "'"+CONFIG_FILE_NAME+"' wasn't found in the CWD, or any of it's"+
+                  " parent directories.\nCWD was: "+CWD+"\n"+
+                  "Creating it now at: "+CONFIG_FILE
+               );
+               var boo=fs.readFileSync(DEFAULT_CONFIG_FILE, 'utf-8');
+               fs.writeFileSync(CONFIG_FILE, boo, 'utf-8');
+               startStaticPages(CONFIG_FILE);
             }
-            config = require(CONFIG_FILE);
-            startStaticPages(config);
-         });
+         );
       } else {
          log("Java 1.7 at a minimum is required to run static-pages.  Exiting...");
          return;
@@ -54,7 +48,45 @@ java.on('close', function(code, signal){
    }
 });
 
-function startStaticPages(config){
+/**
+ * Scans a directory upwards through all ancestors searching for a file.
+ *
+ * @param {string} baseDir A path to a directory to begin searching for the file.
+ * @param {string} fileName The name of the file to search for.
+ * @param {function(string)} fnFound Accepts the absolute path of the file
+ * searched for.
+ * @param {function()} fnNotFound
+ * @param {number} timesCalled When this exceeds 50, fnNotFound is called
+ */
+function findConfig(baseDir, fileName, fnFound, fnNotFound, timesCalled){
+   var pathToConfig = path.join(baseDir, fileName);
+   fs.stat(pathToConfig, function(err, stats){
+      var i = (typeof timesCalled === 'number') ? timesCalled + 1 : 0;
+      if(err){
+         switch(err.errno){
+         case 34:
+            if(i > 50){
+               log("Couldn't find '"+fileName+"' in any parent directory"+
+               " starting in '"+CWD+"'");
+               fnNotFound();
+               return;
+            }
+            findConfig(path.dirname(baseDir), fileName, fnFound, fnNotFound, i);
+            break;
+         default:
+            log("The following error occurred while trying to find: "+
+            path.join(baseDir, fileName)+".  Exiting...");
+            log(err);
+            return;
+         }
+      } else {
+         fnFound(pathToConfig);
+      }
+   });
+}
+
+function startStaticPages(configPath){
+   var config = require(configPath);
    var option;
    var args = [ '-jar', path.join(__dirname, 'StaticPages.jar')];
    for(option in config){
@@ -62,14 +94,14 @@ function startStaticPages(config){
       switch(option){
       case "project-dir":
       case "new-project":
-         args.push(path.resolve(CWD, config[option]));
+         args.push(path.resolve(path.dirname(configPath), config[option]));
          break;
       default:
          args.push(config[option]);
          break;
       }
    }
-   var java = spawn('java', args, {cwd:process.cwd()});
+   var java = spawn('java', args, {cwd:__dirname});
    java.stdout.pipe(process.stdout);
    java.stderr.pipe(process.stderr);
 }
