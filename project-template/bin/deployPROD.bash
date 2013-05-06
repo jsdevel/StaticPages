@@ -32,10 +32,6 @@ function verifyVariables()
 }
 verifyVariables;
 
-if [ -n "$deploy_assetPrefixInBrowser" ];then
-   validAssetPrefixInBrowser="--asset-prefix-in-browser $deploy_assetPrefixInBrowser";
-fi
-
 buildPages
 
 tarball=$BIN_DIR/build.tar.gz;

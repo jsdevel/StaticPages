@@ -20,19 +20,7 @@ function buildPages()
 {
    clear;
    preBuildPages;
-   java -jar $BIN_DIR/StaticPages.jar --project-dir $PROJECT_DIR $validAssetPrefixInBrowser $staticPageArguments;
-   local key="sessionStorage['lastRefresh']";
-   local stamp="`date +%N`";
-   cat > $REFRESH_FILE << HERE
-if($key && $key != $stamp){
-   $key = $stamp;
-   window.location=location.href.indexOf('?') > -1?
-      location.href.replace(/(StaticPageRefresh=)[0-9]+/, '\$1$stamp'):
-      location.href+'?StaticPageRefresh=$stamp';
-} else {
-   $key = $stamp;
-}
-HERE
+   (cd $PROJECT_DIR;static-pages;);
    postBuildPages;
 }
 
