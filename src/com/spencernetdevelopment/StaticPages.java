@@ -19,6 +19,9 @@ import com.spencernetdevelopment.arguments.StaticPagesArguments;
 import com.spencernetdevelopment.arguments.StaticPagesTerminal;
 import static com.spencernetdevelopment.Logger.*;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Scanner;
 import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -146,6 +149,12 @@ public class StaticPages {
                if(isDebug)debug("buildDir didn't exist.  Creating it now...");
                FileUtils.createDir(buildDirPath.toFile());
             }
+            if(enableDevMode){
+               createRefreshJS(
+                  buildDirPath.resolve("refresh.js").toFile(),
+                  System.currentTimeMillis()
+               );
+            }
             srcDirPath=projectDirPath.resolve("src");
             if(isDebug)debug("srcDirPath: "+srcDirPath.toString());
             xslDirPath=srcDirPath.resolve("xsl");
@@ -192,6 +201,25 @@ public class StaticPages {
       }
    }
 
+   public static void createRefreshJS(
+      File output,
+      long timestamp
+   )
+      throws IOException
+   {
+      String content;
+      if(isDebug)debug("creating refresh.js");
+      InputStream refreshJS = StaticPages.class.getResourceAsStream(
+                                                   "/refresh.js");
+      if(refreshJS != null){
+         content = new Scanner(refreshJS, "UTF-8").useDelimiter("\\A").next().
+            replace("stamp=0", "stamp="+timestamp);
+         FileUtils.createFile(output);
+         FileUtils.putString(output, content);
+      } else {
+         if(isDebug)debug("couldn't find refresh.js in the jar");
+      }
+   }
 
    public static void msg(String message){
       System.out.println(message);

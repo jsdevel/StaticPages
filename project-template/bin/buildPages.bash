@@ -21,18 +21,6 @@ function buildPages()
    clear;
    preBuildPages;
    (cd $PROJECT_DIR;static-pages;);
-   local key="sessionStorage['lastRefresh']";
-   local stamp="`date +%N`";
-   cat > $REFRESH_FILE << HERE
-if($key && $key != $stamp){
-   $key = $stamp;
-   window.location=location.href.indexOf('?') > -1?
-      location.href.replace(/(StaticPageRefresh=)[0-9]+/, '\$1$stamp'):
-      location.href+'?StaticPageRefresh=$stamp';
-} else {
-   $key = $stamp;
-}
-HERE
    postBuildPages;
 }
 
