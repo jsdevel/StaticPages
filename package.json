@@ -1,6 +1,6 @@
 {
    "name": "static-pages",
-   "version": "2.0.4",
+   "version": "2.0.5",
    "description": "Build amazingly optimzed static html pages!!",
    "preferGlobal": true,
    "author": "Joseph Spencer <js.developer.undefined@gmail.com>",
