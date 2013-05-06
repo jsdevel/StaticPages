@@ -18,15 +18,14 @@
  * than what is in sessionStorage.
  */
 !function(){
-   //leave the whitespace space alone!
+   //leave the whitespace space alone.  'stamp=0' get's replace with I.E.
+   //'stamp=23452345'
    var stamp=0;
-   var key=sessionStorage['lastRefresh'];
-   if(key && parseInt(key) < stamp){
-      key = stamp;
+   var lastRefresh=parseInt(sessionStorage['lastRefresh']);
+   if(lastRefresh && lastRefresh < stamp){
       window.location=location.href.indexOf('?') > -1?
          location.href.replace(/(StaticPageRefresh=)[0-9]+/, '\$1'+stamp):
          location.href+'?StaticPageRefresh='+stamp;
-   } else {
-      sessionStorage['lastRefresh'] = stamp;
    }
+   sessionStorage['lastRefresh'] = stamp;
 }();

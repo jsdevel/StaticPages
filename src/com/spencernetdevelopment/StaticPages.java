@@ -186,6 +186,7 @@ public class StaticPages {
                );
             htmlBuilder.setDefaultStylesheet(defaultStylesheet.toFile());
             htmlBuilder.buildPages();
+            info("Finished building pages.");
             rewriteManager.applyRewrites();
             if(enableDevMode){
                createRefreshJS(
