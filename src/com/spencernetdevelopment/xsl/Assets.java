@@ -255,6 +255,22 @@ public class Assets {
       return fpath.toUnix();
    }
 
+   /**
+    * If the String is nothing but white space, then an empty string is
+    * returned, otherwise the String is returned with all occurrences of white
+    * space reduced to a single space.
+    *
+    * <li></li>
+    * </ul>
+    * @param text
+    * @return
+    */
+   public static String normalizeSpace(String text){
+      if(text == null){
+         return "";
+      }
+      return text.replaceAll("^\\s+$", "").replaceAll("\\s+", " ");
+   }
    public static void rewritePage(String page, String to){
       if(page == null || page.isEmpty()){
          Logger.fatal("Can't rewrite a non-existent page.  Page was: "+page+".  To was: "+to);
