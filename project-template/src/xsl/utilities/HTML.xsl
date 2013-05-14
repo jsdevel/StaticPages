@@ -80,7 +80,15 @@
    </xsl:template>
 
    <!-- text -->
-   <xsl:template match="text()"><xsl:value-of select="normalize-space(.)"/></xsl:template>
+   <xsl:template match="text()">
+      <xsl:value-of select="assets:normalizeSpace(.)"/>
+   </xsl:template>
+   <xsl:template match="text()" mode="head">
+      <xsl:value-of select="assets:normalizeSpace(.)"/>
+   </xsl:template>
+   <xsl:template match="text()" mode="seo">
+      <xsl:value-of select="assets:normalizeSpace(.)"/>
+   </xsl:template>
 
    <!-- head -->
    <xsl:template match="d:head" mode="head">
