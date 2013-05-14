@@ -88,8 +88,12 @@
    <xsl:template match="d:head" mode="head">
       <xsl:apply-templates/>
    </xsl:template>
+   <xsl:template match="text()" mode="head">
+   </xsl:template>
 
    <!-- seo -->
+   <xsl:template match="text()" mode="seo">
+   </xsl:template>
    <xsl:template match="d:seo" mode="seo">
       <xsl:apply-templates mode="seo"/>
    </xsl:template>
