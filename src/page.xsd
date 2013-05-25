@@ -30,7 +30,6 @@ limitations under the License.
          <xsd:element name="head" type="anyElement"/>
          <xsd:element name="body" type="anyContent"/>
       </xsd:sequence>
-      <xsd:attribute name="alternate-name" type="xsd:string"/>
       <xsd:attribute name="stylesheet" type="noFragmentOrTrailingSlashRelativeURI"/>
    </xsd:complexType>
 

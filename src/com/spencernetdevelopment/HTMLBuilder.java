@@ -119,18 +119,8 @@ public class HTMLBuilder {
          Node firstChild = xmlDocument.getDocumentElement();
          if(isDebug && firstChild == null)debug("firstChild was null");
          else if(isDebug)debug("firstChildName: "+firstChild.getLocalName());
-         NamedNodeMap attributes = firstChild.getAttributes();
-         if(isDebug && attributes == null)debug("attributes was null");
-         Node alternateNameNode = attributes.getNamedItem("alternate-name");
-         if(isDebug && alternateNameNode == null)debug("alternateNameNode was null");
 
          WrappedTransformer transformer;
-         if (alternateNameNode != null) {
-            String alternateName = alternateNameNode.getNodeValue();
-            transformer = getTransformer(xmlDocument, outputFilePath.getParent().resolve(alternateName + ".html").toFile(), xmlFilePath);
-            transformer.setParameter("enableRewrites", false);
-            transformer.transform();
-         }
          transformer = getTransformer(xmlDocument, htmlFile, xmlFilePath);
          transformer.setParameter("enableRewrites", true);
          transformer.transform();
