@@ -342,7 +342,6 @@ public class Assets {
 
             switch(http.getResponseCode()){
                case 200:
-               case 302:
                   break;
                default:
                   Logger.fatal("External link validation failed for the following URL: "+path);
