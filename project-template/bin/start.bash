@@ -29,11 +29,11 @@ function postBuildPages(){
    echo > /dev/null;
 }
 #handle config.bash
-if [ -f $PROJECT_DIR/config.bash ];then
-   . $PROJECT_DIR/config.bash;
+if [ -f $PROJECT_DIR/config/config.bash ];then
+   . $PROJECT_DIR/config/config.bash;
 else
    cat <<!
-'config.bash' wasn't found in the project rood directory.
+'config/config.bash' wasn't found in the project root directory.
 Using $PROJECT_DIR
 as project root.
 !
