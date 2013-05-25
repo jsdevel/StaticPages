@@ -23,6 +23,9 @@
       "type": "git",
       "url": "https://github.com/jsdevel/StaticPages.git"
    },
+   "dependencies":[
+      "config-tools"
+   ],
    "readmeFilename": "README.md",
    "engines": { 
       "node": "*"

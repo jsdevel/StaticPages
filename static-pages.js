@@ -1,13 +1,15 @@
 #!/usr/bin/env node
-var fs = require('fs');
-var path = require('path');
-var spawn = require('child_process').spawn;
+var fs         = require('fs');
+var path       = require('path');
+var configTools= require('config-tools');
+var spawn      = require('child_process').spawn;
 var java = spawn('java', ['-version']);
 var javaVersion="";
 var CWD = process.cwd();
 var CONFIG_FILE_NAME = 'static-pages.json';
-var CONFIG_FILE=path.resolve(CWD, CONFIG_FILE_NAME);
-var DEFAULT_CONFIG_FILE = path.resolve(__dirname, 'default.config.json');
+var DEFAULT_CONFIG_DIR=path.resolve(CWD, 'config');
+var DEFAULT_CONFIG_FILE=path.resolve(DEFAULT_CONFIG_DIR, CONFIG_FILE_NAME);
+var CONFIG_FILE_TEMPLATE = path.resolve(__dirname, 'default.config.json');
 
 java.stdout.on('data', function(data){
    javaVersion+=data;
@@ -19,19 +21,26 @@ java.on('close', function(code, signal){
    switch(code){
    case 0:
       if(/^java\sversion\s"1.7./.test(javaVersion)){
-         findConfig(CWD, CONFIG_FILE_NAME,
-            function(configPath){
-               startStaticPages(configPath);
+         configTools.getConfig(
+            CONFIG_FILE_NAME,
+            function(config){
+               startStaticPages(config);
             },
-            function(){
-               log(
-                  "'"+CONFIG_FILE_NAME+"' wasn't found in the CWD, or any of it's"+
-                  " parent directories.\nCWD was: "+CWD+"\n"+
-                  "Creating it now at: "+CONFIG_FILE
-               );
-               var boo=fs.readFileSync(DEFAULT_CONFIG_FILE, 'utf-8');
-               fs.writeFileSync(CONFIG_FILE, boo, 'utf-8');
-               startStaticPages(CONFIG_FILE);
+            function(path){
+               log([
+                  "'config/"+CONFIG_FILE_NAME+"' wasn't found in the CWD, or ",
+                  "any parent directory.\n",
+                  "CWD was: "+CWD+"\n",
+                  "Creating the default config file at: \n",
+                  DEFAULT_CONFIG_FILE
+               ]);
+               var boo=fs.readFileSync(CONFIG_FILE_TEMPLATE, 'utf8');
+               fs.writeFileSync(DEFAULT_CONFIG_FILE, boo, 'utf8');
+               startStaticPages({
+                  dir:DEFAULT_CONFIG_DIR,
+                  path:DEFAULT_CONFIG_FILE,
+                  config:JSON.parse(boo)
+               });
             }
          );
       } else {
@@ -49,52 +58,20 @@ java.on('close', function(code, signal){
 });
 
 /**
- * Scans a directory upwards through all ancestors searching for a file.
- *
- * @param {string} baseDir A path to a directory to begin searching for the file.
- * @param {string} fileName The name of the file to search for.
- * @param {function(string)} fnFound Accepts the absolute path of the file
- * searched for.
- * @param {function()} fnNotFound
- * @param {number} timesCalled When this exceeds 50, fnNotFound is called
+ * @param {Object} configToolsObject
  */
-function findConfig(baseDir, fileName, fnFound, fnNotFound, timesCalled){
-   var pathToConfig = path.join(baseDir, fileName);
-   fs.stat(pathToConfig, function(err, stats){
-      var i = (typeof timesCalled === 'number') ? timesCalled + 1 : 0;
-      if(err){
-         switch(err.errno){
-         case 34:
-            if(i > 50){
-               log("Couldn't find '"+fileName+"' in any parent directory"+
-               " starting in '"+CWD+"'");
-               fnNotFound();
-               return;
-            }
-            findConfig(path.dirname(baseDir), fileName, fnFound, fnNotFound, i);
-            break;
-         default:
-            log("The following error occurred while trying to find: "+
-            path.join(baseDir, fileName)+".  Exiting...");
-            log(err);
-            return;
-         }
-      } else {
-         fnFound(pathToConfig);
-      }
-   });
-}
-
-function startStaticPages(configPath){
-   var config = require(configPath);
+function startStaticPages(configToolsObject){
    var option;
+   var config = configToolsObject.config;
+   log("config file found at: ");
+   log(configToolsObject.path);
    var args = [ '-jar', path.join(__dirname, 'StaticPages.jar')];
    for(option in config){
       args.push('--'+option);
       switch(option){
       case "project-dir":
       case "new-project":
-         args.push(path.resolve(path.dirname(configPath), config[option]));
+         args.push(path.resolve(configToolsObject.dir, config[option]));
          break;
       default:
          args.push(config[option]);
@@ -107,5 +84,13 @@ function startStaticPages(configPath){
 }
 
 function log(a){
-   console.log(a);
+   var i,len,item;
+   if(a instanceof Array){
+      len=a.length;
+      for(i=0;i<len;i++){
+         log(a[i]);
+      }
+   } else {
+      console.log("static-pages: ",a);
+   }
 }
