@@ -35,6 +35,9 @@ java.on('close', function(code, signal){
                   DEFAULT_CONFIG_FILE
                ]);
                var boo=fs.readFileSync(CONFIG_FILE_TEMPLATE, 'utf8');
+               if(!fs.existsSync(DEFAULT_CONFIG_DIR)){
+                  fs.mkdirSync(DEFAULT_CONFIG_DIR, 0755);
+               }
                fs.writeFileSync(DEFAULT_CONFIG_FILE, boo, 'utf8');
                startStaticPages({
                   dir:DEFAULT_CONFIG_DIR,
