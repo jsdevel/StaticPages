@@ -28,10 +28,10 @@ java.on('close', function(code, signal){
             },
             function(path){
                log([
-                  "'config/"+CONFIG_FILE_NAME+"' wasn't found in the CWD, or ",
-                  "any parent directory.\n",
-                  "CWD was: "+CWD+"\n",
-                  "Creating the default config file at: \n",
+                  "'config/"+CONFIG_FILE_NAME+"' wasn't found in the CWD, or",
+                  "any parent directory.",
+                  "CWD was: "+CWD+"",
+                  "Creating the default config file at:",
                   DEFAULT_CONFIG_FILE
                ]);
                var boo=fs.readFileSync(CONFIG_FILE_TEMPLATE, 'utf8');
@@ -44,16 +44,19 @@ java.on('close', function(code, signal){
             }
          );
       } else {
-         log("Java 1.7 at a minimum is required to run static-pages.  Exiting...");
+         log([
+            "Java 1.7 at a minimum is required to run static-pages.",
+            "Exiting..."
+         ]);
          return;
       }
       break;
    default:
-      log(
-         "Java doesn't appear to be in your path using `java -version`."+
-         "Please ensure that java is installed on your system prior to "+
+      log([
+         "Java doesn't appear to be in your path using `java -version`.",
+         "Please ensure that java is installed on your system prior to ",
          "running static-pages"
-      );
+      ]);
    }
 });
 
@@ -63,8 +66,10 @@ java.on('close', function(code, signal){
 function startStaticPages(configToolsObject){
    var option;
    var config = configToolsObject.config;
-   log("config file found at: ");
-   log(configToolsObject.path);
+   log([
+      "config file found at: ",
+      configToolsObject.path
+   ]);
    var args = [ '-jar', path.join(__dirname, 'StaticPages.jar')];
    for(option in config){
       args.push('--'+option);
