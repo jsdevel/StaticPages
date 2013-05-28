@@ -19,8 +19,10 @@ import com.spencernetdevelopment.arguments.StaticPagesArguments;
 import com.spencernetdevelopment.arguments.StaticPagesTerminal;
 import static com.spencernetdevelopment.Logger.*;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 import java.util.Scanner;
 import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamSource;
@@ -53,6 +55,7 @@ public class StaticPages {
    public static String prefixToIgnoreFilesWith;
    public static int maxDataURISizeInBytes;
    public static int maxTimeToWaitForExternalLinkValidation;
+   private static Properties variables;
 
    /**
     * @param args the command line arguments
@@ -158,10 +161,6 @@ public class StaticPages {
             FilePath defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
             if(isDebug)debug("defaultStylesheet: "+defaultStylesheet.toString());
 
-            assetManager = new AssetManager(assetsDirPath, buildDirPath);
-            groupedAssetTransactionManager = new GroupedAssetTransactionManager(assetManager);
-            rewriteManager = new RewriteManager(buildDirPath);
-
             maxDataURISizeInBytes=arguments.getMaxdataurisizeinbytes();
             maxTimeToWaitForExternalLinkValidation=arguments.getMaxwaittimetovalidateexternallink();
 
@@ -173,6 +172,38 @@ public class StaticPages {
                FileUtils.clearDirectory(buildDirPath.toFile());
             }
 
+            variables = new Properties();
+            variables.load(
+               StaticPages.class.getResourceAsStream(
+                  "/default_variables.properties"
+               )
+            );
+
+            if(arguments.hasVariables()){
+               File variablesFile = arguments.getVariables();
+               if(variablesFile.isFile()){
+                  if(isDebug){
+                     debug("Attempting to use user supplied variables.");
+                     debug(
+                        "The path to the variables is: "+
+                        variablesFile.getAbsolutePath()
+                     );
+                  }
+                  variables.load(new FileReader(variablesFile));
+               } else {
+                  info("The supplied variables path didn't result in a file: ");
+                  info("'"+variablesFile.getAbsolutePath()+"' was the path.");
+               }
+            }
+
+            assetManager = new AssetManager(
+               assetsDirPath,
+               buildDirPath,
+               variables
+            );
+            groupedAssetTransactionManager = new GroupedAssetTransactionManager(assetManager);
+            rewriteManager = new RewriteManager(buildDirPath);
+
             StreamSource pageXSD = new StreamSource(
                     StaticPages.class.getResourceAsStream("/page.xsd"));
             SchemaFactory schemaFactory = SchemaFactory
@@ -182,7 +213,8 @@ public class StaticPages {
             HTMLBuilder htmlBuilder = new HTMLBuilder(
                   buildDirPath,
                   pagesDirPath,
-                  validator
+                  validator,
+                  assetManager
                );
             htmlBuilder.setDefaultStylesheet(defaultStylesheet.toFile());
             htmlBuilder.buildPages();

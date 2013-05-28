@@ -53,6 +53,7 @@ public class HTMLBuilder {
    private final DocumentBuilder docBuilder;
    private final TransformerFactory transformerFactory;
    private final Validator validator;
+   private final AssetManager assetManager;
    private StreamSource xslStream;
    private Transformer defaultXSLTransformer;
    private Map<String, Transformer> pageTransformers;
@@ -60,7 +61,8 @@ public class HTMLBuilder {
    public HTMLBuilder(
       FilePath buildDirPath,
       FilePath pagesDirPath,
-      Validator validator
+      Validator validator,
+      AssetManager assetManager
    ) throws ParserConfigurationException,
             SAXException
    {
@@ -74,6 +76,7 @@ public class HTMLBuilder {
       xmlPagesDirString = xmlPagesDirPath.toString();
       xmlPagesDirStringLength = xmlPagesDirString.length();
       this.validator = validator;
+      this.assetManager=assetManager;
    }
 
    public void setDefaultStylesheet(File defaultStylesheet) throws IOException, TransformerConfigurationException {
@@ -204,5 +207,6 @@ public class HTMLBuilder {
    private void addDefaultParameters(Transformer xslt) {
       xslt.setParameter("assetPrefixInBrowser", StaticPages.assetPrefixInBrowser);
       xslt.setParameter("enableDevMode", StaticPages.enableDevMode);
+      xslt.setParameter("assetManager", assetManager);
    }
 }

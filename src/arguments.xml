@@ -158,6 +158,19 @@ Controls the level of logging.\n
 "
       type="int"
       />
-
+   <argument
+      name="--variables"
+      type="file"
+      description="
+An absolute path to a .properties file.  Each property in the properties file
+is used as a variable value within certain contexts.  The following contexts
+are considered for variable expansion:\n
+*) xml text nodes\n
+*) xml attribute nodes\n
+Variable expansion is accomplished by providing the following pattern within
+the context: ${variable_name}.  Variable names conform to the following
+pattern: [a-zA-Z_][a-zA-Z0-9_]*
+"
+      />
 
 </arguments>

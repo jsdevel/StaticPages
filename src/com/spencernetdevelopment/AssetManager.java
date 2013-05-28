@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,12 +33,19 @@ import java.util.regex.Pattern;
  */
 public class AssetManager {
    private static final Pattern CSS_URL = Pattern.compile("url\\(\\s*(['\"])?/((?:(?!\\1\\)).)+)\\1?\\)");
+   private static final Pattern VARIABLES = Pattern.compile(
+      "\\$\\{([a-zA-Z_][0-9a-zA-Z_]*)\\}"
+   );
 
+   private final Properties variables;
    private FilePath assetPath;
    private FilePath buildPath;
-   public AssetManager(FilePath assets, FilePath build) throws IOException{
+   public AssetManager(FilePath assets, FilePath build, Properties variables)
+      throws IOException
+   {
       assetPath=assets;
       buildPath=build;
+      this.variables=variables;
    }
 
    public String getAsset(File file) throws IOException {
@@ -238,5 +246,26 @@ public class AssetManager {
       }
       //LOGGER.info("The following asset wasn't transferred because it is older than the target: " + fromPath);
       return false;
+   }
+
+   public String expandVariables(String text){
+      String returnText = text;
+      if(text == null){
+         return "";
+      }
+      Matcher vars = VARIABLES.matcher(text);
+      while(vars.find()){
+         String var = vars.group(1);
+         if(variables.containsKey(var)){
+            Object value;
+            if(variables.get(var) != null){
+               value = variables.get(var);
+            } else {
+               value = "";
+            }
+            returnText = returnText.replace(vars.group(0), value.toString());
+         }
+      }
+      return returnText.replaceAll(VARIABLES.pattern(), "");
    }
 }

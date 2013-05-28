@@ -23,6 +23,7 @@ public class StaticPagesTerminal {
       boolean enableloggingfatal=true;
       boolean enableloggingdebug=false;
       int logginglevel=0;
+      File variables=null;
       if(__showHelpOnNoArgs && args.length == 0){
          System.out.print(StaticPagesHelp.getHelpMenu());
          System.exit(0);
@@ -102,6 +103,11 @@ public class StaticPagesTerminal {
             logginglevel = getInt(val);
             continue;
          }
+         if("--variables".equals(key)){
+            String newPath = getPath(val);
+            variables = new File(newPath);
+            continue;
+         }
          throw new IllegalArgumentException("Unknown argument: "+key);
       }
       if(i - len != 0){
@@ -124,7 +130,8 @@ public class StaticPagesTerminal {
             enableloggingerror,
             enableloggingfatal,
             enableloggingdebug,
-            logginglevel
+            logginglevel,
+            variables
       );
    }
    public static final String getPath(String path){

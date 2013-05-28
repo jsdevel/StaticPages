@@ -21,6 +21,7 @@ public class StaticPagesArguments {
    private boolean enableloggingfatal=true;
    private boolean enableloggingdebug=false;
    private int logginglevel=0;
+   private File variables=null;
 
    public StaticPagesArguments(
       final File projectdir,
@@ -39,7 +40,8 @@ public class StaticPagesArguments {
       final boolean enableloggingerror,
       final boolean enableloggingfatal,
       final boolean enableloggingdebug,
-      final int logginglevel
+      final int logginglevel,
+      final File variables
    ) throws Throwable {
       if(projectdir != null){
          if(!projectdir.exists() || !projectdir.isDirectory()){
@@ -74,6 +76,7 @@ public class StaticPagesArguments {
       this.enableloggingfatal=enableloggingfatal;
       this.enableloggingdebug=enableloggingdebug;
       this.logginglevel=logginglevel;
+      this.variables=variables;
    }
 
    public File getProjectdir(){
@@ -177,5 +180,11 @@ public class StaticPagesArguments {
    }
    public boolean hasLogginglevel(){
       return logginglevel!=0;
+   }
+   public File getVariables(){
+      return variables;
+   }
+   public boolean hasVariables(){
+      return variables!=null;
    }
 }
