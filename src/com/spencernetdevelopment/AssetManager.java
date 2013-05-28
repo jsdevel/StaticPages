@@ -70,26 +70,38 @@ public class AssetManager {
       Matcher urls = CSS_URL.matcher(contents);
       while(urls.find()){
          String url = urls.group(2);
+         String dataType=url.toLowerCase().replaceFirst(".*\\.([^\\.]+)$", "$1");
+         String mimeType=null;
+
          if(compress){
-            byte[] bytes = FileUtils.getBytes(StaticPages.assetsDirPath.resolve(url).toFile());
-            String encoded = Base64.encodeToString(bytes, false);
-            byte[] encodedBytes = encoded.getBytes();
-            if(StaticPages.maxDataURISizeInBytes > 0 &&
-               encodedBytes.length <= StaticPages.maxDataURISizeInBytes
-            ){
-               String dataType=url.toLowerCase().replaceFirst(".*\\.([^\\.]+)$", "$1");
-               switch(dataType){
-                  case "gif":
-                  case "jpeg":
-                  case "jpg":
-                  case "png":
-                     contentsToReturn = contentsToReturn.replace(urls.group(0), "url(data:image/"+dataType+";base64,"+encoded+")");
-                     continue;
-               default:
-                  throw new IOException("Invalid file extension detected: "+url);
+            switch(dataType){
+               case "gif":
+               case "jpeg":
+               case "jpg":
+               case "png":
+                  mimeType="image/"+dataType;
+                  break;
+            }
+
+            if(mimeType != null){
+               byte[] bytes = FileUtils.getBytes(
+                  StaticPages.assetsDirPath.resolve(url).toFile()
+               );
+               String encoded = Base64.encodeToString(bytes, false);
+               byte[] encodedBytes = encoded.getBytes();
+               if(StaticPages.maxDataURISizeInBytes > 0 &&
+                  encodedBytes.length <= StaticPages.maxDataURISizeInBytes
+               ){
+                  contentsToReturn = contentsToReturn.replace(
+                     urls.group(0),
+                     "url(data:"+mimeType+";base64,"+encoded+")"
+                  );
+                  continue;
+               } else {
+                  Logger.info(
+                     "The following resource exceeded the max size in bytes "+
+                     "specified and can not be embedded within CSS: "+url);
                }
-            } else {
-               Logger.info("The following resource exceeded the max size in bytes specified in the arguments: "+url);
             }
          }
          String prefix = StaticPages.assetPrefixInBrowser;
