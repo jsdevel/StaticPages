@@ -79,6 +79,7 @@ function startStaticPages(configToolsObject){
       switch(option){
       case "project-dir":
       case "new-project":
+      case "variables":
          args.push(path.resolve(configToolsObject.dir, config[option]));
          break;
       default:

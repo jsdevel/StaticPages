@@ -15,5 +15,6 @@
    "enable-logging-debug":false,
    "logging-level":0,
    "new-project":"../",
-   "project-dir":"../"
+   "project-dir":"../",
+   "variables":"static-pages-vars.properties"
 }
