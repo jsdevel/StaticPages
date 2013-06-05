@@ -119,10 +119,8 @@ public class AssetManager {
             }
          }
 
-         Logger.debug("URL before: "+url);
          if(!seive.contains(url)){
             seive.add(url);
-            Logger.debug("URL  after: "+url);
             String prefix = StaticPages.assetPrefixInBrowser;
             contentsToReturn = contentsToReturn.replace(
                "/"+url,
@@ -159,7 +157,6 @@ public class AssetManager {
    ) throws
       IOException, URISyntaxException
    {
-      System.out.println(targetPath);
       AtomicReference<File> source = new AtomicReference<>();
       AtomicReference<File> target = new AtomicReference<>();
       if(prepareAssetTransfer(
@@ -169,9 +166,6 @@ public class AssetManager {
          target
       )){
          String css = getCSS(source.get(), compress);
-         if("css/fonts.css".equals(targetPath)){
-            System.out.println(css);
-         }
          FileUtils.putString(target.get(), css);
       }
 
@@ -217,16 +211,6 @@ public class AssetManager {
       }
    }
 
-
-   /**
-    * Returns the URL without a '#' fragment or '?' query string.
-    *
-    * @param url
-    * @return
-    */
-   private String getURLWithoutFragOrQuery(String url){
-      return url.replaceFirst("(?:\\?|#).*$", "");
-   }
    /**
     * Prepares assets for transferring if the source is newer than the target.
     *
