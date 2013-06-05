@@ -16,6 +16,7 @@
 package com.spencernetdevelopment;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -78,7 +79,7 @@ public class GroupedAssetTransactionManagerTest {
    }
    @Test(expected = IllegalArgumentException.class)
    public void processing_css_transaction_when_transaction_already_processed()
-      throws IOException
+      throws IOException, URISyntaxException
    {
       playTransaction(transaction, "css");
       verify(assetManager, times(1)).getCSS("css/boo.css", true);

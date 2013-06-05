@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -71,7 +72,9 @@ public class Assets {
          return false;
       }
    }
-   public static void buildGroupedAsset(GroupedAssetTransaction group){
+   public static void buildGroupedAsset(GroupedAssetTransaction group)
+      throws URISyntaxException
+   {
       try {
          String contents = StaticPages.groupedAssetTransactionManager.
             process(group);
@@ -173,7 +176,9 @@ public class Assets {
     * @param compress
     * @return
     */
-   public static String getCSS(String path, String compress) {
+   public static String getCSS(String path, String compress)
+      throws URISyntaxException
+   {
       path = getCleanCSSPath(path);
       boolean isCompress = getEnableCompression(compress);
       try {
@@ -290,7 +295,10 @@ public class Assets {
          System.exit(1);
       }
    }
-   public static void transferCSS(String path, String compress) throws IOException {
+   public static void transferCSS(String path, String compress)
+      throws IOException,
+             URISyntaxException
+   {
       boolean isCompress = getEnableCompression(compress);
       try {
          StaticPages.assetManager.transferCSS(

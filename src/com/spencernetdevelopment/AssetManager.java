@@ -22,7 +22,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,13 +60,13 @@ public class AssetManager {
       return getAsset(file);
    }
 
-   public String getCSS(File file, boolean compress) throws IOException {
+   public String getCSS(File file, boolean compress) throws IOException, URISyntaxException {
       return handleCSS(getAsset(file), compress);
    }
-   public String getCSS(String path, boolean compress) throws IOException {
+   public String getCSS(String path, boolean compress) throws IOException, URISyntaxException {
       return handleCSS(getAsset(path), compress);
    }
-   private String handleCSS(String contents, boolean compress) throws IOException {
+   private String handleCSS(String contents, boolean compress) throws IOException, URISyntaxException {
       String contentsToReturn;
       if(compress){
          StringReader reader = new StringReader(contents);
@@ -73,11 +77,13 @@ public class AssetManager {
       } else {
          contentsToReturn = contents;
       }
-
+      //Use this to ensure we don't keep replacing the same URL over and over
+      //again in the css file when we're not going to embed the data uri.
+      Set<String> seive = new HashSet<>();
       //This transferes all images over that are defined in css files.
       Matcher urls = CSS_URL.matcher(contents);
       while(urls.find()){
-         String url = urls.group(2);
+         String url = new URI(urls.group(2)).getPath();
          String dataType=url.toLowerCase().replaceFirst(".*\\.([^\\.]+)$", "$1");
          String mimeType=null;
 
@@ -112,13 +118,18 @@ public class AssetManager {
                }
             }
          }
-         String prefix = StaticPages.assetPrefixInBrowser;
-         contentsToReturn = contentsToReturn.replace(
-            "/"+url,
-            prefix+"/"+Assets.getAssetPath(url)
-         );
-         String path = getURLWithoutFragOrQuery(url);
-         transferAsset(path, Assets.getAssetPath(path));
+
+         Logger.debug("URL before: "+url);
+         if(!seive.contains(url)){
+            seive.add(url);
+            Logger.debug("URL  after: "+url);
+            String prefix = StaticPages.assetPrefixInBrowser;
+            contentsToReturn = contentsToReturn.replace(
+               "/"+url,
+               prefix+"/"+Assets.getAssetPath(url)
+            );
+         }
+         transferAsset(url, Assets.getAssetPath(url));
       }
       return contentsToReturn;
    }
@@ -146,8 +157,9 @@ public class AssetManager {
       String targetPath,
       boolean compress
    ) throws
-      IOException
+      IOException, URISyntaxException
    {
+      System.out.println(targetPath);
       AtomicReference<File> source = new AtomicReference<>();
       AtomicReference<File> target = new AtomicReference<>();
       if(prepareAssetTransfer(
@@ -156,7 +168,11 @@ public class AssetManager {
          targetPath,
          target
       )){
-         FileUtils.putString(target.get(), getCSS(source.get(), compress));
+         String css = getCSS(source.get(), compress);
+         if("css/fonts.css".equals(targetPath)){
+            System.out.println(css);
+         }
+         FileUtils.putString(target.get(), css);
       }
 
    }
