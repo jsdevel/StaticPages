@@ -61,14 +61,17 @@ public class GroupedAssetTransactionManagerTest {
 
    @Test(expected = IllegalArgumentException.class)
    public void adding_transactions_fails_when_transaction_not_closed()
-      throws IOException
+      throws IOException,
+             URISyntaxException
    {
       when(transaction.isClosed()).thenReturn(false);
       manager.process(transaction);
    }
    @Test(expected = IllegalArgumentException.class)
    public void processing_js_transaction_when_transaction_already_processed()
-      throws IOException
+      throws IOException,
+             URISyntaxException
+
    {
       playTransaction(transaction, "js");
       verify(assetManager, times(1)).getJS("js/boo.js", true);
@@ -92,7 +95,9 @@ public class GroupedAssetTransactionManagerTest {
    private void playTransaction(
       GroupedAssetTransaction t,
       String type
-   ) throws IOException{
+   ) throws IOException,
+            URISyntaxException
+   {
       when(t.isClosed()).thenReturn(true);
       when(t.isCompressed()).thenReturn(true);
       when(t.getIdentifier()).thenReturn("foo");
