@@ -16,6 +16,7 @@
 package com.spencernetdevelopment;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,7 +51,7 @@ public class GroupedAssetTransactionManager {
     * or if the transaction was already built.
     */
    public synchronized String process(GroupedAssetTransaction transaction)
-      throws IOException, IllegalArgumentException
+      throws IOException, IllegalArgumentException, URISyntaxException
    {
       if(!transaction.isClosed()){
          throw new IllegalArgumentException("transaction wasn't closed.");

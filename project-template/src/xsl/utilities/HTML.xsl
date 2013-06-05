@@ -41,7 +41,7 @@
    <xsl:template match="d:a"><a><xsl:apply-templates select="@*"/><xsl:apply-templates/></a></xsl:template>
    <xsl:template match="d:button"><button><xsl:apply-templates select="@*"/><xsl:apply-templates/></button></xsl:template>
    <xsl:template match="d:br"><br/></xsl:template>
-   <xsl:template match="d:b"><b><xsl:apply-templates/></b></xsl:template>
+   <xsl:template match="d:b"><b><xsl:apply-templates select="@*"/><xsl:apply-templates/></b></xsl:template>
    <xsl:template match="d:code"><code><xsl:apply-templates select="@*"/><xsl:apply-templates/></code></xsl:template>
    <xsl:template match="d:div"><div><xsl:apply-templates select="@*"/><xsl:apply-templates/></div></xsl:template>
    <xsl:template match="d:form"><form><xsl:apply-templates select="@*"/><xsl:apply-templates/></form></xsl:template>
@@ -50,7 +50,7 @@
    <xsl:template match="d:h3"><h3><xsl:apply-templates select="@*"/><xsl:apply-templates/></h3></xsl:template>
    <xsl:template match="d:h4"><h4><xsl:apply-templates select="@*"/><xsl:apply-templates/></h4></xsl:template>
    <xsl:template match="d:h5"><h5><xsl:apply-templates select="@*"/><xsl:apply-templates/></h5></xsl:template>
-   <xsl:template match="d:i"><i><xsl:apply-templates/></i></xsl:template>
+   <xsl:template match="d:i"><i><xsl:apply-templates select="@*"/><xsl:apply-templates/></i></xsl:template>
    <xsl:template match="d:img"><img><xsl:apply-templates select="@*"/></img></xsl:template>
    <xsl:template match="d:iframe"><iframe><xsl:apply-templates select="@*"/></iframe></xsl:template>
    <xsl:template match="d:input"><input><xsl:apply-templates select="@*"/><xsl:apply-templates/></input></xsl:template>

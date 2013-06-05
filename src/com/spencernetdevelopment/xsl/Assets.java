@@ -15,35 +15,13 @@
  */
 package com.spencernetdevelopment.xsl;
 
-import com.spencernetdevelopment.FilePath;
-import com.spencernetdevelopment.FileUtils;
-import com.spencernetdevelopment.GroupedAssetTransaction;
 import com.spencernetdevelopment.HttpExternalLinkResponse;
-import com.spencernetdevelopment.Logger;
-import static com.spencernetdevelopment.xsl.FileFunctions.assertFileExists;
-import static com.spencernetdevelopment.xsl.FileFunctions.assertPathHasLength;
-import com.spencernetdevelopment.StaticPages;
-import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.SocketTimeoutException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 /**
  *
@@ -72,7 +50,9 @@ public class Assets {
          return false;
       }
    }
-   public static void buildGroupedAsset(GroupedAssetTransaction group){
+   public static void buildGroupedAsset(GroupedAssetTransaction group)
+      throws URISyntaxException
+   {
       try {
          String contents = StaticPages.groupedAssetTransactionManager.
             process(group);
@@ -178,7 +158,10 @@ public class Assets {
          System.exit(1);
       }
    }
-   public static void transferCSS(String path, String compress) throws IOException {
+   public static void transferCSS(String path, String compress)
+      throws IOException,
+             URISyntaxException
+   {
       boolean isCompress = getEnableCompression(compress);
       try {
          StaticPages.assetManager.transferCSS(

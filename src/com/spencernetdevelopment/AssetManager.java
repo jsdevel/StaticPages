@@ -15,15 +15,17 @@
  */
 package com.spencernetdevelopment;
 
-import com.spencernetdevelopment.xsl.Assets;
 import com.yahoo.platform.yui.compressor.CssCompressor;
 import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -87,11 +89,13 @@ public class AssetManager {
       } else {
          contentsToReturn = contents;
       }
-
+      //Use this to ensure we don't keep replacing the same URL over and over
+      //again in the css file when we're not going to embed the data uri.
+      Set<String> seive = new HashSet<>();
       //This transferes all images over that are defined in css files.
       Matcher urls = CSS_URL.matcher(contents);
       while(urls.find()){
-         String url = urls.group(2);
+         String url = new URI(urls.group(2)).getPath();
          String dataType=url.toLowerCase().replaceFirst(".*\\.([^\\.]+)$", "$1");
          String mimeType=null;
 
@@ -126,13 +130,15 @@ public class AssetManager {
                }
             }
          }
-         String prefix = assetPrefixInBrowser;
-         contentsToReturn = contentsToReturn.replace(
-            "/"+url,
-            prefix+"/"+assetResolver.getAssetPath(url)
-         );
-         String path = getURLWithoutFragOrQuery(url);
-         transferAsset(path, assetResolver.getAssetPath(path));
+
+         if(!seive.contains(url)){
+            seive.add(url);
+            contentsToReturn = contentsToReturn.replace(
+               "/"+url,
+               assetPrefixInBrowser+"/"+assetResolver.getAssetPath(url)
+            );
+            transferAsset(url, assetResolver.getAssetPath(url));
+         }
       }
       return contentsToReturn;
    }
@@ -173,7 +179,8 @@ public class AssetManager {
          targetPath,
          target
       )){
-         FileUtils.putString(target.get(), getCSS(source.get(), compress));
+         String css = getCSS(source.get(), compress);
+         FileUtils.putString(target.get(), css);
       }
 
    }
@@ -218,16 +225,6 @@ public class AssetManager {
       }
    }
 
-
-   /**
-    * Returns the URL without a '#' fragment or '?' query string.
-    *
-    * @param url
-    * @return
-    */
-   private String getURLWithoutFragOrQuery(String url){
-      return url.replaceFirst("(?:\\?|#).*$", "");
-   }
    /**
     * Prepares assets for transferring if the source is newer than the target.
     *
