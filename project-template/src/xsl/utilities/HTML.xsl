@@ -17,16 +17,17 @@
 <xsl:stylesheet version="1.0"
    xmlns:d="default"
    xmlns:assets="com.spencernetdevelopment.xsl.Assets"
+   xmlns:U="com.spencernetdevelopment.xsl.Utils"
    xmlns:AM="com.spencernetdevelopment.AssetManager"
    xmlns:fn="functions"
-   exclude-result-prefixes="d fn assets"
+   exclude-result-prefixes="d fn assets U"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
    <xsl:param name="pagePath"/>
    <!-- something like /index.html -->
    <xsl:param name="domainRelativePagePath"/>
    <xsl:param name="enableRewrites" select="false()"/>
-   <xsl:param name="assetManager"/>
+   <xsl:param name="AM"/>
 
    <xsl:template name="HTML5Doctype">
       <xsl:text disable-output-escaping="yes">&lt;!DOCTYPE html&gt;</xsl:text>
@@ -61,14 +62,14 @@
    <xsl:template match="d:script">
       <script>
          <xsl:apply-templates select="@*"/>
-         <xsl:value-of select="AM:expandVariables($assetManager, .)"
+         <xsl:value-of select="AM:expandVariables($AM, .)"
                        disable-output-escaping="yes"/>
    </script>
    </xsl:template>
    <xsl:template match="d:style">
       <style>
          <xsl:apply-templates select="@*"/>
-         <xsl:value-of select="AM:expandVariables($assetManager, .)"
+         <xsl:value-of select="AM:expandVariables($AM, .)"
                        disable-output-escaping="yes"/>
       </style>
    </xsl:template>
@@ -86,27 +87,19 @@
    <xsl:template match="d:pre[@preserve]"><xsl:copy-of select="."/></xsl:template>
    <xsl:template match="*" mode="pre">&lt;<xsl:value-of select="local-name()"/>&gt;<xsl:apply-templates mode="pre"/>&lt;<xsl:value-of select="local-name()"/>&gt;</xsl:template>
    <xsl:template match="text()" mode="pre">
-      <xsl:value-of select="AM:expandVariables($assetManager, .)"/>
+      <xsl:value-of select="AM:expandVariables($AM, .)"/>
    </xsl:template>
 
    <!--ATTRIBUTES-->
    <xsl:template match="@*">
       <xsl:attribute name="{name(.)}">
-         <xsl:value-of select="
-            AM:expandVariables($assetManager,
-               .
-            )
-         "/>
+         <xsl:value-of select="AM:expandVariables($AM,.)"/>
       </xsl:attribute>
    </xsl:template>
 
    <!-- text -->
    <xsl:template match="text()">
-      <xsl:value-of select="
-         AM:expandVariables($assetManager,
-            assets:normalizeSpace(.)
-         )
-      "/>
+      <xsl:value-of select="AM:expandVariables($AM,U:normalizeSpace(.))"/>
    </xsl:template>
 
    <!-- head -->
@@ -124,24 +117,20 @@
    </xsl:template>
    <xsl:template match="d:title" mode="seo">
       <title>
-         <xsl:value-of select="AM:expandVariables($assetManager,.)"/>
+         <xsl:value-of select="AM:expandVariables($AM,.)"/>
       </title>
    </xsl:template>
    <xsl:template match="d:description" mode="seo">
       <meta name="description">
          <xsl:attribute name="content">
-            <xsl:value-of select="
-               AM:expandVariables($assetManager, .)
-            "/>
+            <xsl:value-of select="AM:expandVariables($AM, .)"/>
          </xsl:attribute>
       </meta>
    </xsl:template>
    <xsl:template match="d:keywords" mode="seo">
       <meta name="keywords">
          <xsl:attribute name="content">
-            <xsl:value-of select="
-               AM:expandVariables($assetManager, .)
-            "/>
+            <xsl:value-of select="AM:expandVariables($AM, .)"/>
          </xsl:attribute>
       </meta>
    </xsl:template>

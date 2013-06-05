@@ -32,7 +32,7 @@ public class AssetManagerTest {
    @Before
    public void before() throws IOException {
       vars = new Properties();
-      manager = new AssetManager(null, null, vars);
+      manager = new AssetManager(null, null, vars,null, null);
    }
 
 

@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
@@ -37,32 +38,45 @@ public class AssetManager {
       "\\$\\{([a-zA-Z_][0-9a-zA-Z_]*)\\}"
    );
 
+   private final String assetPrefixInBrowser;
    private final Properties variables;
-   private FilePath assetPath;
-   private FilePath buildPath;
-   public AssetManager(FilePath assets, FilePath build, Properties variables)
+   private final int maxDataURISizeInBytes;
+   private final FilePath assetPath;
+   private final FilePath buildPath;
+   private final AssetResolver assetResolver;
+
+   public AssetManager(
+      FilePath assets,
+      FilePath build,
+      Properties variables,
+      StaticPagesConfiguration config,
+      AssetResolver assetResolver
+   )
       throws IOException
    {
       assetPath=assets;
       buildPath=build;
       this.variables=variables;
+      this.assetPrefixInBrowser=config.getAssetPrefixInBrowser();
+      this.maxDataURISizeInBytes=config.getMaxDataURISizeInBytes();
+      this.assetResolver=assetResolver;
    }
 
    public String getAsset(File file) throws IOException {
       return FileUtils.getString(file);
    }
    public String getAsset(String path) throws IOException {
-      File file = StaticPages.assetsDirPath.resolve(path).toFile();
+      File file = assetPath.resolve(path).toFile();
       return getAsset(file);
    }
 
-   public String getCSS(File file, boolean compress) throws IOException {
+   public String getCSS(File file, boolean compress) throws IOException, URISyntaxException {
       return handleCSS(getAsset(file), compress);
    }
-   public String getCSS(String path, boolean compress) throws IOException {
+   public String getCSS(String path, boolean compress) throws IOException, URISyntaxException {
       return handleCSS(getAsset(path), compress);
    }
-   private String handleCSS(String contents, boolean compress) throws IOException {
+   private String handleCSS(String contents, boolean compress) throws IOException, URISyntaxException {
       String contentsToReturn;
       if(compress){
          StringReader reader = new StringReader(contents);
@@ -93,12 +107,12 @@ public class AssetManager {
 
             if(mimeType != null){
                byte[] bytes = FileUtils.getBytes(
-                  StaticPages.assetsDirPath.resolve(url).toFile()
+                  assetPath.resolve(url).toFile()
                );
                String encoded = Base64.encodeToString(bytes, false);
                byte[] encodedBytes = encoded.getBytes();
-               if(StaticPages.maxDataURISizeInBytes > 0 &&
-                  encodedBytes.length <= StaticPages.maxDataURISizeInBytes
+               if(maxDataURISizeInBytes > 0 &&
+                  encodedBytes.length <= maxDataURISizeInBytes
                ){
                   contentsToReturn = contentsToReturn.replace(
                      urls.group(0),
@@ -112,13 +126,13 @@ public class AssetManager {
                }
             }
          }
-         String prefix = StaticPages.assetPrefixInBrowser;
+         String prefix = assetPrefixInBrowser;
          contentsToReturn = contentsToReturn.replace(
             "/"+url,
-            prefix+"/"+Assets.getAssetPath(url)
+            prefix+"/"+assetResolver.getAssetPath(url)
          );
          String path = getURLWithoutFragOrQuery(url);
-         transferAsset(path, Assets.getAssetPath(path));
+         transferAsset(path, assetResolver.getAssetPath(path));
       }
       return contentsToReturn;
    }
@@ -138,7 +152,10 @@ public class AssetManager {
          javaScriptCompressor.compress(writer, -1, true, false, false, false);
          minified=writer.toString();
       }
-      return (minified == null ? contents : minified).replace("ASSET_PREFIX_IN_BROWSER", StaticPages.assetPrefixInBrowser);
+      return (minified == null ? contents : minified).replace(
+                  "ASSET_PREFIX_IN_BROWSER",
+                  assetPrefixInBrowser
+               );
    }
 
    public void transferCSS(
@@ -146,7 +163,7 @@ public class AssetManager {
       String targetPath,
       boolean compress
    ) throws
-      IOException
+      IOException, URISyntaxException
    {
       AtomicReference<File> source = new AtomicReference<>();
       AtomicReference<File> target = new AtomicReference<>();
@@ -160,8 +177,8 @@ public class AssetManager {
       }
 
    }
-   public void transferImage(String path) throws IOException {
-      transferAsset(path, Assets.getAssetPath(path));
+   public void transferImage(String path) throws IOException, URISyntaxException {
+      transferAsset(path, assetResolver.getAssetPath(path));
    }
    public void transferJS(
       String srcPath,

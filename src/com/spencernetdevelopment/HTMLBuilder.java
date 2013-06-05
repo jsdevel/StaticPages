@@ -54,6 +54,8 @@ public class HTMLBuilder {
    private final TransformerFactory transformerFactory;
    private final Validator validator;
    private final AssetManager assetManager;
+   private final StaticPagesConfiguration config;
+   private final AssetResolver assetResolver;
    private StreamSource xslStream;
    private Transformer defaultXSLTransformer;
    private Map<String, Transformer> pageTransformers;
@@ -62,7 +64,9 @@ public class HTMLBuilder {
       FilePath buildDirPath,
       FilePath pagesDirPath,
       Validator validator,
-      AssetManager assetManager
+      AssetManager assetManager,
+      StaticPagesConfiguration config,
+      AssetResolver assetResolver
    ) throws ParserConfigurationException,
             SAXException
    {
@@ -77,6 +81,8 @@ public class HTMLBuilder {
       xmlPagesDirStringLength = xmlPagesDirString.length();
       this.validator = validator;
       this.assetManager=assetManager;
+      this.config=config;
+      this.assetResolver=assetResolver;
    }
 
    public void setDefaultStylesheet(File defaultStylesheet) throws IOException, TransformerConfigurationException {
@@ -113,7 +119,12 @@ public class HTMLBuilder {
    public void buildPage(Path xmlFilePath) throws SAXException, TransformerException, IOException {
       if(isDebug)debug("preparing to build xml file: "+
               (xmlFilePath != null ? xmlFilePath.toString() : null));
-      if (xmlFilePath != null && !xmlFilePath.toFile().getName().startsWith(StaticPages.prefixToIgnoreFilesWith)) {
+      if (
+         xmlFilePath != null &&
+         !xmlFilePath.toFile().getName().startsWith(
+            config.getPrefixToIgnoreFilesWith()
+         )
+      ) {
          Document xmlDocument = docBuilder.parse(xmlFilePath.toFile());
          xmlDocument.normalize();
          validator.validate(new DOMSource(xmlDocument));
@@ -162,7 +173,8 @@ public class HTMLBuilder {
             if (pageTransformers.containsKey(stylesheet)) {
                transformer = pageTransformers.get(stylesheet);
             } else {
-               FilePath stylesheetPath = StaticPages.xslDirPath.resolve(stylesheet.concat(".xsl"));
+               FilePath stylesheetPath =
+                  config.getXslDirPath().resolve(stylesheet.concat(".xsl"));
                File stylesheetFile = stylesheetPath.toFile();
 
                assertStylesheetExists(stylesheetFile);
@@ -180,7 +192,7 @@ public class HTMLBuilder {
          transformer = defaultXSLTransformer;
       }
       transformer.setParameter("pagePath", outputFilePath.toString());
-      transformer.setParameter("domainRelativePagePath", outputFile.getAbsolutePath().substring(StaticPages.buildDirPath.toString().length()));
+      transformer.setParameter("domainRelativePagePath", outputFile.getAbsolutePath().substring(buildDirPath.toString().length()));
       return new WrappedTransformer(transformer, xmlDoc, resultStream);
    }
 
@@ -205,8 +217,16 @@ public class HTMLBuilder {
     * @param xslt
     */
    private void addDefaultParameters(Transformer xslt) {
-      xslt.setParameter("assetPrefixInBrowser", StaticPages.assetPrefixInBrowser);
-      xslt.setParameter("enableDevMode", StaticPages.enableDevMode);
+      xslt.setParameter(
+         "assetPrefixInBrowser",
+         config.getAssetPrefixInBrowser()
+      );
+      xslt.setParameter("enableDevMode", config.isEnableDevMode());
       xslt.setParameter("assetManager", assetManager);
+      xslt.setParameter(
+         "xmlResourcesPath",
+         config.getXmlResourcesDirPath().toUnix()
+      );
+
    }
 }

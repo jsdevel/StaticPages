@@ -18,16 +18,18 @@
                 xmlns:p="phrases"
                 xmlns:d="default"
                 xmlns:assets="com.spencernetdevelopment.xsl.Assets"
-                xmlns:pp="com.spencernetdevelopment.xsl.ProjectPaths"
-                exclude-result-prefixes="p d assets pp"
+                exclude-result-prefixes="p d assets"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
+   <xsl:param name="xmlResourcesPath"/>
+
    <xsl:template match="p:*">
-      <xsl:variable name="rp" select="pp:getXmlResourcesPath()"/>
       <xsl:choose>
          <xsl:when test="assets:assertXmlResourceExists('phrases.xml')">
             <xsl:variable name="id" select="local-name()"/>
-            <xsl:variable name="phrase" select="document(concat($rp, '/phrases.xml'))/d:phrases/d:phrase[@id=$id]"/>
+            <xsl:variable name="phrase" select="document(
+               concat($xmlResourcesPath, '/phrases.xml')
+            )/d:phrases/d:phrase[@id=$id]"/>
             <xsl:choose>
                <xsl:when test="string($phrase) = ''">
                   <xsl:message>
@@ -41,7 +43,7 @@ phrases.xml:  Couldn't find phrase with id: <xsl:value-of select="$id"/>
          </xsl:when>
          <xsl:otherwise>
             <xsl:message>
-Couldn't find <xsl:value-of select="$rp"/>/phrases.xml.
+Couldn't find <xsl:value-of select="$xmlResourcesPath"/>/phrases.xml.
             </xsl:message>
 
          </xsl:otherwise>

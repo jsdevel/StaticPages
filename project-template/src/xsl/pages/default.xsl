@@ -21,8 +21,9 @@
 <xsl:stylesheet version="1.0"
    xmlns:d="default"
    xmlns:assets="com.spencernetdevelopment.xsl.Assets"
+   xmlns:AR="com.spencernetdevelopment.AssetResolver"
    xmlns:saxon="http://icl.com/saxon"
-   exclude-result-prefixes="assets d saxon"
+   exclude-result-prefixes="assets d saxon AR"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" >
 
    <xsl:import href="../utilities/HTML.xsl"/>
@@ -70,7 +71,7 @@
             <xsl:apply-templates select="d:body" mode="defaultStylesheet"/>
             <xsl:if test="$enableDevMode">
                <xsl:variable name="path"
-                             select="assets:getCleanJSPath(
+                             select="AR:getCleanJSPath($AR,
                                  'StaticPageUtils/CheckForChange'
                              )"/>
                <xsl:value-of select="assets:transferAsset($path)"/>

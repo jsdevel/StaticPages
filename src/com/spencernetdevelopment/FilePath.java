@@ -70,9 +70,9 @@ public class FilePath {
       return new File(path);
    }
 
-   private static void assertSuppliedPath(String path) throws IOException {
+   private static void assertSuppliedPath(String path) {
       if(path == null || path.length() == 0){
-         throw new IOException("Can't construct a FilePath from an empty path.");
+         throw new IllegalArgumentException("Can't construct a FilePath from an empty path.");
       }
    }
    private static String getAbsolutePath(String parent, String child) throws IOException {

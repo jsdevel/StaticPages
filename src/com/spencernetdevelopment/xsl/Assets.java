@@ -57,6 +57,7 @@ public class Assets {
    private static Set<String> validatedFragments = new HashSet<>();
    private static Set<String> validatedXMLResources = new HashSet<>();
 
+   /*
    public static boolean assertXmlResourceExists(String path) throws IOException {
       if(validatedXMLResources.contains(path)){
          return true;
@@ -109,61 +110,8 @@ public class Assets {
       }
       return "";
    }
+   */
 
-   /**
-    * Returns a URL with an optional fingerprint depending on what is
-    * configured.
-    *
-    * @param url
-    * @throws NullPointerException if the URL is null.
-    * @throws IllegalArgumentException if the URL has no file extension.
-    * @throws IllegalArgumentException if the URL no path
-    * @return
-    */
-   public static String getAssetPath(String url){
-      if(url == null){
-         throw new NullPointerException("url was null");
-      }
-      String fileExtension = url.replaceFirst(".+(\\.[a-zA-Z]+)$", "$1");
-      String pathWithoutExtension = url.replaceFirst("(.+)\\.[a-zA-Z]+$", "$1");
-      if(fileExtension.length() == 0){
-         throw new IllegalArgumentException("no file extension was found");
-      }
-      if(pathWithoutExtension.length() == 0){
-         throw new IllegalArgumentException("no path was found");
-      }
-      return pathWithoutExtension+StaticPages.assetFingerprint+fileExtension;
-   }
-
-   /**
-    * Returns the path to the desired css resource without a fingerprint.
-    *
-    * @param path
-    * @return
-    */
-   public static String getCleanCSSPath(String path){
-      return "css/"+FileUtils.getForcedRelativePath(path, "/")+".css";
-   }
-
-   /**
-    * Returns the path to the desired image resource without a fingerprint.
-    *
-    * @param path
-    * @return
-    */
-   public static String getCleanImagePath(String path){
-      return "images/"+FileUtils.getForcedRelativePath(path, "/");
-   }
-
-   /**
-    * Returns the path to the desired javascript resource without a fingerprint.
-    *
-    * @param path
-    * @return
-    */
-   public static String getCleanJSPath(String path){
-      return "js/"+FileUtils.getForcedRelativePath(path, "/")+".js";
-   }
 
    /**
     * Returns the contents of the requested css file.
@@ -173,6 +121,7 @@ public class Assets {
     * @param compress
     * @return
     */
+   /*
    public static String getCSS(String path, String compress) {
       path = getCleanCSSPath(path);
       boolean isCompress = getEnableCompression(compress);
@@ -184,31 +133,8 @@ public class Assets {
       }
       return "";
    }
+   */
 
-   /**
-    * Returns the path to the desired css resource.  This path may or may
-    * not have a fingerprint depending on the arguments given to the program.
-    * @param path
-    * @return
-    */
-   public static String getCSSPath(String path){
-      return "css/"+
-              FileUtils.getForcedRelativePath(path, "/")+
-              StaticPages.assetFingerprint+
-              ".css";
-   }
-
-   /**
-    * Returns the path to the desired image resource.  This path may or may
-    * not have a fingerprint depending on the arguments given to the program.
-    * @param path
-    * @return
-    */
-   public static String getImagePath(String path){
-      return "images/"+getAssetPath(
-         FileUtils.getForcedRelativePath(path, "/")
-      );
-   }
 
    /**
     * Returns the contents of the requested js file.
@@ -218,6 +144,7 @@ public class Assets {
     * @param compress
     * @return
     */
+   /*
    public static String getJS(String path, String compress) {
       path = getCleanJSPath(path);
       boolean isCompress = getEnableCompression(compress);
@@ -229,48 +156,9 @@ public class Assets {
       }
       return "";
    }
+   */
 
-   /**
-    * Returns the path to the desired javascript resource.  This path may or may
-    * not have a fingerprint depending on the arguments given to the program.
-    * @param path
-    * @return
-    */
-   public static String getJSPath(String path){
-      return "js/"+
-              FileUtils.getForcedRelativePath(path, "/")+
-              StaticPages.assetFingerprint+".js";
-   }
-
-   public static String getNormalizedRewritePath(String rewritePath){
-      String normalizedPath = "/"+FileUtils.getForcedRelativePath(rewritePath);
-      if(!normalizedPath.endsWith(".html")){
-         normalizedPath += "/";
-      }
-      return normalizedPath;
-   }
-
-   public static String getViewPath(String path) throws IOException {
-      FilePath fpath = StaticPages.viewsDirPath.resolve(path+".xml");
-      return fpath.toUnix();
-   }
-
-   /**
-    * If the String is nothing but white space, then an empty string is
-    * returned, otherwise the String is returned with all occurrences of white
-    * space reduced to a single space.
-    *
-    * <li></li>
-    * </ul>
-    * @param text
-    * @return
-    */
-   public static String normalizeSpace(String text){
-      if(text == null){
-         return "";
-      }
-      return text.replaceAll("^\\s+$", "").replaceAll("\\s+", " ");
-   }
+   /*
    public static void rewritePage(String page, String to){
       if(page == null || page.isEmpty()){
          Logger.fatal("Can't rewrite a non-existent page.  Page was: "+page+".  To was: "+to);
@@ -373,6 +261,7 @@ public class Assets {
          System.exit(1);
       }
    }
+   */
 
    /**
     * Validates the existence of a document fragment within an xml file.  The
@@ -380,6 +269,7 @@ public class Assets {
     *
     * @param path
     */
+   /*
    public static void validateFragmentReference(String path, String fragment) {
       if(validatedFragments.contains(path+fragment)){
          return;
@@ -429,22 +319,7 @@ public class Assets {
          System.exit(1);
       }
    }
+   */
 
-   /**
-    * Returns a boolean value based on an attribute value.  If the attribute was
-    * not one of 'false' or 'true', then the configured value is used.
-    *
-    * @param attributeValue
-    * @return
-    */
-   public static boolean getEnableCompression(String attributeValue){
-      switch (attributeValue) {
-         case "true":
-            return true;
-         case "false":
-            return false;
-         default:
-            return StaticPages.enableCompression;
-      }
-   }
+
 }
