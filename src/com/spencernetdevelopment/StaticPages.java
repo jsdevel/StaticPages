@@ -128,22 +128,23 @@ public class StaticPages {
                   );
             FilePath buildDirPath = projectDirPath.resolve("build");
             FilePath srcDirPath = projectDirPath.resolve("src");
-            config.setProjectDirPath(projectDirPath);
-            config.setPagesDirPath(projectDirPath.resolve("src/xml/pages"));
-            config.setViewsDirPath(projectDirPath.resolve("src/xml/views"));
-            config.setXmlResourcesDirPath(
-               projectDirPath.resolve("src/xml/resources")
-            );
-            config.setBuildDirPath(buildDirPath);
-            config.setSrcDirPath(srcDirPath);
-            config.setXslDirPath(srcDirPath.resolve("xsl"));
-            config.setAssetsDirPath(srcDirPath.resolve("assets"));
-            config.setMaxDataURISizeInBytes(
-               arguments.getMaxdataurisizeinbytes()
-            );
-            config.setMaxTimeToWaitForExternalLinkValidation(
-               arguments.getMaxwaittimetovalidateexternallink()
-            );
+            config
+               .setProjectDirPath(projectDirPath)
+               .setPagesDirPath(projectDirPath.resolve("src/xml/pages"))
+               .setViewsDirPath(projectDirPath.resolve("src/xml/views"))
+               .setXmlResourcesDirPath(
+                  projectDirPath.resolve("src/xml/resources")
+               )
+               .setBuildDirPath(buildDirPath)
+               .setSrcDirPath(srcDirPath)
+               .setXslDirPath(srcDirPath.resolve("xsl"))
+               .setAssetsDirPath(srcDirPath.resolve("assets"))
+               .setMaxDataURISizeInBytes(
+                  arguments.getMaxdataurisizeinbytes()
+               )
+               .setMaxTimeToWaitForExternalLinkValidation(
+                  arguments.getMaxwaittimetovalidateexternallink()
+               );
 
 
             StaticPagesConfiguration builtConfig = config.build();
