@@ -22,9 +22,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
 import javax.xml.XMLConstants;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
@@ -42,10 +45,15 @@ public class StaticPages {
     */
    public static void main(String[] args) {
       try {
+         final FileUtils fileUtils = new FileUtils();
          String argumentsXmlPathString = StaticPages.class.
                  getResource("/arguments.xml").getPath().
                  replaceAll("^(?:file:)?(?:/(?=[A-Z]:/))?|^jar:|![^!]+$", "");
-         StaticPagesArguments arguments = StaticPagesTerminal.getArguments(args);
+         final StaticPagesArguments arguments = StaticPagesTerminal.getArguments(args);
+         final StaticPagesConfiguration builtConfig =
+            buildStaticPagesConfiguration(arguments);
+         final FilePath buildDirPath = builtConfig.getBuildDirPath();
+         final FilePath projectDirPath = builtConfig.getProjectDirPath();
 
          Logger.isDebug = arguments.getEnableloggingdebug();
          Logger.isError = arguments.getEnableloggingerror();
@@ -78,6 +86,11 @@ public class StaticPages {
 
          FilePath argumentsXmlFilePath = FilePath.getFilePath(argumentsXmlPathString);
          jarDir = argumentsXmlFilePath.getParent();
+         if(isDebug)debug("jarDir = "+jarDir.toString());
+
+         if(arguments.getClean()){
+            fileUtils.clearDirectory(buildDirPath.toFile());
+         }
 
          if(arguments.hasNewproject()){
             File sampleProjectDir = jarDir.resolve("project-template").toFile();
@@ -85,99 +98,46 @@ public class StaticPages {
             if(!sampleProjectDir.exists()){
                fatal("Couldn't create a new project.  The project-template wasn't found next to the jar.", 1);
             }
-            FileUtils.copyDirContentsToDir(sampleProjectDir, arguments.getNewproject());
+            fileUtils.copyDirContentsToDir(sampleProjectDir, arguments.getNewproject());
             info("project-template copied to: "+arguments.getNewproject().toPath());
          }
 
          if(arguments.hasProjectdir()){
-            StaticPagesConfiguration.Builder config =
-                  new StaticPagesConfiguration.Builder();
 
-            config
-               .setEnableCompression(arguments.getEnablecompression())
-               .setEnableDevMode(arguments.getEnabledevmode());
-
-            if(isDebug)debug("jarDir = "+jarDir.toString());
-
-            if(
-               arguments.getEnabledevmode() &&
-               arguments.hasDevassetprefixinbrowser()
-            ){
-               config.setAssetPrefixInBrowser(
-                  arguments.getDevassetprefixinbrowser()
-               );
-            } else if(arguments.hasAssetprefixinbrowser()){
-               config.setAssetPrefixInBrowser(arguments.getAssetprefixinbrowser());
-            }
-
-            if(arguments.getEnableassetfingerprinting()){
-               config.setAssetFingerprint(
-                  ".UTC"+(System.currentTimeMillis()/1000)
-               );
-            }
-
-            config.setPrefixToIgnoreFilesWith(arguments.getPrefixtoignorefiles());
-
-
-
-            info("Building all pages...");
-            File projectDir = arguments.getProjectdir();
-            if(isDebug)debug("projectDir: "+projectDir.getAbsolutePath());
-            FilePath projectDirPath = FilePath.getFilePath(
-                    projectDir.getAbsolutePath()
-                  );
-            FilePath buildDirPath = projectDirPath.resolve("build");
-            FilePath srcDirPath = projectDirPath.resolve("src");
-            config
-               .setProjectDirPath(projectDirPath)
-               .setPagesDirPath(projectDirPath.resolve("src/xml/pages"))
-               .setViewsDirPath(projectDirPath.resolve("src/xml/views"))
-               .setXmlResourcesDirPath(
-                  projectDirPath.resolve("src/xml/resources")
-               )
-               .setBuildDirPath(buildDirPath)
-               .setSrcDirPath(srcDirPath)
-               .setXslDirPath(srcDirPath.resolve("xsl"))
-               .setAssetsDirPath(srcDirPath.resolve("assets"))
-               .setMaxDataURISizeInBytes(
-                  arguments.getMaxdataurisizeinbytes()
-               )
-               .setMaxTimeToWaitForExternalLinkValidation(
-                  arguments.getMaxwaittimetovalidateexternallink()
-               );
-
-
-            StaticPagesConfiguration builtConfig = config.build();
             showFilePathDebugStatements(builtConfig);
-
-
             if(!buildDirPath.toFile().isDirectory()){
                if(isDebug)debug("buildDir didn't exist.  Creating it now...");
-               FileUtils.createDir(buildDirPath.toFile());
+               fileUtils.createDir(buildDirPath.toFile());
             }
 
             FilePath defaultStylesheet = projectDirPath.resolve("src/xsl/pages/default.xsl");
             if(isDebug)debug("defaultStylesheet: "+defaultStylesheet.toString());
-            if(!Assertions.fileExists(defaultStylesheet.toFile())){
+            if(!defaultStylesheet.toFile().isFile()){
                fatal("No default stylesheet found.", 1);
             }
 
-            if(arguments.getClean()){
-               FileUtils.clearDirectory(buildDirPath.toFile());
-            }
 
 
             AssetResolver assetResolver = new AssetResolver(builtConfig);
             AssetManager assetManager = new AssetManager(
                builtConfig.getAssetsDirPath(),
                buildDirPath,
+               fileUtils,
                getVariables(arguments),
                builtConfig,
                assetResolver
             );
             GroupedAssetTransactionManager groupedAssetTransactionManager =
-               new GroupedAssetTransactionManager(assetManager);
-            RewriteManager rewriteManager = new RewriteManager(buildDirPath);
+               new GroupedAssetTransactionManager(
+                  assetManager,
+                  assetResolver,
+                  builtConfig,
+                  new FileUtils()
+               );
+            RewriteManager rewriteManager = new RewriteManager(
+               buildDirPath,
+               fileUtils
+            );
 
             StreamSource pageXSD = new StreamSource(
                     StaticPages.class.getResourceAsStream("/page.xsd"));
@@ -188,23 +148,45 @@ public class StaticPages {
 
             System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
                "com.icl.saxon.om.DocumentBuilderFactoryImpl");
+            DefaultNamespaceContext defaultNamespaceContext =
+               new DefaultNamespaceContext();
+            LinkValidator linkValidator = new LinkValidator(
+               builtConfig,
+               defaultNamespaceContext
+            );
+            HTMLBuilderVisitorImpl htmlBuilderVisitor =
+               new HTMLBuilderVisitorImpl(
+                  assetManager,
+                  assetResolver,
+                  rewriteManager,
+                  builtConfig,
+                  groupedAssetTransactionManager,
+                  linkValidator
+               );
 
             HTMLBuilder htmlBuilder = new HTMLBuilder(
-                  buildDirPath,
-                  builtConfig.getPagesDirPath(),
-                  validator,
-                  assetManager,
-                  builtConfig,
-                  assetResolver
-               );
+               buildDirPath,
+               builtConfig.getPagesDirPath(),
+               fileUtils,
+               validator,
+               assetManager,
+               assetResolver,
+               builtConfig,
+               htmlBuilderVisitor
+            );
             htmlBuilder.setDefaultStylesheet(defaultStylesheet.toFile());
+
+            info("Building all pages...");
             htmlBuilder.buildPages();
             info("Finished building pages.");
+
+            groupedAssetTransactionManager.processTransactions();
             rewriteManager.applyRewrites();
             if(builtConfig.isEnableDevMode()){
                createRefreshJS(
                   buildDirPath.resolve("refresh.js").toFile(),
-                  System.currentTimeMillis()
+                  System.currentTimeMillis(),
+                  fileUtils
                );
             }
          } else {
@@ -242,6 +224,62 @@ public class StaticPages {
       return variables;
    }
 
+   private static StaticPagesConfiguration buildStaticPagesConfiguration(
+      StaticPagesArguments arguments
+   ) throws IOException{
+      StaticPagesConfiguration.Builder config =
+            new StaticPagesConfiguration.Builder();
+
+      config
+         .setEnableCompression(arguments.getEnablecompression())
+         .setEnableDevMode(arguments.getEnabledevmode());
+
+      if(
+         arguments.getEnabledevmode() &&
+         arguments.hasDevassetprefixinbrowser()
+      ){
+         config.setAssetPrefixInBrowser(
+            arguments.getDevassetprefixinbrowser()
+         );
+      } else if(arguments.hasAssetprefixinbrowser()){
+         config.setAssetPrefixInBrowser(arguments.getAssetprefixinbrowser());
+      }
+
+      if(arguments.getEnableassetfingerprinting()){
+         config.setAssetFingerprint(
+            ".UTC"+(System.currentTimeMillis()/1000)
+         );
+      }
+
+      config.setPrefixToIgnoreFilesWith(arguments.getPrefixtoignorefiles());
+
+      File projectDir = arguments.getProjectdir();
+      if(isDebug)debug("projectDir: "+projectDir.getAbsolutePath());
+      FilePath projectDirPath = FilePath.getFilePath(
+               projectDir.getAbsolutePath()
+            );
+      FilePath buildDirPath = projectDirPath.resolve("build");
+      FilePath srcDirPath = projectDirPath.resolve("src");
+      config
+         .setProjectDirPath(projectDirPath)
+         .setPagesDirPath(projectDirPath.resolve("src/xml/pages"))
+         .setViewsDirPath(projectDirPath.resolve("src/xml/views"))
+         .setXmlResourcesDirPath(
+            projectDirPath.resolve("src/xml/resources")
+         )
+         .setBuildDirPath(buildDirPath)
+         .setSrcDirPath(srcDirPath)
+         .setXslDirPath(srcDirPath.resolve("xsl"))
+         .setAssetsDirPath(srcDirPath.resolve("assets"))
+         .setMaxDataURISizeInBytes(
+            arguments.getMaxdataurisizeinbytes()
+         )
+         .setMaxTimeToWaitForExternalLinkValidation(
+            arguments.getMaxwaittimetovalidateexternallink()
+         );
+      return config.build();
+   }
+
    private static void showFilePathDebugStatements(
       StaticPagesConfiguration config
    ){
@@ -266,9 +304,10 @@ public class StaticPages {
       if(isDebug)debug("assetDirPath: "+assetsDirPath.toString());
    }
 
-   public static void createRefreshJS(
+   private static void createRefreshJS(
       File output,
-      long timestamp
+      long timestamp,
+      FileUtils fileUtils
    )
       throws IOException
    {
@@ -279,8 +318,8 @@ public class StaticPages {
       if(refreshJS != null){
          content = new Scanner(refreshJS, "UTF-8").useDelimiter("\\A").next().
             replace("stamp=0", "stamp="+timestamp);
-         FileUtils.createFile(output);
-         FileUtils.putString(output, content);
+         fileUtils.createFile(output);
+         fileUtils.putString(output, content);
       } else {
          if(isDebug)debug("couldn't find refresh.js in the jar");
       }

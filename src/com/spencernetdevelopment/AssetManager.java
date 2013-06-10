@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import sun.security.krb5.Config;
 
 /**
  *
@@ -46,10 +47,13 @@ public class AssetManager {
    private final FilePath assetPath;
    private final FilePath buildPath;
    private final AssetResolver assetResolver;
+   private final FileUtils fileUtils;
+   private final StaticPagesConfiguration config;
 
    public AssetManager(
       FilePath assets,
       FilePath build,
+      FileUtils fileUtils,
       Properties variables,
       StaticPagesConfiguration config,
       AssetResolver assetResolver
@@ -62,10 +66,12 @@ public class AssetManager {
       this.assetPrefixInBrowser=config.getAssetPrefixInBrowser();
       this.maxDataURISizeInBytes=config.getMaxDataURISizeInBytes();
       this.assetResolver=assetResolver;
+      this.fileUtils=fileUtils;
+      this.config=config;
    }
 
    public String getAsset(File file) throws IOException {
-      return FileUtils.getString(file);
+      return fileUtils.getString(file);
    }
    public String getAsset(String path) throws IOException {
       File file = assetPath.resolve(path).toFile();
@@ -75,8 +81,13 @@ public class AssetManager {
    public String getCSS(File file, boolean compress) throws IOException, URISyntaxException {
       return handleCSS(getAsset(file), compress);
    }
+   public String getCSS(String path, String compress) throws IOException, URISyntaxException {
+      return getCSS(path, getIsCompressionFromAttributeValue(compress));
+   }
    public String getCSS(String path, boolean compress) throws IOException, URISyntaxException {
-      return handleCSS(getAsset(path), compress);
+      return handleCSS(getAsset(
+         assetResolver.getCleanCSSPath(path)
+      ), compress);
    }
    private String handleCSS(String contents, boolean compress) throws IOException, URISyntaxException {
       String contentsToReturn;
@@ -110,7 +121,7 @@ public class AssetManager {
             }
 
             if(mimeType != null){
-               byte[] bytes = FileUtils.getBytes(
+               byte[] bytes = fileUtils.getBytes(
                   assetPath.resolve(url).toFile()
                );
                String encoded = Base64.encodeToString(bytes, false);
@@ -146,8 +157,13 @@ public class AssetManager {
    public String getJS(File file, boolean compress) throws IOException {
       return handleJS(getAsset(file), compress);
    }
-   public String getJS(String path, boolean compress) throws IOException {
-      return handleJS(getAsset(path), compress);
+   public String getJS(String path, String compress) throws IOException, URISyntaxException {
+      return getJS(path, getIsCompressionFromAttributeValue(compress));
+   }
+   public String getJS(String path, boolean compress) throws IOException, URISyntaxException {
+      return handleJS(getAsset(
+         assetResolver.getCleanJSPath(path)
+      ), compress);
    }
    private String handleJS(String contents, boolean compress) throws IOException {
       String minified=null;
@@ -164,6 +180,23 @@ public class AssetManager {
                );
    }
 
+   public void transferCSS(String src, String compress)
+      throws IOException,
+             URISyntaxException
+   {
+      transferCSS(src,getIsCompressionFromAttributeValue(compress));
+   }
+
+   public void transferCSS(String src, boolean compress)
+      throws IOException,
+             URISyntaxException
+   {
+      transferCSS(
+         assetResolver.getCleanCSSPath(src),
+         assetResolver.getCSSPath(src),
+         compress
+      );
+   }
    public void transferCSS(
       String srcPath,
       String targetPath,
@@ -180,12 +213,30 @@ public class AssetManager {
          target
       )){
          String css = getCSS(source.get(), compress);
-         FileUtils.putString(target.get(), css);
+         fileUtils.putString(target.get(), css);
       }
 
    }
-   public void transferImage(String path) throws IOException, URISyntaxException {
+   public void transferImage(String path)
+      throws IOException,
+             URISyntaxException
+   {
       transferAsset(path, assetResolver.getAssetPath(path));
+   }
+   public void transferJS(String src, String compress)
+      throws IOException,
+             URISyntaxException
+   {
+      transferJS(src, getIsCompressionFromAttributeValue(compress));
+   }
+   public void transferJS(String src, boolean compress)
+      throws IOException,
+             URISyntaxException
+   {
+      transferJS(
+         assetResolver.getCleanJSPath(src),
+         assetResolver.getJSPath(src),
+      compress);
    }
    public void transferJS(
       String srcPath,
@@ -202,8 +253,18 @@ public class AssetManager {
          targetPath,
          target
       )){
-         FileUtils.putString(target.get(), getJS(source.get(), compress));
+         fileUtils.putString(target.get(), getJS(source.get(), compress));
       }
+   }
+
+   /**
+    * Transfers assets from the src dir to the build dir.
+    *
+    * @param path
+    * @throws IOException
+    */
+   public void transferAsset(String path) throws IOException {
+      transferAsset(path, path);
    }
 
    /**
@@ -221,7 +282,7 @@ public class AssetManager {
       AtomicReference<File> source = new AtomicReference<>();
       AtomicReference<File> target = new AtomicReference<>();
       if(prepareAssetTransfer(srcPath, source, targetPath, target)){
-         FileUtils.copyFile(source.get(), target.get());
+         fileUtils.copyFile(source.get(), target.get());
       }
    }
 
@@ -258,7 +319,6 @@ public class AssetManager {
          target.set(to);
          return true;
       }
-      //LOGGER.info("The following asset wasn't transferred because it is older than the target: " + fromPath);
       return false;
    }
 
@@ -281,5 +341,19 @@ public class AssetManager {
          }
       }
       return returnText.replaceAll(VARIABLES.pattern(), "");
+   }
+
+   public boolean getIsCompressionFromAttributeValue(String bool){
+      return getBoolean(bool, config.isEnableCompression());
+   }
+
+   public boolean getBoolean(String bool, boolean fallback){
+      if("true".equals(bool)){
+         return true;
+      } else if("false".equals(bool)){
+         return false;
+      } else {
+         return fallback;
+      }
    }
 }

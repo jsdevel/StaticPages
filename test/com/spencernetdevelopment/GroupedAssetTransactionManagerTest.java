@@ -17,12 +17,13 @@ package com.spencernetdevelopment;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
+import static org.mockito.AdditionalAnswers.*;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 /**
  *
@@ -31,78 +32,110 @@ import static org.mockito.Mockito.*;
 public class GroupedAssetTransactionManagerTest {
    private GroupedAssetTransactionManager manager;
    private AssetManager assetManager;
+   private AssetResolver resolver;
    private GroupedAssetTransaction transaction;
-
-   public GroupedAssetTransactionManagerTest() {
-   }
-
-   @BeforeClass
-   public static void setUpClass() {
-   }
-
-   @AfterClass
-   public static void tearDownClass() {
-   }
+   private StaticPagesConfiguration config;
+   private FilePath buildDirPath;
+   private FileUtils futils;
 
    @Before
-   public void setUp(){
+   public void setUp() throws IOException, URISyntaxException {
       assetManager = mock(AssetManager.class);
+      buildDirPath=mock(FilePath.class);
+      when(buildDirPath.resolve(anyString())).thenAnswer(new Answer<FilePath>(){
+         @Override
+         public FilePath answer(InvocationOnMock invocation) throws Throwable {
+            Object[] args = invocation.getArguments();
+            String arg = (String)args[0];
+            FilePath mock = mock(FilePath.class);
+            when(mock.toString()).thenReturn(arg);
+            return mock;
+         }
+      });
+      resolver = mock(AssetResolver.class);
+      when(resolver.getCSSPath(anyString())).thenAnswer(new Answer<String>(){
+         @Override
+         public String answer(InvocationOnMock invocation) throws Throwable {
+            Object[] args = invocation.getArguments();
+            String arg = (String)args[0];
+            return "css/"+arg+".css";
+         }
+      });
+      when(resolver.getJSPath(anyString())).thenAnswer(new Answer<String>(){
+         @Override
+         public String answer(InvocationOnMock invocation) throws Throwable {
+            Object[] args = invocation.getArguments();
+            String arg = (String)args[0];
+            return "js/"+arg+".js";
+         }
+      });
       transaction = mock(GroupedAssetTransaction.class);
-      manager = new GroupedAssetTransactionManager(assetManager);
+      config = mock(StaticPagesConfiguration.class);
+      when(config.getBuildDirPath()).thenReturn(buildDirPath);
+      futils=mock(FileUtils.class);
+      manager = new GroupedAssetTransactionManager(
+         assetManager,
+         resolver,
+         config,
+         futils
+      );
    }
-
-   @After
-   public void tearDown(){}
 
    @Test(expected = IllegalArgumentException.class)
    public void constructor_does_not_allow_null_asset_manager(){
-      new GroupedAssetTransactionManager(null);
-   }
-
-   @Test(expected = IllegalArgumentException.class)
-   public void adding_transactions_fails_when_transaction_not_closed()
-      throws IOException, URISyntaxException
-   {
-      when(transaction.isClosed()).thenReturn(false);
-      manager.process(transaction);
+      new GroupedAssetTransactionManager(null, resolver, config, futils);
    }
    @Test(expected = IllegalArgumentException.class)
-   public void processing_js_transaction_when_transaction_already_processed()
-      throws IOException, URISyntaxException
-   {
-      playTransaction(transaction, "js");
-      verify(assetManager, times(1)).getJS("js/boo.js", true);
-      verify(assetManager, times(1)).getJS("js/coo.js", true);
-
-      //now throw the exception
-      manager.process(transaction);
+   public void constructor_does_not_allow_null_asset_resolver(){
+      new GroupedAssetTransactionManager(assetManager, null, config, futils);
    }
    @Test(expected = IllegalArgumentException.class)
-   public void processing_css_transaction_when_transaction_already_processed()
-      throws IOException, URISyntaxException
-   {
-      playTransaction(transaction, "css");
-      verify(assetManager, times(1)).getCSS("css/boo.css", true);
-      verify(assetManager, times(1)).getCSS("css/coo.css", true);
+   public void constructor_does_not_allow_null_config(){
+      new GroupedAssetTransactionManager(assetManager, resolver, null, futils);
+   }
+   @Test(expected = IllegalArgumentException.class)
+   public void constructor_does_not_allow_null_file_utils(){
+      new GroupedAssetTransactionManager(assetManager, resolver, config, null);
+   }
+   @Test
+   public void manager_can_start_transactions(){
+      transaction = manager.startTransaction("js", "true");
+      assertTrue(
+         transaction != null &&
+         transaction instanceof GroupedAssetTransaction
+      );
+   }
+   @Test
+   public void transactions_should_not_be_handled_when_they_are_not_closed() throws IOException, URISyntaxException{
+      transaction = manager.startTransaction("js", "false");
+      manager.processTransactions();
+      verify(futils, times(0)).putString(anyString(), anyString());
+   }
+   @Test
+   public void closed_transactions_should_be_output() throws IOException, URISyntaxException {
+      when(assetManager.getJS("foo", false)).thenReturn("asdf");
+      when(assetManager.getCSS("foo", false)).thenReturn("zzzz");
+      transaction = manager.startTransaction("js", "false");
+      transaction.addURL("foo");
+      String id1 = transaction.getIdentifier();
+      transaction = manager.startTransaction("css", "false");
+      transaction.addURL("foo");
+      String id2 = transaction.getIdentifier();
+      manager.processTransactions();
 
-      //now throw the exception
-      manager.process(transaction);
+      verify(futils, times(1)).putString("js/"+id1+".js", "asdf");
+      verify(futils, times(1)).putString("css/"+id2+".css", "zzzz");
+   }
+   @Test
+   public void similar_transactions_should_not_be_output() throws IOException, URISyntaxException {
+      when(assetManager.getJS("foo", false)).thenReturn("asdf");
+      transaction = manager.startTransaction("js", "false");
+      transaction.addURL("foo");
+      String id1 = transaction.getIdentifier();
+      transaction = manager.startTransaction("js", "false");
+      transaction.addURL("foo");
+      manager.processTransactions();
+      verify(futils, times(1)).putString("js/"+id1+".js", "asdf");
    }
 
-   private void playTransaction(
-      GroupedAssetTransaction t,
-      String type
-   ) throws IOException, URISyntaxException{
-      when(t.isClosed()).thenReturn(true);
-      when(t.isCompressed()).thenReturn(true);
-      when(t.getIdentifier()).thenReturn("foo");
-      when(t.getType()).thenReturn(type);
-      when(t.toArray()).thenReturn(new String[]{
-         "boo",
-         "coo",
-      });
-
-      manager.process(t);
-      verify(t, times(1)).toArray();
-   }
 }

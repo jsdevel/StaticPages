@@ -13,28 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spencernetdevelopment.xsl;
+package com.spencernetdevelopment;
+
+import java.util.Iterator;
+import javax.xml.namespace.NamespaceContext;
 
 /**
  *
  * @author Joseph Spencer
  */
-public class Utils {
+public class DefaultNamespaceContext implements NamespaceContext {
 
-   /**
-    * If the String is nothing but white space, then an empty string is
-    * returned, otherwise the String is returned with all occurrences of white
-    * space reduced to a single space.
-    *
-    * <li></li>
-    * </ul>
-    * @param text
-    * @return
-    */
-   public static String normalizeSpace(String text){
-      if(text == null){
-         return "";
+   @Override
+   public String getNamespaceURI(String prefix) {
+      if("d".equals(prefix)){
+         return "default";
       }
-      return text.replaceAll("^\\s+$", "").replaceAll("\\s+", " ");
+      throw new IllegalArgumentException("Unknown prefix: d");
+   }
+
+   @Override
+   public String getPrefix(String namespaceURI) {
+      throw new UnsupportedOperationException("Not supported yet.");
+   }
+
+   @Override
+   public Iterator getPrefixes(String namespaceURI) {
+      throw new UnsupportedOperationException("Not supported yet.");
    }
 }

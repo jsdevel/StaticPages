@@ -30,13 +30,16 @@ public class AssetResolverTest {
    AssetResolver resolverWithFingerprint;
    StaticPagesConfiguration config;
    FilePath pagesDirPath;
+   FilePath resourcesDirPath;
    FilePath viewDirsPath;
    public AssetResolverTest() throws IOException {
       config = mock(StaticPagesConfiguration.class);
       pagesDirPath=FilePath.getFilePath("/pages");
+      resourcesDirPath=FilePath.getFilePath("/resources");
       viewDirsPath=FilePath.getFilePath("/test");
       when(config.getAssetFingerprint()).thenReturn("");
       when(config.getPagesDirPath()).thenReturn(pagesDirPath);
+      when(config.getXmlResourcesDirPath()).thenReturn(resourcesDirPath);
       when(config.getViewsDirPath()).thenReturn(viewDirsPath);
       resolver = new AssetResolver(config);
       when(config.getAssetFingerprint()).thenReturn(".555555");
@@ -152,6 +155,12 @@ public class AssetResolverTest {
       String path;
       path = resolver.getPagePath("asdf/asdf");
       assertEquals("/pages/asdf/asdf.xml", path);
+   }
+   @Test
+   public void resources_dir_path_should_be_normalized() throws IOException, URISyntaxException {
+      String path;
+      path = resolver.getResourcePath("asdf/asdf");
+      assertEquals("/resources/asdf/asdf.xml", path);
    }
    @Test
    public void view_dir_path_should_be_normalized() throws IOException, URISyntaxException {

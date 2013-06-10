@@ -37,15 +37,15 @@ import java.util.EnumSet;
  * @author Joseph Spencer
  */
 public class FileUtils {
-   public static void clearDirectory(File directory) throws IOException {
+   public void clearDirectory(File directory) throws IOException {
       clearDirectory(directory, true);
    }
-   public static void clearDirectory(File directory, boolean preserveBase) throws IOException{
+   public void clearDirectory(File directory, boolean preserveBase) throws IOException{
       if(directory.isDirectory()){
          Files.walkFileTree(directory.toPath(), new DirectoryCleaner(directory.toPath(), preserveBase));
       }
    }
-   public static void copyDirContentsToDir(File fromDir, File toDir) throws IOException{
+   public void copyDirContentsToDir(File fromDir, File toDir) throws IOException{
       createDir(fromDir);
       createDir(toDir);
       EnumSet<FileVisitOption> options = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
@@ -53,10 +53,13 @@ public class FileUtils {
          fromDir.toPath(),
          options,
          Integer.MAX_VALUE,
-         new DirectoryDuplicator(fromDir, toDir)
+         new DirectoryDuplicator(fromDir, toDir, this)
       );
    }
-   public static void copyFile(File inputFile, File outputFile) throws IOException {
+   public void copyFile(String inputFile, String outputFile) throws IOException {
+      copyFile(new File(inputFile), new File(outputFile));
+   }
+   public void copyFile(File inputFile, File outputFile) throws IOException {
       if(inputFile == null){
          throw new IOException("Input file was null.");
       }
@@ -79,7 +82,7 @@ public class FileUtils {
          }
       }
    }
-   public static void createDir(File dir) throws IOException{
+   public void createDir(File dir) throws IOException{
       if(dir != null){
          if(!dir.exists()){
             dir.mkdirs();
@@ -90,7 +93,7 @@ public class FileUtils {
          throw new IOException("Can't create a dir from null.");
       }
    }
-   public static void createFile(File file) throws IOException {
+   public void createFile(File file) throws IOException {
       if(file == null){
          throw new IOException("Can't create a file from null.");
       }
@@ -102,10 +105,10 @@ public class FileUtils {
          file.createNewFile();
       }
    }
-   public static void filePathsToArrayList(File directory, ArrayList<Path> filePaths) throws IOException {
+   public void filePathsToArrayList(File directory, ArrayList<Path> filePaths) throws IOException {
       filePathsToArrayList(directory, filePaths, null);
    }
-   public static void filePathsToArrayList(File directory, final ArrayList<Path> filePaths, final String extension) throws IOException {
+   public void filePathsToArrayList(File directory, final ArrayList<Path> filePaths, final String extension) throws IOException {
       if(directory!=null && directory.isDirectory() && filePaths != null){
          Files.walkFileTree(directory.toPath(), new SimpleFileVisitor<Path>(){
             @Override
@@ -125,7 +128,7 @@ public class FileUtils {
     * @param path
     * @return
     */
-   public static String getForcedRelativePath(String path){
+   public String getForcedRelativePath(String path){
       return getForcedRelativePath(path, File.separator);
    }
 
@@ -140,7 +143,7 @@ public class FileUtils {
     * @throws IllegalArgumentException if either path or separator are null.
     * @return
     */
-   public static String getForcedRelativePath(String path, String separator){
+   public String getForcedRelativePath(String path, String separator){
       if(path == null){
          throw new IllegalArgumentException(
             "Can't force a relative path from null"
@@ -156,18 +159,25 @@ public class FileUtils {
       pathToReturn = pathToReturn.replaceFirst(separator+"+$", "");
       return pathToReturn;
    }
-   public static String getString(File file) throws IOException {
+   public String getString(File file) throws IOException {
       return new String(getChars(file));
    }
-   public static byte[] getBytes(File file) throws IOException {
+   public byte[] getBytes(File file) throws IOException {
       return Files.readAllBytes(file.toPath());
    }
-   public static char[] getChars(File file)
+   public char[] getChars(File file)
       throws IOException
    {
       String str;
 
-      Assertions.fileExistsOrFail(file);
+      if(file == null){
+         throw new NullPointerException("src file was null");
+      }
+      if(!file.isFile()){
+         throw new IOException(
+            "The following src didn't exist or was not a file."+file
+         );
+      }
 
       FileReader reader = new FileReader(file);
       BufferedReader buffer = new BufferedReader(reader);
@@ -182,7 +192,12 @@ public class FileUtils {
 
       return str.toCharArray();
    }
-   public static void putString(File file, String contents ) throws IOException {
+   public void putString(String absoluteFilePath, String contents)
+      throws IOException
+   {
+      putString(new File(absoluteFilePath), contents);
+   }
+   public void putString(File file, String contents ) throws IOException {
       createFile(file);
       try (FileWriter output = new FileWriter( file )) {
          output.write( contents, 0, contents.length() );

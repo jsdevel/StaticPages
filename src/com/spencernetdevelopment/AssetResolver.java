@@ -16,8 +16,12 @@
 package com.spencernetdevelopment;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -25,13 +29,15 @@ import java.net.URISyntaxException;
  */
 public class AssetResolver {
    private final String fingerprint;
-   private final FilePath viewsDirPath;
    private final FilePath pagesDirPath;
+   private final FilePath resourcesDirPath;
+   private final FilePath viewsDirPath;
 
    public AssetResolver(StaticPagesConfiguration config){
       fingerprint=config.getAssetFingerprint();
-      viewsDirPath=config.getViewsDirPath();
       pagesDirPath=config.getPagesDirPath();
+      resourcesDirPath=config.getXmlResourcesDirPath();
+      viewsDirPath=config.getViewsDirPath();
    }
 
    /**
@@ -49,9 +55,11 @@ public class AssetResolver {
          throw new NullPointerException("url was null");
       }
       url=forceRelativeFilePath(url);
-      String fileExtension = url.replaceFirst("(?:.+(\\.[a-zA-Z0-9_]+))?$", "$1");
+      String fileExtension = url
+         .replaceFirst("(?:.+(\\.[a-zA-Z0-9_]+))?$", "$1");
       url = url.substring(0, url.length()-fileExtension.length());
-      String pathWithoutExtension = url.replaceFirst("(?:(.+)(?:\\.[a-zA-Z0-9_]+))?$", "$1");
+      String pathWithoutExtension = url
+         .replaceFirst("(?:(.+)(?:\\.[a-zA-Z0-9_]+))?$", "$1");
       if(fileExtension.length() == 0){
          throw new IllegalArgumentException("no file extension was found");
       }
@@ -135,8 +143,18 @@ public class AssetResolver {
    public String getPagePath(String path)
       throws IOException, URISyntaxException
    {
-      FilePath fpath = pagesDirPath.resolve(forceRelativeFilePath(path)+".xml");
+      String relativeFilePath = forceRelativeFilePath(path);
+      FilePath fpath = pagesDirPath.resolve(relativeFilePath+".xml");
       return fpath.toUnix();
+   }
+
+   public String getResourcePath(String path)
+      throws URISyntaxException,
+             IOException
+   {
+      FilePath fPath = resourcesDirPath
+              .resolve(forceRelativeFilePath(path)+".xml");
+      return fPath.toUnix();
    }
 
    public String getViewPath(String path)
@@ -163,7 +181,13 @@ public class AssetResolver {
    }
 
    public String forceRelativePath(String path) throws URISyntaxException {
-      String normalized = new URI(path).normalize().toString();
+      String normalized = new URI(
+            null,
+            null,
+            path,
+            null,
+            null
+         ).normalize().toString();
       normalized = normalized.replaceAll("^(?:\\.\\.[/\\\\])+|^[/\\\\]+", "");
       return normalized;
    }

@@ -35,6 +35,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import static com.spencernetdevelopment.Logger.*;
+import java.net.URISyntaxException;
 import javax.xml.validation.Validator;
 import org.w3c.dom.NamedNodeMap;
 
@@ -46,6 +47,7 @@ public class HTMLBuilder {
 
    private final FilePath buildDirPath;
    private final FilePath xmlPagesDirPath;
+   private final FileUtils fileUtils;
    private final String xmlPagesDirString;
    private final int xmlPagesDirStringLength;
    private File defaultStylesheet;
@@ -59,14 +61,17 @@ public class HTMLBuilder {
    private StreamSource xslStream;
    private Transformer defaultXSLTransformer;
    private Map<String, Transformer> pageTransformers;
+   private final HTMLBuilderVisitor transformerVisitor;
 
    public HTMLBuilder(
       FilePath buildDirPath,
       FilePath pagesDirPath,
+      FileUtils fileUtils,
       Validator validator,
       AssetManager assetManager,
+      AssetResolver assetResolver,
       StaticPagesConfiguration config,
-      AssetResolver assetResolver
+           HTMLBuilderVisitor transformerVisitor
    ) throws ParserConfigurationException,
             SAXException
    {
@@ -77,12 +82,14 @@ public class HTMLBuilder {
 
       this.buildDirPath = buildDirPath;
       this.xmlPagesDirPath = pagesDirPath;
+      this.fileUtils=fileUtils;
       xmlPagesDirString = xmlPagesDirPath.toString();
       xmlPagesDirStringLength = xmlPagesDirString.length();
       this.validator = validator;
       this.assetManager=assetManager;
       this.config=config;
       this.assetResolver=assetResolver;
+      this.transformerVisitor=transformerVisitor;
    }
 
    public void setDefaultStylesheet(File defaultStylesheet) throws IOException, TransformerConfigurationException {
@@ -90,17 +97,22 @@ public class HTMLBuilder {
       this.defaultStylesheet = defaultStylesheet;
       xslStream = new StreamSource(defaultStylesheet);
       defaultXSLTransformer = transformerFactory.newTransformer(xslStream);
-      addDefaultParameters(defaultXSLTransformer);
+      transformerVisitor.addDefaultParametersTo(defaultXSLTransformer);
    }
 
-   public void buildPages() throws IOException, SAXException, TransformerException {
+   public void buildPages()
+      throws IOException,
+             SAXException,
+             TransformerException,
+             URISyntaxException
+   {
       if (defaultStylesheet == null) {
          throw new IllegalStateException("A default stylesheet is required to process xml files.");
       }
 
       ArrayList<Path> xmlPagesToBuild = new ArrayList<>();
 
-      FileUtils.filePathsToArrayList(xmlPagesDirPath.toFile(), xmlPagesToBuild, ".xml");
+      fileUtils.filePathsToArrayList(xmlPagesDirPath.toFile(), xmlPagesToBuild, ".xml");
 
       for (Path xmlFilePath : xmlPagesToBuild) {
          buildPage(xmlFilePath);
@@ -155,7 +167,7 @@ public class HTMLBuilder {
       File outputFile,
       Path outputFilePath
    ) throws TransformerException, IOException {
-      FileUtils.createFile(outputFile);
+      fileUtils.createFile(outputFile);
       xmlDocument.normalize();
       DOMSource xmlDoc = new DOMSource(xmlDocument);
       StreamResult resultStream = new StreamResult(outputFile);
@@ -182,7 +194,7 @@ public class HTMLBuilder {
                StreamSource stylesheetStream = new StreamSource(stylesheetFile);
                Transformer XSLTransformer = transformerFactory.newTransformer(stylesheetStream);
                pageTransformers.put(stylesheet, XSLTransformer);
-               addDefaultParameters(XSLTransformer);
+               transformerVisitor.addDefaultParametersTo(XSLTransformer);
                transformer = XSLTransformer;
             }
          } else {
@@ -203,30 +215,15 @@ public class HTMLBuilder {
     * @throws IOException
     */
    private void assertStylesheetExists(File stylesheet) throws IOException {
-      if (!Assertions.fileExists(stylesheet)) {
-         if (stylesheet == null) {
-            throw new IOException("stylesheet was null.");
-         }
-         throw new IOException("This stylesheet doesn't exist:\n   " + stylesheet.getAbsolutePath());
+      if (stylesheet == null) {
+         throw new NullPointerException("stylesheet was null.");
+      }
+      if(!stylesheet.isFile()) {
+         throw new IOException(
+            "This stylesheet doesn't exist or is not a file:\n   " +
+            stylesheet.getAbsolutePath()
+         );
       }
    }
 
-   /**
-    * Adds default parameters to a Transformer.
-    *
-    * @param xslt
-    */
-   private void addDefaultParameters(Transformer xslt) {
-      xslt.setParameter(
-         "assetPrefixInBrowser",
-         config.getAssetPrefixInBrowser()
-      );
-      xslt.setParameter("enableDevMode", config.isEnableDevMode());
-      xslt.setParameter("assetManager", assetManager);
-      xslt.setParameter(
-         "xmlResourcesPath",
-         config.getXmlResourcesDirPath().toUnix()
-      );
-
-   }
 }

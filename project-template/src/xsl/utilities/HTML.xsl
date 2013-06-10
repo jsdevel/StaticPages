@@ -16,11 +16,11 @@
 -->
 <xsl:stylesheet version="1.0"
    xmlns:d="default"
-   xmlns:assets="com.spencernetdevelopment.xsl.Assets"
    xmlns:U="com.spencernetdevelopment.xsl.Utils"
    xmlns:AM="com.spencernetdevelopment.AssetManager"
+   xmlns:RM="com.spencernetdevelopment.RewriteManager"
    xmlns:fn="functions"
-   exclude-result-prefixes="d fn assets U"
+   exclude-result-prefixes="d fn U AM RM"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
    <xsl:param name="pagePath"/>
@@ -28,6 +28,7 @@
    <xsl:param name="domainRelativePagePath"/>
    <xsl:param name="enableRewrites" select="false()"/>
    <xsl:param name="AM"/>
+   <xsl:param name="RM"/>
 
    <xsl:template name="HTML5Doctype">
       <xsl:text disable-output-escaping="yes">&lt;!DOCTYPE html&gt;</xsl:text>
@@ -136,7 +137,9 @@
    </xsl:template>
    <xsl:template match="d:seo/d:rewrites/d:url" mode="seo">
       <xsl:if test="$enableRewrites">
-         <xsl:value-of select="assets:rewritePage($domainRelativePagePath, text())"/>
+         <xsl:value-of select="RM:queueRewrite(
+            $RM, $domainRelativePagePath, text()
+         )"/>
       </xsl:if>
    </xsl:template>
 
@@ -147,7 +150,7 @@
    <!-- misc -->
    <xsl:template name="Favicon">
       <xsl:variable name="path">images/favicon.png</xsl:variable>
-      <xsl:value-of select="assets:transferImage($path)"/>
+      <xsl:value-of select="AM:transferImage($AM, $path)"/>
       <link rel="icon" type="image/png" href="{$assetPrefixInBrowser}/{$path}"/>
    </xsl:template>
 
