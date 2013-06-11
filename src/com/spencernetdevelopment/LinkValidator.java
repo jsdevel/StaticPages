@@ -17,10 +17,10 @@ package com.spencernetdevelopment;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.SocketTimeoutException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -38,56 +38,34 @@ import org.xml.sax.SAXException;
  * @author Joseph Spencer
  */
 public class LinkValidator {
-   private final Set<String> failedExternalURLs = new HashSet<>();
-   private final Set<String> validatedExternalURLs = new HashSet<>();
    private final Set<String> failedFragments = new HashSet<>();
    private final Set<String> validatedFragments = new HashSet<>();
    private final Set<String> failedPages = new HashSet<>();
    private final Set<String> validatedPages = new HashSet<>();
-
-
+   private final Map<String, ExternalLinkValidator> validators;
    private DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
    private XPathFactory xpathFactory = XPathFactory.newInstance();
    private DefaultNamespaceContext defaultNamespaceContext;
    private StaticPagesConfiguration config;
 
    public LinkValidator(
+      Map<String, ExternalLinkValidator> validators,
       StaticPagesConfiguration config,
       DefaultNamespaceContext defaultNamespaceContext
    ){
+      this.validators=validators;
       this.config=config;
       this.defaultNamespaceContext=defaultNamespaceContext;
    }
 
-   public void validateExternalURL(String path) throws IOException {
-      if(hasBeenValidated(path, validatedExternalURLs, failedExternalURLs)){
-         return;
-      }
-      try {
-         Logger.info("Validating: "+path);
-         URL url = new URL(path);
-         HttpURLConnection http = (HttpURLConnection)url.openConnection();
-         http.setRequestMethod("GET");
-         http.setConnectTimeout(config.getMaxTimeToWaitForExternalLinkValidation());
-         http.connect();
-
-
-         switch(http.getResponseCode()){
-            case 200:
-               return;
-            default:
-               Logger.error("External link validation failed for the following URL: "+path);
-               Logger.error("The status code of the http connection was: "+http.getResponseCode());
+   public void validateExternalURL(String path) throws MalformedURLException {
+      synchronized(validators){
+         if(!validators.containsKey(path)){
+            validators.put(
+               path,
+               new ExternalLinkValidator(config, new URL(path))
+            );
          }
-      } catch (SocketTimeoutException ex){
-         Logger.error("A connection to the following URL couldn't be established during the configured timeout period: "+path);
-      } catch (IOException ex) {
-         Logger.error("An IOException occurred while attempting to validate the following external URL: "+path);
-         Logger.error("Here is the detailed message: "+ex.getMessage());
-      }
-      synchronized(failedExternalURLs){
-         failedExternalURLs.add(path);
-         throw new IOException("Validation failed for: "+path);
       }
    }
 

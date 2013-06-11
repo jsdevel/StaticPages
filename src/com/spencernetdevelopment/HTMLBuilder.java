@@ -19,8 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -36,7 +34,11 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import static com.spencernetdevelopment.Logger.*;
 import java.net.URISyntaxException;
-import javax.xml.validation.Validator;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.xml.validation.Schema;
 import org.w3c.dom.NamedNodeMap;
 
 /**
@@ -54,24 +56,19 @@ public class HTMLBuilder {
    private final DocumentBuilderFactory docBuilderFactory;
    private final DocumentBuilder docBuilder;
    private final TransformerFactory transformerFactory;
-   private final Validator validator;
-   private final AssetManager assetManager;
+   private final Schema schema;
    private final StaticPagesConfiguration config;
-   private final AssetResolver assetResolver;
-   private StreamSource xslStream;
-   private Transformer defaultXSLTransformer;
-   private Map<String, Transformer> pageTransformers;
    private final HTMLBuilderVisitor transformerVisitor;
+   private final ExecutorService executorService;
 
    public HTMLBuilder(
+      ExecutorService executorService,
       FilePath buildDirPath,
       FilePath pagesDirPath,
       FileUtils fileUtils,
-      Validator validator,
-      AssetManager assetManager,
-      AssetResolver assetResolver,
+      Schema schema,
       StaticPagesConfiguration config,
-           HTMLBuilderVisitor transformerVisitor
+      HTMLBuilderVisitor transformerVisitor
    ) throws ParserConfigurationException,
             SAXException
    {
@@ -80,24 +77,20 @@ public class HTMLBuilder {
       docBuilder = docBuilderFactory.newDocumentBuilder();
       transformerFactory = TransformerFactory.newInstance();
 
+      this.executorService=executorService;
       this.buildDirPath = buildDirPath;
       this.xmlPagesDirPath = pagesDirPath;
       this.fileUtils=fileUtils;
       xmlPagesDirString = xmlPagesDirPath.toString();
       xmlPagesDirStringLength = xmlPagesDirString.length();
-      this.validator = validator;
-      this.assetManager=assetManager;
+      this.schema=schema;
       this.config=config;
-      this.assetResolver=assetResolver;
       this.transformerVisitor=transformerVisitor;
    }
 
    public void setDefaultStylesheet(File defaultStylesheet) throws IOException, TransformerConfigurationException {
       assertStylesheetExists(defaultStylesheet);
       this.defaultStylesheet = defaultStylesheet;
-      xslStream = new StreamSource(defaultStylesheet);
-      defaultXSLTransformer = transformerFactory.newTransformer(xslStream);
-      transformerVisitor.addDefaultParametersTo(defaultXSLTransformer);
    }
 
    public void buildPages()
@@ -113,9 +106,15 @@ public class HTMLBuilder {
       ArrayList<Path> xmlPagesToBuild = new ArrayList<>();
 
       fileUtils.filePathsToArrayList(xmlPagesDirPath.toFile(), xmlPagesToBuild, ".xml");
+      List<HTMLTask<Object>> htmlTasks = new ArrayList<>();
 
       for (Path xmlFilePath : xmlPagesToBuild) {
-         buildPage(xmlFilePath);
+         htmlTasks.add(new HTMLTask(this, xmlFilePath));
+      }
+      try {
+         executorService.invokeAll(htmlTasks);
+      } catch (InterruptedException ex) {
+         Logger.getLogger(HTMLBuilder.class.getName()).log(Level.SEVERE, null, ex);
       }
    }
 
@@ -139,7 +138,7 @@ public class HTMLBuilder {
       ) {
          Document xmlDocument = docBuilder.parse(xmlFilePath.toFile());
          xmlDocument.normalize();
-         validator.validate(new DOMSource(xmlDocument));
+         schema.newValidator().validate(new DOMSource(xmlDocument));
          FilePath outputFilePath = buildDirPath.resolve(xmlFilePath.toString().substring(xmlPagesDirStringLength + 1).replaceFirst("\\.xml$", ".html"));
          File htmlFile = outputFilePath.toFile();
          Node firstChild = xmlDocument.getDocumentElement();
@@ -178,31 +177,19 @@ public class HTMLBuilder {
       if (stylesheetAttribute != null) {
          String stylesheet = stylesheetAttribute.getNodeValue();
          if (stylesheet.trim().length() > 0) {
-            if (pageTransformers == null) {
-               pageTransformers = new HashMap<>();
-            }
-
-            if (pageTransformers.containsKey(stylesheet)) {
-               transformer = pageTransformers.get(stylesheet);
-            } else {
-               FilePath stylesheetPath =
-                  config.getXslDirPath().resolve(stylesheet.concat(".xsl"));
-               File stylesheetFile = stylesheetPath.toFile();
-
-               assertStylesheetExists(stylesheetFile);
-
-               StreamSource stylesheetStream = new StreamSource(stylesheetFile);
-               Transformer XSLTransformer = transformerFactory.newTransformer(stylesheetStream);
-               pageTransformers.put(stylesheet, XSLTransformer);
-               transformerVisitor.addDefaultParametersTo(XSLTransformer);
-               transformer = XSLTransformer;
-            }
+            FilePath stylesheetPath =
+               config.getXslDirPath().resolve(stylesheet.concat(".xsl"));
+            File stylesheetFile = stylesheetPath.toFile();
+            assertStylesheetExists(stylesheetFile);
+            StreamSource stylesheetStream = new StreamSource(stylesheetFile);
+            transformer = transformerFactory.newTransformer(stylesheetStream);
          } else {
             throw new IllegalArgumentException("stylesheet attributes may not be empty.");
          }
       } else {
-         transformer = defaultXSLTransformer;
+         transformer = transformerFactory.newTransformer(new StreamSource(defaultStylesheet));;
       }
+      transformerVisitor.addDefaultParametersTo(transformer);
       transformer.setParameter("pagePath", outputFilePath.toString());
       transformer.setParameter("domainRelativePagePath", outputFile.getAbsolutePath().substring(buildDirPath.toString().length()));
       return new WrappedTransformer(transformer, xmlDoc, resultStream);

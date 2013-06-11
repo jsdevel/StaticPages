@@ -22,16 +22,19 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.xml.XMLConstants;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 
 /**
  *
@@ -116,8 +119,7 @@ public class StaticPages {
                fatal("No default stylesheet found.", 1);
             }
 
-
-
+            ExecutorService executorService = Executors.newCachedThreadPool();
             AssetResolver assetResolver = new AssetResolver(builtConfig);
             AssetManager assetManager = new AssetManager(
                builtConfig.getAssetsDirPath(),
@@ -144,13 +146,15 @@ public class StaticPages {
             SchemaFactory schemaFactory = SchemaFactory
                .newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Schema schemaFile = schemaFactory.newSchema(pageXSD);
-            Validator validator = schemaFile.newValidator();
 
             System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
                "com.icl.saxon.om.DocumentBuilderFactoryImpl");
             DefaultNamespaceContext defaultNamespaceContext =
                new DefaultNamespaceContext();
+            Map<String, ExternalLinkValidator> validators = Collections
+               .synchronizedMap(new HashMap<String, ExternalLinkValidator>());
             LinkValidator linkValidator = new LinkValidator(
+               validators,
                builtConfig,
                defaultNamespaceContext
             );
@@ -163,14 +167,12 @@ public class StaticPages {
                   groupedAssetTransactionManager,
                   linkValidator
                );
-
             HTMLBuilder htmlBuilder = new HTMLBuilder(
+               executorService,
                buildDirPath,
                builtConfig.getPagesDirPath(),
                fileUtils,
-               validator,
-               assetManager,
-               assetResolver,
+               schemaFile,
                builtConfig,
                htmlBuilderVisitor
             );
@@ -179,6 +181,18 @@ public class StaticPages {
             info("Building all pages...");
             htmlBuilder.buildPages();
             info("Finished building pages.");
+
+            synchronized(validators){
+               if(validators.size() > 0){
+                  info("Validating all external URLs...");
+                  List<ExternalLinkValidator<Object>> vals = new ArrayList<>();
+                  for(ExternalLinkValidator<Object> obj:validators.values()){
+                     vals.add(obj);
+                  }
+                  executorService.invokeAll(vals);
+               }
+            }
+            executorService.shutdown();
 
             groupedAssetTransactionManager.processTransactions();
             rewriteManager.applyRewrites();
