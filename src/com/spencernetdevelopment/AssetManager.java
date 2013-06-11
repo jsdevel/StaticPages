@@ -49,6 +49,7 @@ public class AssetManager {
    private final AssetResolver assetResolver;
    private final FileUtils fileUtils;
    private final StaticPagesConfiguration config;
+   private final Object TRANSFER_ASSET_LOCK = new Object();
 
    public AssetManager(
       FilePath assets,
@@ -194,10 +195,6 @@ public class AssetManager {
       throws IOException,
              URISyntaxException
    {
-      if(isDebug)debug(
-            "transferCSS called with path: "+src+"\n"+
-            "and compress: "+compress
-         );
       transferCSS(
          assetResolver.getCleanCSSPath(src),
          assetResolver.getCSSPath(src),
@@ -219,6 +216,10 @@ public class AssetManager {
          targetPath,
          target
       )){
+         if(isDebug)debug(
+            "transferCSS called with path: "+srcPath+"\n"+
+            "and compress: "+compress
+         );
          String css = getCSS(source.get(), compress);
          fileUtils.putString(target.get(), css);
       }
@@ -228,7 +229,6 @@ public class AssetManager {
       throws IOException,
              URISyntaxException
    {
-      if(isDebug)debug("transferImage called with path: "+path);
       transferAsset(path, assetResolver.getAssetPath(path));
    }
    public void transferJS(String src, String compress)
@@ -241,10 +241,6 @@ public class AssetManager {
       throws IOException,
              URISyntaxException
    {
-      if(isDebug)debug(
-            "transferJS called with path: "+src+"\n"+
-            "and compress: "+compress
-         );
       transferJS(
          assetResolver.getCleanJSPath(src),
          assetResolver.getJSPath(src),
@@ -265,6 +261,10 @@ public class AssetManager {
          targetPath,
          target
       )){
+         if(isDebug)debug(
+            "transferJS called with path: "+srcPath+"\n"+
+            "and compress: "+compress
+         );
          fileUtils.putString(target.get(), getJS(source.get(), compress));
       }
    }
@@ -291,10 +291,10 @@ public class AssetManager {
    ) throws
       IOException
    {
-      if(isDebug)debug("transferAsset called with path: "+srcPath);
       AtomicReference<File> source = new AtomicReference<>();
       AtomicReference<File> target = new AtomicReference<>();
       if(prepareAssetTransfer(srcPath, source, targetPath, target)){
+         if(isDebug)debug("transferAsset called with path: "+srcPath);
          fileUtils.copyFile(source.get(), target.get());
       }
    }
@@ -327,12 +327,14 @@ public class AssetManager {
       if(to.isDirectory()){
          throw new IOException(preamble+"'s target under build is a directory: "+toPath);
       }
-      if(from.lastModified() > to.lastModified() || !to.exists()){
-         source.set(from);
-         target.set(to);
-         return true;
+      synchronized(TRANSFER_ASSET_LOCK){
+         if(from.lastModified() > to.lastModified() || !to.exists()){
+            source.set(from);
+            target.set(to);
+            return true;
+         }
+         return false;
       }
-      return false;
    }
 
    public String expandVariables(String text){
