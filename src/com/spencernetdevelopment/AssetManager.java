@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static com.spencernetdevelopment.Logger.*;
 
 /**
  *
@@ -73,6 +74,7 @@ public class AssetManager {
       return fileUtils.getString(file);
    }
    public String getAsset(String path) throws IOException {
+      if(isDebug)debug("getAsset called with path: "+path);
       File file = assetPath.resolve(path).toFile();
       return getAsset(file);
    }
@@ -84,6 +86,7 @@ public class AssetManager {
       return getCSS(path, getIsCompressionFromAttributeValue(compress));
    }
    public String getCSS(String path, boolean compress) throws IOException, URISyntaxException {
+      if(isDebug)debug("getCSS called with path: "+path);
       return handleCSS(getAsset(
          assetResolver.getCleanCSSPath(path)
       ), compress);
@@ -160,6 +163,7 @@ public class AssetManager {
       return getJS(path, getIsCompressionFromAttributeValue(compress));
    }
    public String getJS(String path, boolean compress) throws IOException, URISyntaxException {
+      if(isDebug)debug("getJS called with path: "+path);
       return handleJS(getAsset(
          assetResolver.getCleanJSPath(path)
       ), compress);
@@ -190,6 +194,10 @@ public class AssetManager {
       throws IOException,
              URISyntaxException
    {
+      if(isDebug)debug(
+            "transferCSS called with path: "+src+"\n"+
+            "and compress: "+compress
+         );
       transferCSS(
          assetResolver.getCleanCSSPath(src),
          assetResolver.getCSSPath(src),
@@ -220,6 +228,7 @@ public class AssetManager {
       throws IOException,
              URISyntaxException
    {
+      if(isDebug)debug("transferImage called with path: "+path);
       transferAsset(path, assetResolver.getAssetPath(path));
    }
    public void transferJS(String src, String compress)
@@ -232,6 +241,10 @@ public class AssetManager {
       throws IOException,
              URISyntaxException
    {
+      if(isDebug)debug(
+            "transferJS called with path: "+src+"\n"+
+            "and compress: "+compress
+         );
       transferJS(
          assetResolver.getCleanJSPath(src),
          assetResolver.getJSPath(src),
@@ -278,6 +291,7 @@ public class AssetManager {
    ) throws
       IOException
    {
+      if(isDebug)debug("transferAsset called with path: "+srcPath);
       AtomicReference<File> source = new AtomicReference<>();
       AtomicReference<File> target = new AtomicReference<>();
       if(prepareAssetTransfer(srcPath, source, targetPath, target)){
