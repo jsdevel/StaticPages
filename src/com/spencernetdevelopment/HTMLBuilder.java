@@ -35,9 +35,8 @@ import org.xml.sax.SAXException;
 import static com.spencernetdevelopment.Logger.*;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import javax.xml.validation.Schema;
 import org.w3c.dom.NamedNodeMap;
 
@@ -59,10 +58,8 @@ public class HTMLBuilder {
    private final Schema schema;
    private final StaticPagesConfiguration config;
    private final HTMLBuilderVisitor transformerVisitor;
-   private final ExecutorService executorService;
 
    public HTMLBuilder(
-      ExecutorService executorService,
       FilePath buildDirPath,
       FilePath pagesDirPath,
       FileUtils fileUtils,
@@ -77,7 +74,6 @@ public class HTMLBuilder {
       docBuilder = docBuilderFactory.newDocumentBuilder();
       transformerFactory = TransformerFactory.newInstance();
 
-      this.executorService=executorService;
       this.buildDirPath = buildDirPath;
       this.xmlPagesDirPath = pagesDirPath;
       this.fileUtils=fileUtils;
@@ -93,11 +89,13 @@ public class HTMLBuilder {
       this.defaultStylesheet = defaultStylesheet;
    }
 
-   public void buildPages()
+   public List<Callable<Object>> getHTMLTasks()
       throws IOException,
              SAXException,
              TransformerException,
-             URISyntaxException
+             URISyntaxException,
+             InterruptedException,
+             ExecutionException
    {
       if (defaultStylesheet == null) {
          throw new IllegalStateException("A default stylesheet is required to process xml files.");
@@ -106,16 +104,12 @@ public class HTMLBuilder {
       ArrayList<Path> xmlPagesToBuild = new ArrayList<>();
 
       fileUtils.filePathsToArrayList(xmlPagesDirPath.toFile(), xmlPagesToBuild, ".xml");
-      List<HTMLTask<Object>> htmlTasks = new ArrayList<>();
+      List<Callable<Object>> htmlTasks = new ArrayList<>();
 
       for (Path xmlFilePath : xmlPagesToBuild) {
          htmlTasks.add(new HTMLTask(this, xmlFilePath));
       }
-      try {
-         executorService.invokeAll(htmlTasks);
-      } catch (InterruptedException ex) {
-         Logger.getLogger(HTMLBuilder.class.getName()).log(Level.SEVERE, null, ex);
-      }
+      return htmlTasks;
    }
 
    /**

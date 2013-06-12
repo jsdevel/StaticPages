@@ -23,7 +23,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +32,7 @@ import java.util.Scanner;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -170,7 +170,6 @@ public class StaticPages {
                   linkValidator
                );
             HTMLBuilder htmlBuilder = new HTMLBuilder(
-               executorService,
                buildDirPath,
                builtConfig.getPagesDirPath(),
                fileUtils,
@@ -180,8 +179,20 @@ public class StaticPages {
             );
             htmlBuilder.setDefaultStylesheet(defaultStylesheet.toFile());
 
+            /*
+             * We want to invoke all HTML tasks right away.  LinkValidation
+             * and other tasks are driven by analysis that is done during the
+             * compiling of HTML.
+             */
             info("Building all pages...");
-            htmlBuilder.buildPages();
+            List<Callable<Object>> htmlTasks = htmlBuilder.getHTMLTasks();
+            synchronized(htmlTasks){
+               List<Future<Object>> results =
+                  executorService.invokeAll(htmlTasks);
+               for(Future<Object> result: results){
+                  result.get();//force exceptions to be thrown.
+               }
+            }
             info("Finished building pages.");
 
             List<Callable<Object>> postOperations = new ArrayList<>();
@@ -205,7 +216,11 @@ public class StaticPages {
 
             synchronized(postOperations){
                if(postOperations.size() > 0){
-                  executorService.invokeAll(postOperations);
+                  List<Future<Object>> results =
+                     executorService.invokeAll(postOperations);
+                  for(Future<Object> result: results){
+                     result.get();//force exceptions to be thrown
+                  }
                }
             }
             executorService.shutdown();
