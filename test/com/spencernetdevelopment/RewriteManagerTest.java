@@ -17,51 +17,59 @@ package com.spencernetdevelopment;
 
 import java.io.File;
 import java.io.IOException;
-import org.junit.After;
-import org.junit.AfterClass;
-import static org.junit.Assert.*;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import static org.mockito.Mockito.*;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import static org.mockito.AdditionalAnswers.*;
 
 /**
  *
  * @author Joseph Spencer
  */
 public class RewriteManagerTest {
-   private static FilePath buildFilePath;
-   private static FilePath inputFile;
+   private static FilePath baseFilePath;
    private RewriteManager manager;
-
-   @BeforeClass
-   public static void setUpClass() throws IOException {
-      buildFilePath = FilePath.getFilePath("/tmp/StaticPageTests/output");
-      inputFile = buildFilePath.resolve("index.html");
-
-      FileUtils.clearDirectory(buildFilePath.toFile());
-      FileUtils.createDir(buildFilePath.toFile());
-      FileUtils.createFile(inputFile.toFile());
-   }
-
-   @AfterClass
-   public static void tearDownClass() {
-   }
+   private FileUtils fileUtils;
+   private boolean srcExists=false;
+   private String[] rewritesToApply = {
+      "bla-test/boo",
+      "bla-test/doo",
+      "bla-test/coo",
+      "bltest/boo",
+      "bltest/doaaaao",
+      "bltesasdt/coo",
+   };
 
    @Before
    public void setUp() throws IOException {
-      manager = new RewriteManager(buildFilePath);
+      baseFilePath = mock(FilePath.class);
+      when(baseFilePath.resolve(anyString())).thenAnswer(new Answer<FilePath>(){
+         @Override
+         public FilePath answer(InvocationOnMock invocation) throws Throwable {
+            Object[] args = invocation.getArguments();
+            String arg = (String)args[0];
+            FilePath filePath = mock(FilePath.class);
+            File file = mock(File.class);
+            when(filePath.toFile()).thenReturn(file);
+            when(file.isFile()).thenReturn(srcExists);
+            when(filePath.toString()).thenReturn(arg);
+            return filePath;
+         }
+      });
+      fileUtils = mock(FileUtils.class);
+      when(fileUtils.getForcedRelativePath(anyString())).then(returnsFirstArg());
+      manager = new RewriteManager(baseFilePath, fileUtils);
    }
 
-   @After
-   public void tearDown() {
+   @Test(expected = NullPointerException.class)
+   public void constructor_should_not_accept_a_null_base_path(){
+      new RewriteManager(null, fileUtils);
    }
-
-   @Test
-   public void constructor_requires_existing_base_file_path() {
-      try {
-         new RewriteManager(FilePath.getFilePath("/asdfasdfasdf"));
-         fail("no IOExceptions were thrown for non-existent directories");
-      } catch (IOException ex) {}
+   @Test(expected = NullPointerException.class)
+   public void constructor_should_not_accept_a_null_file_utils(){
+      new RewriteManager(baseFilePath, null);
    }
 
    @Test(expected = NullPointerException.class)
@@ -83,27 +91,26 @@ public class RewriteManagerTest {
       manager.queueRewrite("index.html", "bla-test/boo");
       manager.queueRewrite("hndex.html", "bla-test/boo");
    }
-
    @Test
    public void applying_rewrites_creates_files() throws IOException {
-      String[] rewritesToApply = {
-         "bla-test/boo",
-         "bla-test/doo",
-         "bla-test/coo",
-         "bltest/boo",
-         "bltest/doaaaao",
-         "bltesasdt/coo",
-      };
+      srcExists=true;
       String src = "rewriteMe.html";
-      FileUtils.createFile(buildFilePath.resolve(src).toFile());
       String targetPostfix = "index.html";
       for(String target:rewritesToApply){
          manager.queueRewrite(src, target);
       }
       manager.applyRewrites();
       for(String target:rewritesToApply){
-         File toFile = buildFilePath.resolve(target+"/"+targetPostfix).toFile();
-         assertTrue(toFile.isFile());
+         verify(fileUtils, times(1)).copyFile(src, target+"/"+targetPostfix);
       }
+   }
+   @Test(expected = IOException.class)
+   public void rewrites_fail_when_the_source_does_not_exist() throws IOException {
+      srcExists=false;
+      String src = "rewriteMe.html";
+      for(String target:rewritesToApply){
+         manager.queueRewrite(src, target);
+      }
+      manager.applyRewrites();
    }
 }

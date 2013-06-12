@@ -32,18 +32,20 @@ import java.util.Set;
  */
 public class RewriteManager {
    private final FilePath baseFilePath;
-   private final Map<String, Set<String>> sourceToTargets = new HashMap<String, Set<String>>();
-   private final Map<String, String> targetsToSource = new HashMap<String, String>();
+   private final FileUtils fileUtils;
+   private final Map<String, Set<String>> sourceToTargets = new HashMap<>();
+   private final Map<String, String> targetsToSource = new HashMap<>();
    private final List<String> rewritesToApply = Collections.synchronizedList(new ArrayList<String>());
 
-   public RewriteManager(FilePath baseFilePath) throws IOException {
+   public RewriteManager(FilePath baseFilePath, FileUtils fileUtils){
       if(baseFilePath == null){
          throw new NullPointerException("baseFilePath was null");
       }
-      if(!Assertions.dirExists(baseFilePath.toFile())){
-         throw new IOException("baseFilePath doesn't exist");
+      if(fileUtils == null){
+         throw new NullPointerException("fileUtils was null");
       }
       this.baseFilePath=baseFilePath;
+      this.fileUtils=fileUtils;
    }
    /**
     * Rewrites the given src to the destination, so that when the browser
@@ -62,8 +64,8 @@ public class RewriteManager {
          throw new NullPointerException("dest was null");
       }
 
-      String relativeSrc = FileUtils.getForcedRelativePath(src);
-      String relativeTarget = FileUtils.getForcedRelativePath(target);
+      String relativeSrc = fileUtils.getForcedRelativePath(src);
+      String relativeTarget = fileUtils.getForcedRelativePath(target);
       if(!relativeTarget.endsWith(".html")){
          relativeTarget = relativeTarget.replaceAll("/+$", "");
          relativeTarget+= "/index.html";
@@ -98,13 +100,10 @@ public class RewriteManager {
          List<String> currentRewrites = rewritesToApply.subList(0, currentSizeOfList);
          for(String target: currentRewrites){
             String src = targetsToSource.get(target);
-            if(src == null){
-               throw new NullPointerException(
-                  "Somehow the src was null for target: "+target
-               );
-            }
             FilePath srcPath = baseFilePath.resolve(src);
-            if(!Assertions.fileExists(srcPath.toFile())){
+            File file = srcPath.toFile();
+            boolean fileExists = file.isFile();
+            if(!fileExists){
                throw new IOException(
                   "Can't rewrite src because the src file doesn't exist.\n"+
                   "Src was: "+src
@@ -112,7 +111,9 @@ public class RewriteManager {
             }
             FilePath targetPath;
             targetPath = baseFilePath.resolve(target);
-            FileUtils.copyFile(srcPath.toFile(), targetPath.toFile());
+            String from = srcPath.toString();
+            String to = targetPath.toString();
+            fileUtils.copyFile(from, to);
          }
          rewritesToApply.removeAll(currentRewrites);
       }

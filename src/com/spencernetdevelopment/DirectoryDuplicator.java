@@ -36,8 +36,13 @@ public class DirectoryDuplicator extends SimpleFileVisitor<Path> {
    private final Path sourcePath;
    private final String sourcePathString;
    private final int sourcePathStringLength;
+   private final FileUtils fileUtils;
 
-   public DirectoryDuplicator(File source, File destination) throws IOException{
+   public DirectoryDuplicator(
+      File source,
+      File destination,
+      FileUtils fileUtils
+   ) throws IOException{
       if(source == null || destination == null){
          throw new IOException("Both source and destination must not be null.");
       }
@@ -47,12 +52,16 @@ public class DirectoryDuplicator extends SimpleFileVisitor<Path> {
       if(!source.exists() || !source.exists()){
          throw new IOException("Both source and destination must exist.");
       }
+      if(fileUtils == null){
+         throw new NullPointerException("fileUtils was null.");
+      }
       this.destination=destination;
       this.destinationPath=destination.toPath();
       this.source=source;
       this.sourcePath=source.toPath();
       sourcePathString=sourcePath.toString();
       sourcePathStringLength=sourcePathString.length();
+      this.fileUtils=fileUtils;
    }
 
    @Override
@@ -74,7 +83,7 @@ public class DirectoryDuplicator extends SimpleFileVisitor<Path> {
    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
       String filePathString = getRelativePath(file);
       File targetFile = destinationPath.resolve(filePathString).toFile();
-      FileUtils.copyFile(file.toFile(), targetFile);
+      fileUtils.copyFile(file.toFile(), targetFile);
       return FileVisitResult.CONTINUE;
    }
    private String removeStartingSeperator(String input){

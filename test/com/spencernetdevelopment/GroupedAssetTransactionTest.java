@@ -93,19 +93,23 @@ public class GroupedAssetTransactionTest {
    public void add_empty_url_before_group_is_closed_throws_exception(){
       transaction.addURL("    \n \t ");
    }
-   @Test(expected = IllegalStateException.class)
-   public void can_not_get_identifier_until_group_is_closed(){
+   @Test
+   public void get_identifier_closes_group(){
       transaction.addURL("script");
       transaction.getIdentifier();
+      assertTrue(transaction.isClosed());
    }
    @Test(expected = IllegalStateException.class)
-   public void can_not_get_array_until_group_is_closed(){
-      transaction.addURL("script");
+   public void can_not_get_array_when_no_urls_are_added(){
       transaction.toArray();
    }
    @Test(expected = IllegalStateException.class)
    public void group_must_have_urls_before_closing(){
       transaction.close();
+   }
+   @Test(expected = IllegalStateException.class)
+   public void group_must_have_urls_before_getting_identifier(){
+      transaction.getIdentifier();
    }
 
    //After group is closed
@@ -120,6 +124,13 @@ public class GroupedAssetTransactionTest {
       transaction.close();
       transaction.addURL("script");
    }
+   @Test(expected = IllegalStateException.class)
+   public void can_not_add_urls_after_getting_identifier(){
+      transaction.addURL("script");
+      transaction.getIdentifier();
+      transaction.addURL("script");
+   }
+
    @Test
    public void can_get_array_when_closed(){
       transaction.addURL("script");
@@ -134,15 +145,13 @@ public class GroupedAssetTransactionTest {
     * never happen.
     */
    @Test(expected = IllegalStateException.class)
-   public void must_add_urls_and_close_group_to_get_array(){
-      transaction.close();
+   public void must_add_urls_to_get_array(){
       transaction.toArray();
    }
    @Test
-   public void can_get_identifier_when_group_is_closed(){
+   public void can_get_identifier_when_urls_are_added(){
       transaction.addURL("script");
       transaction.addURL("script");
-      transaction.close();
       String identifier = transaction.getIdentifier();
       System.out.println(identifier);
       assertEquals("a840c76592633e0af0704479fc1b11df", identifier);

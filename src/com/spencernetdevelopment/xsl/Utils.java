@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Joseph Spencer.
+ * Copyright 2013 Joseph Spencer.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,26 @@
  */
 package com.spencernetdevelopment.xsl;
 
-import com.spencernetdevelopment.StaticPages;
-
 /**
  *
  * @author Joseph Spencer
  */
-public class ProjectPaths {
-   public static String getProjectPath(){
-      return StaticPages.projectDirPath.toUnix();
-   }
-   public static String getXmlResourcesPath(){
-      return StaticPages.xmlResourcesDirPath.toUnix();
-   }
-   public static String getXmlPagesPath(){
-      return StaticPages.pagesDirPath.toUnix();
+public class Utils {
+
+   /**
+    * If the String is nothing but white space, then an empty string is
+    * returned, otherwise the String is returned with all occurrences of white
+    * space reduced to a single space.
+    *
+    * <li></li>
+    * </ul>
+    * @param text
+    * @return
+    */
+   public static String normalizeSpace(String text){
+      if(text == null){
+         return "";
+      }
+      return text.replaceAll("^\\s+$", "").replaceAll("\\s+", " ");
    }
 }

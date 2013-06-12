@@ -38,7 +38,7 @@ public class WrappedTransformer {
    public void setParameter(String name, Object value){
       transformer.setParameter(name, value);
    }
-   public void transform() throws TransformerException{
+   public synchronized void transform() throws TransformerException{
       if(!isTransformed){
          transformer.transform(xmlDoc, resultStream);
          isTransformed=true;

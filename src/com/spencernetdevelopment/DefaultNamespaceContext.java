@@ -13,27 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spencernetdevelopment.xsl;
+package com.spencernetdevelopment;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.util.Iterator;
+import javax.xml.namespace.NamespaceContext;
 
 /**
  *
  * @author Joseph Spencer
  */
-public class AssetsTest {
+public class DefaultNamespaceContext implements NamespaceContext {
 
-   @Test
-   public void all_white_space_in_text_should_be_normalized_to_a_single_space() {
-      String test = "f\n\n\n   \n\n\na";
-      assertEquals("f a", Assets.normalizeSpace(test));
+   @Override
+   public String getNamespaceURI(String prefix) {
+      if("d".equals(prefix)){
+         return "default";
+      }
+      throw new IllegalArgumentException("Unknown prefix: d");
    }
 
-   @Test
-   public void text_of_all_white_space_should_be_ignored() {
-      String test = "  \n\n\t    ";
-      assertEquals("", Assets.normalizeSpace(test));
+   @Override
+   public String getPrefix(String namespaceURI) {
+      throw new UnsupportedOperationException("Not supported yet.");
    }
 
+   @Override
+   public Iterator getPrefixes(String namespaceURI) {
+      throw new UnsupportedOperationException("Not supported yet.");
+   }
 }

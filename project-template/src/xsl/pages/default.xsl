@@ -20,9 +20,10 @@
 -->
 <xsl:stylesheet version="1.0"
    xmlns:d="default"
-   xmlns:assets="com.spencernetdevelopment.xsl.Assets"
+   xmlns:AM="com.spencernetdevelopment.AssetManager"
+   xmlns:AR="com.spencernetdevelopment.AssetResolver"
    xmlns:saxon="http://icl.com/saxon"
-   exclude-result-prefixes="assets d saxon"
+   exclude-result-prefixes="d saxon AM AR"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" >
 
    <xsl:import href="../utilities/HTML.xsl"/>
@@ -30,6 +31,8 @@
    <xsl:import href="../utilities/Assets.xsl"/>
 
    <xsl:param name="enableDevMode"/>
+   <xsl:param name="AM"/>
+   <xsl:param name="AR"/>
 
    <xsl:output method="html" indent="no" saxon:omit-meta-tag="yes"/>
 
@@ -70,10 +73,10 @@
             <xsl:apply-templates select="d:body" mode="defaultStylesheet"/>
             <xsl:if test="$enableDevMode">
                <xsl:variable name="path"
-                             select="assets:getCleanJSPath(
+                             select="AR:getCleanJSPath($AR,
                                  'StaticPageUtils/CheckForChange'
                              )"/>
-               <xsl:value-of select="assets:transferAsset($path)"/>
+               <xsl:value-of select="AM:transferAsset($AM, $path)"/>
                <script src="{$assetPrefixInBrowser}/{$path}"/>
             </xsl:if>
          </body>

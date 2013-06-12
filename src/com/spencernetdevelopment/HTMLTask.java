@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 Joseph Spencer.
+ * Copyright 2013 Joseph Spencer.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.spencernetdevelopment.xsl;
+package com.spencernetdevelopment;
 
-import com.spencernetdevelopment.FilePath;
-import java.io.*;
+import java.nio.file.Path;
+import java.util.concurrent.Callable;
 
 /**
  *
  * @author Joseph Spencer
  */
-public class FileFunctions {
-   public static void assertPathHasLength(String path) throws IOException {
-      if(path == null || path.trim().isEmpty()){
-         throw new IOException("Invalid Path: '"+path+"'.");
-      }
+public class HTMLTask<T> implements Callable<T> {
+   private final Path xmlPagePath;
+   private final HTMLBuilder hTMLBuilder;
+   public HTMLTask(HTMLBuilder htmlBuilder, Path xmlPagePath) {
+      this.hTMLBuilder=htmlBuilder;
+      this.xmlPagePath=xmlPagePath;
    }
 
-   public static void assertFileExists(FilePath path) throws IOException {
-      if(!path.toFile().exists()){
-         throw new IOException("\nThis file doesn't exist: "+path);
-      }
+   @Override
+   public T call() throws Exception {
+      hTMLBuilder.buildPage(xmlPagePath);
+      return null;
    }
+
+
 }
