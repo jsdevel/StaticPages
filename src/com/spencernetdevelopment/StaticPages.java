@@ -245,8 +245,10 @@ public class StaticPages {
             }
             variables.load(new FileReader(variablesFile));
          } else {
-            info("The supplied variables path didn't result in a file: ");
-            info("'"+variablesFile.getAbsolutePath()+"' was the path.");
+            throw new IOException(
+               "The supplied variables path didn't result in a file: "+
+               "'"+variablesFile.getAbsolutePath()+"' was the path."
+            );
          }
       }
       return variables;
