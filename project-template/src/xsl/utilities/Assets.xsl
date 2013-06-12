@@ -18,16 +18,21 @@
    xmlns:a="assets"
    xmlns:d="default"
    xmlns:string="java.lang.String"
-   xmlns:groupedAsset="com.spencernetdevelopment.GroupedAssetTransaction"
+   xmlns:GAT="com.spencernetdevelopment.GroupedAssetTransaction"
    xmlns:AM="com.spencernetdevelopment.AssetManager"
-   xmlns:assets="com.spencernetdevelopment.xsl.Assets"
-   xmlns:pp="com.spencernetdevelopment.xsl.ProjectPaths"
-   exclude-result-prefixes="a d string assets pp groupedAsset"
+   xmlns:AR="com.spencernetdevelopment.AssetResolver"
+   xmlns:GATM="com.spencernetdevelopment.GroupedAssetTransactionManager"
+   xmlns:LV="com.spencernetdevelopment.LinkValidator"
+   xmlns:U="com.spencernetdevelopment.xsl.Utils"
+   exclude-result-prefixes="a d string GAT U AM AR GATM LV"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
    <xsl:param name="assetPrefixInBrowser"/>
    <xsl:param name="pagePath"/>
-   <xsl:param name="assetManager"/>
+   <xsl:param name="AM"/>
+   <xsl:param name="AR"/>
+   <xsl:param name="GATM"/>
+   <xsl:param name="LV"/>
 
    <xsl:template match="a:*">
       <xsl:message terminate="yes">
@@ -41,12 +46,12 @@
 
    <xsl:template match="a:css[@src]">
       <xsl:variable name="src"
-                    select="AM:expandVariables($assetManager, @src)"/>
-      <xsl:value-of select="assets:transferCSS(
+                    select="AM:expandVariables($AM, @src)"/>
+      <xsl:value-of select="AM:transferCSS($AM,
             $src,
             @compress
          )"/>
-      <link href="{$assetPrefixInBrowser}/{assets:getCSSPath($src)}"
+      <link href="{$assetPrefixInBrowser}/{AR:getCSSPath($AR, $src)}"
             rel="stylesheet" type="text/css"
       >
          <xsl:apply-templates select="@*[
@@ -61,8 +66,8 @@
 
    <xsl:template match="a:externalLink[@src]">
       <xsl:variable name="src"
-                    select="AM:expandVariables($assetManager, @src)"/>
-      <xsl:value-of select="assets:validateExternalURL($src)"/>
+                    select="AM:expandVariables($AM, @src)"/>
+      <xsl:value-of select="LV:validateExternalURL($LV, $src)"/>
 
       <a href="{$src}">
          <xsl:apply-templates select="@*[
@@ -85,25 +90,22 @@
    </xsl:template>
 
    <xsl:template match="a:group[@type = 'js' or @type = 'css']">
-      <xsl:variable name="group" select="groupedAsset:new(
+      <xsl:variable name="transaction" select="GATM:startTransaction($GATM,
             @type,
-            assets:getEnableCompression(@compress)
+            @compress
          )"/>
       <xsl:for-each select="d:url">
-         <xsl:value-of select="groupedAsset:addURL(
-            $group,
-            AM:expandVariables($assetManager, text())
+         <xsl:value-of select="GAT:addURL(
+            $transaction,
+            AM:expandVariables($AM, text())
          )"/>
       </xsl:for-each>
-      <xsl:value-of select="groupedAsset:close($group)"/>
-      <xsl:variable name="identifier"
-                    select="groupedAsset:getIdentifier($group)"/>
+      <xsl:variable name="identifier" select="GAT:getIdentifier($transaction)"/>
 
-      <xsl:value-of select="assets:buildGroupedAsset($group)"/>
       <xsl:choose>
          <xsl:when test="@type = 'css'">
             <xsl:variable name="cssPath"
-                          select="assets:getCSSPath($identifier)"/>
+                          select="AR:getCSSPath($AR, $identifier)"/>
             <link href="{$assetPrefixInBrowser}/{$cssPath}" rel="stylesheet"
                   type="text/css"
             >
@@ -118,7 +120,7 @@
          </xsl:when>
          <xsl:otherwise>
             <xsl:variable name="jsPath"
-                          select="assets:getJSPath($identifier)"/>
+                          select="AR:getJSPath($AR, $identifier)"/>
             <script src="{$assetPrefixInBrowser}/{$jsPath}"
                     type="text/javascript"
             >
@@ -134,10 +136,10 @@
 
    <xsl:template match="a:image[@src]">
       <xsl:variable name="src"
-                    select="AM:expandVariables($assetManager, @src)"/>
-      <xsl:variable name="path" select="assets:getImagePath($src)"/>
-      <xsl:value-of select="assets:transferImage(
-         assets:getCleanImagePath($src)
+                    select="AM:expandVariables($AM, @src)"/>
+      <xsl:variable name="path" select="AR:getImagePath($AR, $src)"/>
+      <xsl:value-of select="AM:transferImage($AM,
+         AR:getCleanImagePath($AR, $src)
       )"/>
       <img src="{$assetPrefixInBrowser}/{$path}">
          <xsl:apply-templates select="@*[local-name() != 'src']"/>
@@ -146,19 +148,19 @@
 
    <xsl:template match="a:include[@asset]">
       <xsl:variable name="asset"
-                    select="AM:expandVariables($assetManager, @asset)"/>
-      <xsl:value-of select="string(assets:getAsset($asset))"
+                    select="AM:expandVariables($AM, @asset)"/>
+      <xsl:value-of select="string(AM:getAsset($AM, $asset))"
                     disable-output-escaping="yes"/>
    </xsl:template>
 
    <xsl:template match="a:js[@src]">
       <xsl:variable name="src"
-                    select="AM:expandVariables($assetManager, @src)"/>
-      <xsl:value-of select="assets:transferJS(
+                    select="AM:expandVariables($AM, @src)"/>
+      <xsl:value-of select="AM:transferJS($AM,
          $src,
          @compress
       )"/>
-      <script src="{$assetPrefixInBrowser}/{assets:getJSPath($src)}">
+      <script src="{$assetPrefixInBrowser}/{AR:getJSPath($AR, $src)}">
          <xsl:apply-templates
             select="@*[local-name() != 'src' and local-name() != 'compress']"/>
       </script>
@@ -166,31 +168,27 @@
 
    <xsl:template match="a:pageLink[@src]">
       <xsl:variable name="src"
-                    select="AM:expandVariables($assetManager, @src)"/>
+                    select="AM:expandVariables($AM, @src)"/>
       <xsl:variable name="class"
-                    select="AM:expandVariables($assetManager, @class)"/>
+                    select="AM:expandVariables($AM, @class)"/>
       <xsl:variable name="name"
-                    select="AM:expandVariables($assetManager, @name)"/>
-
-      <xsl:value-of select="assets:validatePageReference($src)"/>
-      <xsl:variable name="referencedPagePath"
-                    select="concat(pp:getXmlPagesPath(), '/', $src, '.xml')"
-         />
+                    select="AM:expandVariables($AM, @name)"/>
+      <xsl:value-of select="LV:validatePageReference($LV, $src)"/>
       <xsl:variable name="referencedPageDocument"
-                    select="document($referencedPagePath)/d:page"
-         />
+                    select="document(AR:getPagePath($AR, $src))/d:page"/>
       <xsl:variable name="rewritePath"
                     select="
-                        AM:expandVariables($assetManager,
+                        AM:expandVariables($AM,
                            $referencedPageDocument/d:seo/d:rewrites/d:url[
                               @default
                            ][1]/text()
                         )
                      "/>
       <xsl:if test="@frag">
-         <xsl:value-of select="assets:validateFragmentReference(
+         <xsl:value-of select="LV:validateFragmentReference(
+            $LV,
             $src,
-            AM:expandVariables($assetManager, @frag)
+            AM:expandVariables($AM, @frag)
          )"/>
       </xsl:if>
 
@@ -198,7 +196,7 @@
          <xsl:if test="@frag">
             <xsl:value-of select="concat(
                '#',
-               AM:expandVariables($assetManager, @frag)
+               AM:expandVariables($AM, @frag)
             )"/>
          </xsl:if>
       </xsl:variable>
@@ -217,7 +215,7 @@
                   test="string($rewritePath) != ''">
                   <xsl:value-of select="concat(
                         $assetPrefixInBrowser,
-                        assets:getNormalizedRewritePath($rewritePath)
+                        AR:getNormalizedRewritePath($AR, $rewritePath)
                      )"/>
                </xsl:when>
                <xsl:otherwise>
@@ -264,8 +262,8 @@
 
    <xsl:template match="a:script[@src]">
       <script>
-         <xsl:value-of select="assets:getJS(
-            AM:expandVariables($assetManager, @src),
+         <xsl:value-of select="AM:getJS($AM,
+            AM:expandVariables($AM, @src),
             @compress
          )" disable-output-escaping="yes"/>
       </script>
@@ -273,23 +271,24 @@
 
    <xsl:template match="a:style[@src]">
       <style type="text/css">
-         <xsl:value-of select="assets:getCSS(
-            AM:expandVariables($assetManager, @src),
+         <xsl:value-of select="AM:getCSS($AM,
+            AM:expandVariables($AM, @src),
             @compress
          )" disable-output-escaping="yes"/>
       </style>
    </xsl:template>
 
    <xsl:template match="a:transfer[@src]">
-      <xsl:value-of select="assets:transferAsset(
-         AM:expandVariables($assetManager, @src)
+      <xsl:value-of select="AM:transferAsset($AM,
+         AM:expandVariables($AM, @src)
       )"/>
    </xsl:template>
 
    <!-- views -->
    <xsl:template match="a:view">
-      <xsl:variable name="viewPath" select="assets:getViewPath(
-         AM:expandVariables($assetManager, text())
+      <xsl:variable name="viewPath" select="AR:getViewPath(
+         $AR,
+         AM:expandVariables($AM, text())
       )"/>
       <xsl:apply-templates select="document($viewPath)/d:view"/>
    </xsl:template>
