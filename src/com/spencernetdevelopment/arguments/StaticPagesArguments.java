@@ -14,6 +14,7 @@ public class StaticPagesArguments {
    private boolean enabledevmode=false;
    private int maxdataurisizeinbytes=32768;
    private int maxwaittimetovalidateexternallink=5000;
+   private boolean enableexternallinkvalidation=true;
    private String prefixtoignorefiles="_";
    private boolean enablelogginginfo=true;
    private boolean enableloggingwarn=true;
@@ -34,6 +35,7 @@ public class StaticPagesArguments {
       final boolean enabledevmode,
       final int maxdataurisizeinbytes,
       final int maxwaittimetovalidateexternallink,
+      final boolean enableexternallinkvalidation,
       final String prefixtoignorefiles,
       final boolean enablelogginginfo,
       final boolean enableloggingwarn,
@@ -69,6 +71,7 @@ public class StaticPagesArguments {
       this.enabledevmode=enabledevmode;
       this.maxdataurisizeinbytes=maxdataurisizeinbytes;
       this.maxwaittimetovalidateexternallink=maxwaittimetovalidateexternallink;
+      this.enableexternallinkvalidation=enableexternallinkvalidation;
       this.prefixtoignorefiles=prefixtoignorefiles;
       this.enablelogginginfo=enablelogginginfo;
       this.enableloggingwarn=enableloggingwarn;
@@ -138,6 +141,12 @@ public class StaticPagesArguments {
    }
    public boolean hasMaxwaittimetovalidateexternallink(){
       return maxwaittimetovalidateexternallink!=0;
+   }
+   public boolean getEnableexternallinkvalidation(){
+      return enableexternallinkvalidation;
+   }
+   public boolean hasEnableexternallinkvalidation(){
+      return enableexternallinkvalidation;
    }
    public String getPrefixtoignorefiles(){
       return prefixtoignorefiles;

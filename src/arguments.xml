@@ -108,6 +108,12 @@ can clean up old assets from time to time."
       type="int"
       />
    <argument
+      default="true"
+      name="--enable-external-link-validation"
+      description="Enables external link validation"
+      type="boolean"
+      />
+   <argument
        default="_"
        name="--prefix-to-ignore-files"
        description="Files with this prefix will be ignored."

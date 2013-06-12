@@ -16,6 +16,7 @@ public class StaticPagesTerminal {
       boolean enabledevmode=false;
       int maxdataurisizeinbytes=32768;
       int maxwaittimetovalidateexternallink=5000;
+      boolean enableexternallinkvalidation=true;
       String prefixtoignorefiles="_";
       boolean enablelogginginfo=true;
       boolean enableloggingwarn=true;
@@ -75,6 +76,10 @@ public class StaticPagesTerminal {
             maxwaittimetovalidateexternallink = getInt(val);
             continue;
          }
+         if("--enable-external-link-validation".equals(key)){
+            enableexternallinkvalidation = getBoolean(val);
+            continue;
+         }
          if("--prefix-to-ignore-files".equals(key)){
             prefixtoignorefiles = val;
             continue;
@@ -124,6 +129,7 @@ public class StaticPagesTerminal {
             enabledevmode,
             maxdataurisizeinbytes,
             maxwaittimetovalidateexternallink,
+            enableexternallinkvalidation,
             prefixtoignorefiles,
             enablelogginginfo,
             enableloggingwarn,

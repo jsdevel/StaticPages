@@ -197,7 +197,10 @@ public class StaticPages {
 
             List<Callable<Object>> postOperations = new ArrayList<>();
             synchronized(validators){
-               if(validators.size() > 0){
+               if(
+                  arguments.getEnableexternallinkvalidation() &&
+                  validators.size() > 0
+               ){
                   for(Callable<Object> obj:validators.values()){
                      postOperations.add(obj);
                   }
