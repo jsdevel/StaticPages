@@ -42,14 +42,14 @@ public class LinkValidator {
    private final Set<String> validatedFragments = new HashSet<>();
    private final Set<String> failedPages = new HashSet<>();
    private final Set<String> validatedPages = new HashSet<>();
-   private final Map<String, ExternalLinkValidator> validators;
+   private final Map<String, ExternalLinkValidator<Object>> validators;
    private DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
    private XPathFactory xpathFactory = XPathFactory.newInstance();
    private DefaultNamespaceContext defaultNamespaceContext;
    private StaticPagesConfiguration config;
 
    public LinkValidator(
-      Map<String, ExternalLinkValidator> validators,
+      Map<String, ExternalLinkValidator<Object>> validators,
       StaticPagesConfiguration config,
       DefaultNamespaceContext defaultNamespaceContext
    ){

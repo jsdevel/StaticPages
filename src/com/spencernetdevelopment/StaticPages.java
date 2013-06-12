@@ -23,12 +23,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.xml.XMLConstants;
@@ -151,8 +153,8 @@ public class StaticPages {
                "com.icl.saxon.om.DocumentBuilderFactoryImpl");
             DefaultNamespaceContext defaultNamespaceContext =
                new DefaultNamespaceContext();
-            Map<String, ExternalLinkValidator> validators = Collections
-               .synchronizedMap(new HashMap<String, ExternalLinkValidator>());
+            Map<String, ExternalLinkValidator<Object>> validators = Collections
+               .synchronizedMap(new HashMap<String, ExternalLinkValidator<Object>>());
             LinkValidator linkValidator = new LinkValidator(
                validators,
                builtConfig,
@@ -182,19 +184,31 @@ public class StaticPages {
             htmlBuilder.buildPages();
             info("Finished building pages.");
 
+            List<Callable<Object>> postOperations = new ArrayList<>();
             synchronized(validators){
                if(validators.size() > 0){
-                  info("Validating all external URLs...");
-                  List<ExternalLinkValidator<Object>> vals = new ArrayList<>();
-                  for(ExternalLinkValidator<Object> obj:validators.values()){
-                     vals.add(obj);
+                  for(Callable<Object> obj:validators.values()){
+                     postOperations.add(obj);
                   }
-                  executorService.invokeAll(vals);
+               }
+            }
+            List<GroupedAssetTask<Object>> groupedAssetTasks =
+               groupedAssetTransactionManager.getGroupedAssetTasks();
+
+            synchronized(groupedAssetTasks){
+               if(groupedAssetTasks.size() > 0){
+                  for(Callable<Object> obj: groupedAssetTasks){
+                     postOperations.add(obj);
+                  }
+               }
+            }
+
+            synchronized(postOperations){
+               if(postOperations.size() > 0){
+                  executorService.invokeAll(postOperations);
                }
             }
             executorService.shutdown();
-
-            groupedAssetTransactionManager.processTransactions();
             rewriteManager.applyRewrites();
             if(builtConfig.isEnableDevMode()){
                createRefreshJS(

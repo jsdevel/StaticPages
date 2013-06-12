@@ -15,13 +15,14 @@
  */
 package com.spencernetdevelopment;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
-import static org.mockito.AdditionalAnswers.*;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -31,16 +32,39 @@ import org.mockito.stubbing.Answer;
  */
 public class GroupedAssetTransactionManagerTest {
    private GroupedAssetTransactionManager manager;
+   private List<GroupedAssetTask<Object>> tasks;
    private AssetManager assetManager;
    private AssetResolver resolver;
    private GroupedAssetTransaction transaction;
    private StaticPagesConfiguration config;
    private FilePath buildDirPath;
+   private FilePath assetsDirPath;
    private FileUtils futils;
+
+   private boolean isBuildFile;
+   private boolean isSrcFile;
+   private long srcLastModified;
+   private long targetLastModified;
 
    @Before
    public void setUp() throws IOException, URISyntaxException {
       assetManager = mock(AssetManager.class);
+      assetsDirPath=mock(FilePath.class);
+      when(assetsDirPath.resolve(anyString())).thenAnswer(new Answer<FilePath>(){
+         @Override
+         public FilePath answer(InvocationOnMock invocation) throws Throwable {
+            Object[] args = invocation.getArguments();
+            String arg = (String)args[0];
+            FilePath mock = mock(FilePath.class);
+            File file = mock(File.class);
+            when(mock.toString()).thenReturn(arg);
+            when(mock.toFile()).thenReturn(file);
+            when(file.isFile()).thenReturn(isSrcFile);
+            when(file.lastModified()).thenReturn(srcLastModified);
+            return mock;
+         }
+      });
+
       buildDirPath=mock(FilePath.class);
       when(buildDirPath.resolve(anyString())).thenAnswer(new Answer<FilePath>(){
          @Override
@@ -48,7 +72,11 @@ public class GroupedAssetTransactionManagerTest {
             Object[] args = invocation.getArguments();
             String arg = (String)args[0];
             FilePath mock = mock(FilePath.class);
+            File file = mock(File.class);
             when(mock.toString()).thenReturn(arg);
+            when(mock.toFile()).thenReturn(file);
+            when(file.isFile()).thenReturn(isBuildFile);
+            when(file.lastModified()).thenReturn(targetLastModified);
             return mock;
          }
       });
@@ -72,6 +100,7 @@ public class GroupedAssetTransactionManagerTest {
       transaction = mock(GroupedAssetTransaction.class);
       config = mock(StaticPagesConfiguration.class);
       when(config.getBuildDirPath()).thenReturn(buildDirPath);
+      when(config.getAssetsDirPath()).thenReturn(assetsDirPath);
       futils=mock(FileUtils.class);
       manager = new GroupedAssetTransactionManager(
          assetManager,
@@ -106,36 +135,58 @@ public class GroupedAssetTransactionManagerTest {
       );
    }
    @Test
-   public void transactions_should_not_be_handled_when_they_are_not_closed() throws IOException, URISyntaxException{
+   public void transactions_should_not_be_considered_when_they_are_not_closed() throws IOException, URISyntaxException{
       transaction = manager.startTransaction("js", "false");
-      manager.processTransactions();
-      verify(futils, times(0)).putString(anyString(), anyString());
+      tasks = manager.getGroupedAssetTasks();
+      assertEquals(0, tasks.size());
    }
    @Test
-   public void closed_transactions_should_be_output() throws IOException, URISyntaxException {
-      when(assetManager.getJS("foo", false)).thenReturn("asdf");
-      when(assetManager.getCSS("foo", false)).thenReturn("zzzz");
+   public void closed_transactions_should_be_considered() throws IOException, URISyntaxException {
       transaction = manager.startTransaction("js", "false");
       transaction.addURL("foo");
-      String id1 = transaction.getIdentifier();
+      transaction.close();
       transaction = manager.startTransaction("css", "false");
       transaction.addURL("foo");
-      String id2 = transaction.getIdentifier();
-      manager.processTransactions();
+      transaction.close();
 
-      verify(futils, times(1)).putString("js/"+id1+".js", "asdf");
-      verify(futils, times(1)).putString("css/"+id2+".css", "zzzz");
+      tasks = manager.getGroupedAssetTasks();
+      assertEquals(2, tasks.size());
    }
    @Test
-   public void similar_transactions_should_not_be_output() throws IOException, URISyntaxException {
-      when(assetManager.getJS("foo", false)).thenReturn("asdf");
+   public void similar_transactions_should_not_be_considered() throws IOException, URISyntaxException {
       transaction = manager.startTransaction("js", "false");
       transaction.addURL("foo");
-      String id1 = transaction.getIdentifier();
+      transaction.close();
       transaction = manager.startTransaction("js", "false");
       transaction.addURL("foo");
-      manager.processTransactions();
-      verify(futils, times(1)).putString("js/"+id1+".js", "asdf");
+      transaction.close();
+      tasks = manager.getGroupedAssetTasks();
+      assertEquals(1, tasks.size());
+   }
+   @Test
+   public void no_tasks_should_exist_if_the_files_in_the_transaction_are_all_older_than_the_file_to_build() throws IOException, IOException, URISyntaxException{
+      isBuildFile=true;
+      transaction = manager.startTransaction("js", "false");
+      transaction.addURL("foo");
+      transaction.close();
+      transaction = manager.startTransaction("js", "false");
+      transaction.addURL("boo");
+      transaction.close();
+      tasks = manager.getGroupedAssetTasks();
+      assertEquals(0, tasks.size());
+   }
+   @Test
+   public void tasks_should_exist_if_any_file_in_the_transaction_is_newer_than_the_file_to_build() throws IOException, IOException, URISyntaxException{
+      isBuildFile=true;
+      srcLastModified=10;
+      transaction = manager.startTransaction("js", "false");
+      transaction.addURL("foo");
+      transaction.close();
+      transaction = manager.startTransaction("js", "false");
+      transaction.addURL("boo");
+      transaction.close();
+      tasks = manager.getGroupedAssetTasks();
+      assertEquals(2, tasks.size());
    }
 
 }

@@ -15,6 +15,7 @@
  */
 package com.spencernetdevelopment;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -71,24 +72,25 @@ public class GroupedAssetTransactionManager {
     * {@link AssetManager#getJS(java.lang.String, boolean)}<br/>
     * {@link AssetManager#getCSS(java.lang.String, boolean)}<br/>
     */
-   public void processTransactions()
+   public List<GroupedAssetTask<Object>> getGroupedAssetTasks()
       throws IOException, IllegalArgumentException, URISyntaxException
    {
-      List<GroupedAssetTransaction> transactionsToProcess=new ArrayList<>();
+      List<GroupedAssetTask<Object>> tasks = new ArrayList();
+      List<GroupedAssetTransaction> transactionsToConsider=new ArrayList<>();
       synchronized(transactions){
          if(transactions.size()<1){
-            return;
+            return tasks;
          }
          for(GroupedAssetTransaction transaction:transactions){
             if(transaction.isClosed()){
-               transactionsToProcess.add(transaction);
+               transactionsToConsider.add(transaction);
             }
          }
-         for(GroupedAssetTransaction transaction:transactionsToProcess){
+         for(GroupedAssetTransaction transaction:transactionsToConsider){
             transactions.remove(transaction);
          }
       }
-      for(GroupedAssetTransaction transaction:transactionsToProcess){
+      for(GroupedAssetTransaction transaction:transactionsToConsider){
          String identifier = transaction.getIdentifier();
          String type = transaction.getType();
          switch(type){
@@ -107,36 +109,54 @@ public class GroupedAssetTransactionManager {
             }
          }
 
-         StringBuilder builder = new StringBuilder();
-         switch(type){
-         case "js":
-            for(String jsPath:transaction.toArray()){
-               String js = assetManager.getJS(
-                  jsPath,
-                  transaction.isCompressed()
-               );
-               builder.append(js);
+         FilePath proposedFilePath=config.getBuildDirPath().resolve(identifier);
+
+         /*
+          * Here we see if any of the transactions have a file that is in fact
+          * newer than the target file under build.  If there isn't a newer
+          * file, then we can skip this transaction.
+          */
+         if(proposedFilePath.toFile().isFile()){
+            FilePath assetDirPath = config.getAssetsDirPath();
+            File proposedFile = proposedFilePath.toFile();
+            long lastModified = proposedFile.lastModified();
+            boolean hasNewer=false;
+            for(String path:transaction.toArray()){
+               FilePath pathToCheck=null;
+               switch(type){
+                  case "js":
+                     pathToCheck = assetDirPath.resolve(
+                        assetResolver.getCleanJSPath(path)
+                     );
+                     break;
+                  case "css":
+                     pathToCheck = assetDirPath.resolve(
+                        assetResolver.getCleanCSSPath(path)
+                     );
+                     break;
+               }
+               if(
+                  pathToCheck != null &&
+                  pathToCheck.toFile().lastModified() > lastModified
+               ){
+                  hasNewer=true;
+                  break;
+               }
             }
-            fileUtils.putString(
-               config.getBuildDirPath().resolve(identifier).toString(),
-               builder.toString()
-            );
-            break;
-         case "css":
-            for(String cssPath:transaction.toArray()){
-               String css = assetManager.getCSS(
-                  cssPath,
-                  transaction.isCompressed()
-               );
-               builder.append(css);
+            if(!hasNewer){
+               continue;//no elements of this transaction need to be processed.
             }
-            fileUtils.putString(
-               config.getBuildDirPath().resolve(identifier).toString(),
-               builder.toString()
-            );
-            break;
          }
+         GroupedAssetTask<Object> transactionToProcess =
+            new GroupedAssetTask<>(
+               transaction,
+               assetManager,
+               fileUtils,
+               proposedFilePath
+            );
+         tasks.add(transactionToProcess);
       }
+      return tasks;
    }
 
    public GroupedAssetTransaction startTransaction(
