@@ -135,7 +135,10 @@
          </xsl:attribute>
       </meta>
    </xsl:template>
-   <xsl:template match="d:seo/d:rewrites/d:url" mode="seo">
+   <xsl:template
+      match="d:seo/d:rewrites/d:url|d:seo/d:rewrites/d:default"
+      mode="seo"
+   >
       <xsl:if test="$enableRewrites">
          <xsl:value-of select="RM:queueRewrite(
             $RM, $domainRelativePagePath, text()

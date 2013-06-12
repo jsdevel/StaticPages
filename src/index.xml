@@ -10,6 +10,7 @@
       <description>Description as seen by google.</description>
       <keywords>Keywords as seen by google.</keywords>
       <rewrites>
+         <default>/foo/boo</default>
           <url>/some/url</url>
       </rewrites>
    </seo>

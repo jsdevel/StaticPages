@@ -43,19 +43,28 @@ limitations under the License.
    </xsd:complexType>
 
    <xsd:complexType name="seoRewrites">
-      <xsd:sequence>
-         <xsd:element name="url" type="seoURI" maxOccurs="unbounded"/>
-      </xsd:sequence>
+      <xsd:choice>
+         <xsd:sequence>
+            <xsd:element
+               name="url"
+               type="URIWithFragment"
+               minOccurs="1"
+               maxOccurs="unbounded"/>
+         </xsd:sequence>
+         <xsd:sequence>
+            <xsd:element
+               name="default"
+               type="URIWithFragment"
+               minOccurs="1"
+               maxOccurs="1"/>
+            <xsd:element
+               name="url"
+               type="URIWithFragment"
+               minOccurs="0"
+               maxOccurs="unbounded"/>
+         </xsd:sequence>
+      </xsd:choice>
    </xsd:complexType>
-
-  <xsd:complexType name="seoURI">
-    <xsd:simpleContent>
-      <xsd:extension base="URIWithFragment">
-        <xsd:attribute name="default" type="xsd:string">
-        </xsd:attribute>
-      </xsd:extension>
-    </xsd:simpleContent>
-  </xsd:complexType>
 
    <xsd:simpleType name="URIWithFragment">
       <xsd:restriction base="xsd:string">

@@ -176,14 +176,14 @@
       <xsl:value-of select="LV:validatePageReference($LV, $src)"/>
       <xsl:variable name="referencedPageDocument"
                     select="document(AR:getPagePath($AR, $src))/d:page"/>
-      <xsl:variable name="rewritePath"
-                    select="
-                        AM:expandVariables($AM,
-                           $referencedPageDocument/d:seo/d:rewrites/d:url[
-                              @default
-                           ][1]/text()
-                        )
-                     "/>
+      <xsl:variable name="rewritePath">
+         <xsl:variable name="default"
+                       select="$referencedPageDocument/d:seo/d:rewrites/d:default/text()"/>
+         <xsl:if test="string($default) != ''">
+            <xsl:value-of select="AM:expandVariables($AM, $default)"/>
+         </xsl:if>
+      </xsl:variable>
+
       <xsl:if test="@frag">
          <xsl:value-of select="LV:validateFragmentReference(
             $LV,
