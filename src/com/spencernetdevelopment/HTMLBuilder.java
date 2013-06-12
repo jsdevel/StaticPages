@@ -133,15 +133,28 @@ public class HTMLBuilder {
          Document xmlDocument = docBuilder.parse(xmlFilePath.toFile());
          xmlDocument.normalize();
          schema.newValidator().validate(new DOMSource(xmlDocument));
-         FilePath outputFilePath = buildDirPath.resolve(xmlFilePath.toString().substring(xmlPagesDirStringLength + 1).replaceFirst("\\.xml$", ".html"));
+         FilePath outputFilePath = buildDirPath
+            .resolve(xmlFilePath
+               .toString()
+               .substring(xmlPagesDirStringLength + 1)
+               .replaceFirst("\\.xml$", ".html")
+            );
          File htmlFile = outputFilePath.toFile();
          Node firstChild = xmlDocument.getDocumentElement();
          if(isDebug && firstChild == null)debug("firstChild was null");
          else if(isDebug)debug("firstChildName: "+firstChild.getLocalName());
 
          WrappedTransformer transformer;
-         transformer = getTransformer(xmlDocument, htmlFile, xmlFilePath);
+         transformer = getTransformer(xmlDocument, htmlFile);
          transformer.setParameter("enableRewrites", true);
+         transformerVisitor.addDefaultParametersTo(transformer);
+         transformer.setParameter("xmlPagePath", xmlFilePath.toString());
+         transformer.setParameter(
+            "domainRelativePagePath",
+            htmlFile
+               .getAbsolutePath()
+               .substring(buildDirPath.toString().length())
+         );
          transformer.transform();
       }
    }
@@ -157,8 +170,7 @@ public class HTMLBuilder {
     */
    public WrappedTransformer getTransformer(
       Document xmlDocument,
-      File outputFile,
-      Path outputFilePath
+      File outputFile
    ) throws TransformerException, IOException {
       fileUtils.createFile(outputFile);
       xmlDocument.normalize();
@@ -183,9 +195,6 @@ public class HTMLBuilder {
       } else {
          transformer = transformerFactory.newTransformer(new StreamSource(defaultStylesheet));;
       }
-      transformerVisitor.addDefaultParametersTo(transformer);
-      transformer.setParameter("pagePath", outputFilePath.toString());
-      transformer.setParameter("domainRelativePagePath", outputFile.getAbsolutePath().substring(buildDirPath.toString().length()));
       return new WrappedTransformer(transformer, xmlDoc, resultStream);
    }
 

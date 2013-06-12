@@ -15,13 +15,11 @@
  */
 package com.spencernetdevelopment;
 
-import javax.xml.transform.Transformer;
-
 /**
  *
  * @author Joseph Spencer
  */
 public interface HTMLBuilderVisitor {
-   void addDefaultParametersTo(Transformer transformer);
+   void addDefaultParametersTo(WrappedTransformer transformer);
    void visitPagesCompleteEvent();
 }

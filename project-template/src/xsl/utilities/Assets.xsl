@@ -28,7 +28,7 @@
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
    <xsl:param name="assetPrefixInBrowser"/>
-   <xsl:param name="pagePath"/>
+   <xsl:param name="xmlPagePath"/>
    <xsl:param name="AM"/>
    <xsl:param name="AR"/>
    <xsl:param name="GATM"/>
@@ -231,7 +231,7 @@
          </xsl:attribute>
          <xsl:variable name="isCurrentPage"
                        select="string:endsWith(
-                           $pagePath,
+                           $xmlPagePath,
                            concat($src,'.xml'))
                         "/>
          <xsl:if test="@class or $isCurrentPage">

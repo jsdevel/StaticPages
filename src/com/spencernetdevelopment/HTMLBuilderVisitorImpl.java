@@ -46,7 +46,7 @@ public class HTMLBuilderVisitorImpl implements HTMLBuilderVisitor {
    }
 
    @Override
-   public void addDefaultParametersTo(Transformer transformer){
+   public void addDefaultParametersTo(WrappedTransformer transformer){
       transformer.setParameter("AM", assetManager);
       transformer.setParameter("AR", assetResolver);
       transformer.setParameter("RM", rewriteManager);
