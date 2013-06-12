@@ -28,7 +28,7 @@
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
    <xsl:param name="assetPrefixInBrowser"/>
-   <xsl:param name="pagePath"/>
+   <xsl:param name="xmlPagePath"/>
    <xsl:param name="AM"/>
    <xsl:param name="AR"/>
    <xsl:param name="GATM"/>
@@ -176,14 +176,14 @@
       <xsl:value-of select="LV:validatePageReference($LV, $src)"/>
       <xsl:variable name="referencedPageDocument"
                     select="document(AR:getPagePath($AR, $src))/d:page"/>
-      <xsl:variable name="rewritePath"
-                    select="
-                        AM:expandVariables($AM,
-                           $referencedPageDocument/d:seo/d:rewrites/d:url[
-                              @default
-                           ][1]/text()
-                        )
-                     "/>
+      <xsl:variable name="rewritePath">
+         <xsl:variable name="default"
+                       select="$referencedPageDocument/d:seo/d:rewrites/d:default/text()"/>
+         <xsl:if test="string($default) != ''">
+            <xsl:value-of select="AM:expandVariables($AM, $default)"/>
+         </xsl:if>
+      </xsl:variable>
+
       <xsl:if test="@frag">
          <xsl:value-of select="LV:validateFragmentReference(
             $LV,
@@ -231,7 +231,7 @@
          </xsl:attribute>
          <xsl:variable name="isCurrentPage"
                        select="string:endsWith(
-                           $pagePath,
+                           $xmlPagePath,
                            concat($src,'.xml'))
                         "/>
          <xsl:if test="@class or $isCurrentPage">

@@ -23,7 +23,7 @@
    exclude-result-prefixes="d fn U AM RM"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-   <xsl:param name="pagePath"/>
+   <xsl:param name="xmlPagePath"/>
    <!-- something like /index.html -->
    <xsl:param name="domainRelativePagePath"/>
    <xsl:param name="enableRewrites" select="false()"/>
@@ -135,7 +135,26 @@
          </xsl:attribute>
       </meta>
    </xsl:template>
-   <xsl:template match="d:seo/d:rewrites/d:url" mode="seo">
+   <xsl:template match="d:seo/d:rewrites" mode="seo">
+      <xsl:if test="count(*) > 0">
+         <xsl:variable name="default">
+            <xsl:choose>
+               <xsl:when test="string(d:default) != ''">
+                  <xsl:value-of select="d:default"/>
+               </xsl:when>
+               <xsl:otherwise>
+                  <xsl:value-of select="$domainRelativePagePath"/>
+               </xsl:otherwise>
+            </xsl:choose>
+         </xsl:variable>
+         <link rel="canonical" href="{$default}"/>
+      </xsl:if>
+      <xsl:apply-templates mode="seo"/>
+   </xsl:template>
+   <xsl:template
+      match="d:seo/d:rewrites/d:url|d:seo/d:rewrites/d:default"
+      mode="seo"
+   >
       <xsl:if test="$enableRewrites">
          <xsl:value-of select="RM:queueRewrite(
             $RM, $domainRelativePagePath, text()
