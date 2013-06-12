@@ -15,7 +15,6 @@
  */
 package com.spencernetdevelopment;
 
-import com.spencernetdevelopment.xsl.Assets;
 import com.yahoo.platform.yui.compressor.CssCompressor;
 import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
 import java.io.File;
@@ -30,6 +29,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static com.spencernetdevelopment.Logger.*;
 
 /**
  *
@@ -41,30 +41,56 @@ public class AssetManager {
       "\\$\\{([a-zA-Z_][0-9a-zA-Z_]*)\\}"
    );
 
+   private final String assetPrefixInBrowser;
    private final Properties variables;
-   private FilePath assetPath;
-   private FilePath buildPath;
-   public AssetManager(FilePath assets, FilePath build, Properties variables)
+   private final int maxDataURISizeInBytes;
+   private final FilePath assetPath;
+   private final FilePath buildPath;
+   private final AssetResolver assetResolver;
+   private final FileUtils fileUtils;
+   private final StaticPagesConfiguration config;
+   private final Object TRANSFER_ASSET_LOCK = new Object();
+
+   public AssetManager(
+      FilePath assets,
+      FilePath build,
+      FileUtils fileUtils,
+      Properties variables,
+      StaticPagesConfiguration config,
+      AssetResolver assetResolver
+   )
       throws IOException
    {
       assetPath=assets;
       buildPath=build;
       this.variables=variables;
+      this.assetPrefixInBrowser=config.getAssetPrefixInBrowser();
+      this.maxDataURISizeInBytes=config.getMaxDataURISizeInBytes();
+      this.assetResolver=assetResolver;
+      this.fileUtils=fileUtils;
+      this.config=config;
    }
 
    public String getAsset(File file) throws IOException {
-      return FileUtils.getString(file);
+      return fileUtils.getString(file);
    }
    public String getAsset(String path) throws IOException {
-      File file = StaticPages.assetsDirPath.resolve(path).toFile();
+      if(isDebug)debug("getAsset called with path: "+path);
+      File file = assetPath.resolve(path).toFile();
       return getAsset(file);
    }
 
    public String getCSS(File file, boolean compress) throws IOException, URISyntaxException {
       return handleCSS(getAsset(file), compress);
    }
+   public String getCSS(String path, String compress) throws IOException, URISyntaxException {
+      return getCSS(path, getIsCompressionFromAttributeValue(compress));
+   }
    public String getCSS(String path, boolean compress) throws IOException, URISyntaxException {
-      return handleCSS(getAsset(path), compress);
+      if(isDebug)debug("getCSS called with path: "+path);
+      return handleCSS(getAsset(
+         assetResolver.getCleanCSSPath(path)
+      ), compress);
    }
    private String handleCSS(String contents, boolean compress) throws IOException, URISyntaxException {
       String contentsToReturn;
@@ -98,13 +124,13 @@ public class AssetManager {
             }
 
             if(mimeType != null){
-               byte[] bytes = FileUtils.getBytes(
-                  StaticPages.assetsDirPath.resolve(url).toFile()
+               byte[] bytes = fileUtils.getBytes(
+                  assetPath.resolve(url).toFile()
                );
                String encoded = Base64.encodeToString(bytes, false);
                byte[] encodedBytes = encoded.getBytes();
-               if(StaticPages.maxDataURISizeInBytes > 0 &&
-                  encodedBytes.length <= StaticPages.maxDataURISizeInBytes
+               if(maxDataURISizeInBytes > 0 &&
+                  encodedBytes.length <= maxDataURISizeInBytes
                ){
                   contentsToReturn = contentsToReturn.replace(
                      urls.group(0),
@@ -121,13 +147,12 @@ public class AssetManager {
 
          if(!seive.contains(url)){
             seive.add(url);
-            String prefix = StaticPages.assetPrefixInBrowser;
             contentsToReturn = contentsToReturn.replace(
                "/"+url,
-               prefix+"/"+Assets.getAssetPath(url)
+               assetPrefixInBrowser+"/"+assetResolver.getAssetPath(url)
             );
+            transferAsset(url, assetResolver.getAssetPath(url));
          }
-         transferAsset(url, Assets.getAssetPath(url));
       }
       return contentsToReturn;
    }
@@ -135,8 +160,14 @@ public class AssetManager {
    public String getJS(File file, boolean compress) throws IOException {
       return handleJS(getAsset(file), compress);
    }
-   public String getJS(String path, boolean compress) throws IOException {
-      return handleJS(getAsset(path), compress);
+   public String getJS(String path, String compress) throws IOException, URISyntaxException {
+      return getJS(path, getIsCompressionFromAttributeValue(compress));
+   }
+   public String getJS(String path, boolean compress) throws IOException, URISyntaxException {
+      if(isDebug)debug("getJS called with path: "+path);
+      return handleJS(getAsset(
+         assetResolver.getCleanJSPath(path)
+      ), compress);
    }
    private String handleJS(String contents, boolean compress) throws IOException {
       String minified=null;
@@ -147,9 +178,29 @@ public class AssetManager {
          javaScriptCompressor.compress(writer, -1, true, false, false, false);
          minified=writer.toString();
       }
-      return (minified == null ? contents : minified).replace("ASSET_PREFIX_IN_BROWSER", StaticPages.assetPrefixInBrowser);
+      return (minified == null ? contents : minified).replace(
+                  "ASSET_PREFIX_IN_BROWSER",
+                  assetPrefixInBrowser
+               );
    }
 
+   public void transferCSS(String src, String compress)
+      throws IOException,
+             URISyntaxException
+   {
+      transferCSS(src,getIsCompressionFromAttributeValue(compress));
+   }
+
+   public void transferCSS(String src, boolean compress)
+      throws IOException,
+             URISyntaxException
+   {
+      transferCSS(
+         assetResolver.getCleanCSSPath(src),
+         assetResolver.getCSSPath(src),
+         compress
+      );
+   }
    public void transferCSS(
       String srcPath,
       String targetPath,
@@ -165,13 +216,35 @@ public class AssetManager {
          targetPath,
          target
       )){
+         if(isDebug)debug(
+            "transferCSS called with path: "+srcPath+"\n"+
+            "and compress: "+compress
+         );
          String css = getCSS(source.get(), compress);
-         FileUtils.putString(target.get(), css);
+         fileUtils.putString(target.get(), css);
       }
 
    }
-   public void transferImage(String path) throws IOException {
-      transferAsset(path, Assets.getAssetPath(path));
+   public void transferImage(String path)
+      throws IOException,
+             URISyntaxException
+   {
+      transferAsset(path, assetResolver.getAssetPath(path));
+   }
+   public void transferJS(String src, String compress)
+      throws IOException,
+             URISyntaxException
+   {
+      transferJS(src, getIsCompressionFromAttributeValue(compress));
+   }
+   public void transferJS(String src, boolean compress)
+      throws IOException,
+             URISyntaxException
+   {
+      transferJS(
+         assetResolver.getCleanJSPath(src),
+         assetResolver.getJSPath(src),
+      compress);
    }
    public void transferJS(
       String srcPath,
@@ -188,8 +261,22 @@ public class AssetManager {
          targetPath,
          target
       )){
-         FileUtils.putString(target.get(), getJS(source.get(), compress));
+         if(isDebug)debug(
+            "transferJS called with path: "+srcPath+"\n"+
+            "and compress: "+compress
+         );
+         fileUtils.putString(target.get(), getJS(source.get(), compress));
       }
+   }
+
+   /**
+    * Transfers assets from the src dir to the build dir.
+    *
+    * @param path
+    * @throws IOException
+    */
+   public void transferAsset(String path) throws IOException {
+      transferAsset(path, path);
    }
 
    /**
@@ -207,7 +294,8 @@ public class AssetManager {
       AtomicReference<File> source = new AtomicReference<>();
       AtomicReference<File> target = new AtomicReference<>();
       if(prepareAssetTransfer(srcPath, source, targetPath, target)){
-         FileUtils.copyFile(source.get(), target.get());
+         if(isDebug)debug("transferAsset called with path: "+srcPath);
+         fileUtils.copyFile(source.get(), target.get());
       }
    }
 
@@ -239,13 +327,14 @@ public class AssetManager {
       if(to.isDirectory()){
          throw new IOException(preamble+"'s target under build is a directory: "+toPath);
       }
-      if(from.lastModified() > to.lastModified() || !to.exists()){
-         source.set(from);
-         target.set(to);
-         return true;
+      synchronized(TRANSFER_ASSET_LOCK){
+         if(from.lastModified() > to.lastModified() || !to.exists()){
+            source.set(from);
+            target.set(to);
+            return true;
+         }
+         return false;
       }
-      //LOGGER.info("The following asset wasn't transferred because it is older than the target: " + fromPath);
-      return false;
    }
 
    public String expandVariables(String text){
@@ -267,5 +356,19 @@ public class AssetManager {
          }
       }
       return returnText.replaceAll(VARIABLES.pattern(), "");
+   }
+
+   public boolean getIsCompressionFromAttributeValue(String bool){
+      return getBoolean(bool, config.isEnableCompression());
+   }
+
+   public boolean getBoolean(String bool, boolean fallback){
+      if("true".equals(bool)){
+         return true;
+      } else if("false".equals(bool)){
+         return false;
+      } else {
+         return fallback;
+      }
    }
 }

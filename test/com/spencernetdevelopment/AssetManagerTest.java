@@ -20,6 +20,7 @@ import java.util.Properties;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Before;
+import static org.mockito.Mockito.*;
 
 /**
  *
@@ -28,11 +29,15 @@ import org.junit.Before;
 public class AssetManagerTest {
    AssetManager manager;
    Properties vars;
+   StaticPagesConfiguration config;
+   FileUtils fileUtils;
 
    @Before
    public void before() throws IOException {
+      config = mock(StaticPagesConfiguration.class);
+      fileUtils=mock(FileUtils.class);
       vars = new Properties();
-      manager = new AssetManager(null, null, vars);
+      manager = new AssetManager(null, null, fileUtils, vars,config, null);
    }
 
 

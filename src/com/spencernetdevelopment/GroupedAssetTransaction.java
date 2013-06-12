@@ -21,7 +21,10 @@ import java.util.List;
 /**
  * This class represents several assets that are meant to be grouped together
  * into a single file as part of a transaction.  It is assumed that instances
- * will interact with a GroupedAssetTransactionManager.<br/>
+ * will interact with a GroupedAssetTransactionManager.
+ * <br/>
+ * <b>Note: </b>This class is not thread safe.
+ *
  *
  * <p><b>Main points to consider</b></p>
  * <ol>
@@ -112,7 +115,7 @@ public class GroupedAssetTransaction {
       if(url.trim().isEmpty()){
          throw new IllegalArgumentException("The given url was empty.");
       }
-      urls.add(FileUtils.getForcedRelativePath(url, "/"));
+      urls.add(url);
    }
 
    /**
@@ -129,7 +132,7 @@ public class GroupedAssetTransaction {
     * </ol>
     */
    public String getIdentifier() throws IllegalStateException {
-      protectState();
+      close();
       if(identifier == null){
          identifier = ""+urls.size();
          for(String url:urls){
@@ -152,7 +155,7 @@ public class GroupedAssetTransaction {
     * @return A fixed length array of the URLs provided.
     */
    public String[] toArray() throws IllegalStateException {
-      protectState();
+      close();
       return urls.toArray(new String[]{});
    }
 
@@ -178,21 +181,13 @@ public class GroupedAssetTransaction {
     * @throws IllegalStateException If no URLs have been added to this group.
     */
    public void close() throws IllegalStateException {
+      if(!isOpenForAdditions){
+         return;
+      }
       if(urls.size() < 1){
          throw new IllegalStateException(
             "Can't close this resource, no urls have been added.");
       }
       isOpenForAdditions=false;
-   }
-
-   /**
-    * @throws IllegalStateException If the group hasn't been closed.
-    */
-   private void protectState() throws IllegalStateException {
-      if(isOpenForAdditions){
-         throw new IllegalStateException(
-            "This grouped resource hasn't been closed."
-         );
-      }
    }
 }

@@ -15,9 +15,12 @@
  */
 package com.spencernetdevelopment;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -28,59 +31,149 @@ import java.util.Set;
  */
 public class GroupedAssetTransactionManager {
    private final AssetManager assetManager;
+   private final AssetResolver assetResolver;
+   private final List<GroupedAssetTransaction> transactions = new ArrayList<>();
    private final Set<String> processedItems = new HashSet<>();
+   private final StaticPagesConfiguration config;
+   private final FileUtils fileUtils;
 
-   public GroupedAssetTransactionManager(AssetManager assetManager)
+   public GroupedAssetTransactionManager(
+      AssetManager assetManager,
+      AssetResolver assetResolver,
+      StaticPagesConfiguration config,
+      FileUtils fileUtils
+   )
       throws IllegalArgumentException
    {
       if(assetManager == null){
          throw new IllegalArgumentException("assetManager was null");
       }
+      if(assetResolver == null){
+         throw new IllegalArgumentException("assetResolver was null");
+      }
+      if(config == null){
+         throw new IllegalArgumentException("config was null");
+      }
+      if(fileUtils == null){
+         throw new IllegalArgumentException("fileUtils was null");
+      }
       this.assetManager=assetManager;
+      this.assetResolver=assetResolver;
+      this.config=config;
+      this.fileUtils=fileUtils;
    }
 
    /**
-    * Processes the transaction and returns the contents of the processed asset.
-    * @param transaction
-    * @param assetManager
+    * Processes the transactions currently waiting to be processed and outputs
+    * the contents of the processed asset to disk.
+    *
     * @return
     * @throws IOException See the following methods:<br/>
     * {@link AssetManager#getJS(java.lang.String, boolean)}<br/>
     * {@link AssetManager#getCSS(java.lang.String, boolean)}<br/>
-    * @throws IllegalArgumentException If the transaction hasn't been closed,
-    * or if the transaction was already built.
     */
-   public synchronized String process(GroupedAssetTransaction transaction)
+   public List<GroupedAssetTask<Object>> getGroupedAssetTasks()
       throws IOException, IllegalArgumentException, URISyntaxException
    {
-      if(!transaction.isClosed()){
-         throw new IllegalArgumentException("transaction wasn't closed.");
+      List<GroupedAssetTask<Object>> tasks = new ArrayList();
+      List<GroupedAssetTransaction> transactionsToConsider=new ArrayList<>();
+      synchronized(transactions){
+         if(transactions.size()<1){
+            return tasks;
+         }
+         for(GroupedAssetTransaction transaction:transactions){
+            if(transaction.isClosed()){
+               transactionsToConsider.add(transaction);
+            }
+         }
+         for(GroupedAssetTransaction transaction:transactionsToConsider){
+            transactions.remove(transaction);
+         }
       }
-      if(!processedItems.contains(transaction.getIdentifier())){
-         StringBuilder builder = new StringBuilder();
-         switch(transaction.getType()){
+      for(GroupedAssetTransaction transaction:transactionsToConsider){
+         String identifier = transaction.getIdentifier();
+         String type = transaction.getType();
+         switch(type){
             case "js":
-               for(String url:transaction.toArray()){
-                  String js = assetManager.getJS(
-                     "js/"+url+".js",
-                     transaction.isCompressed()
-                  );
-                  builder.append(js);
-               }
+               identifier = assetResolver.getJSPath(identifier);
                break;
             case "css":
-               for(String url:transaction.toArray()){
-                  String css = assetManager.getCSS(
-                     "css/"+url+".css",
-                     transaction.isCompressed()
-                  );
-                  builder.append(css);
-               }
+               identifier = assetResolver.getCSSPath(identifier);
                break;
          }
-         processedItems.add(transaction.getIdentifier());
-         return builder.toString();
+         synchronized(processedItems){
+            if(processedItems.contains(identifier)){
+               continue;
+            } else {
+               processedItems.add(identifier);
+            }
+         }
+
+         FilePath proposedFilePath=config.getBuildDirPath().resolve(identifier);
+
+         /*
+          * Here we see if any of the transactions have a file that is in fact
+          * newer than the target file under build.  If there isn't a newer
+          * file, then we can skip this transaction.
+          */
+         if(proposedFilePath.toFile().isFile()){
+            FilePath assetDirPath = config.getAssetsDirPath();
+            File proposedFile = proposedFilePath.toFile();
+            long lastModified = proposedFile.lastModified();
+            boolean hasNewer=false;
+            for(String path:transaction.toArray()){
+               FilePath pathToCheck=null;
+               switch(type){
+                  case "js":
+                     pathToCheck = assetDirPath.resolve(
+                        assetResolver.getCleanJSPath(path)
+                     );
+                     break;
+                  case "css":
+                     pathToCheck = assetDirPath.resolve(
+                        assetResolver.getCleanCSSPath(path)
+                     );
+                     break;
+               }
+               if(
+                  pathToCheck != null &&
+                  pathToCheck.toFile().lastModified() > lastModified
+               ){
+                  hasNewer=true;
+                  break;
+               }
+            }
+            if(!hasNewer){
+               continue;//no elements of this transaction need to be processed.
+            }
+         }
+         GroupedAssetTask<Object> transactionToProcess =
+            new GroupedAssetTask<>(
+               transaction,
+               assetManager,
+               fileUtils,
+               proposedFilePath
+            );
+         tasks.add(transactionToProcess);
       }
-      throw new IllegalArgumentException("transaction already built");
+      return tasks;
+   }
+
+   public GroupedAssetTransaction startTransaction(
+      String type,
+      String compress
+   ){
+      boolean useCompress="true".equals(compress) || "false".equals(compress);
+      GroupedAssetTransaction transaction =
+         new GroupedAssetTransaction(
+         type,
+         useCompress?
+            "true".equals(compress):
+            config.isEnableCompression()
+      );
+      synchronized(transactions){
+         transactions.add(transaction);
+      }
+      return transaction;
    }
 }
