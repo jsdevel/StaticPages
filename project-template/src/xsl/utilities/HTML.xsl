@@ -15,12 +15,13 @@
    limitations under the License.
 -->
 <xsl:stylesheet version="1.0"
+   xmlns:a="assets"
    xmlns:d="default"
    xmlns:U="com.spencernetdevelopment.xsl.Utils"
    xmlns:AM="com.spencernetdevelopment.AssetManager"
    xmlns:RM="com.spencernetdevelopment.RewriteManager"
    xmlns:fn="functions"
-   exclude-result-prefixes="d fn U AM RM"
+   exclude-result-prefixes="a d fn U AM RM"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
    <xsl:param name="xmlPagePath"/>
@@ -65,7 +66,8 @@
          <xsl:apply-templates select="@*"/>
          <xsl:value-of select="AM:expandVariables($AM, .)"
                        disable-output-escaping="yes"/>
-   </script>
+         <xsl:apply-templates select="a:include"/>
+      </script>
    </xsl:template>
    <xsl:template match="d:style">
       <style>
