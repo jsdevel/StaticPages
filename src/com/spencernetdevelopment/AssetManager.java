@@ -291,11 +291,17 @@ public class AssetManager {
    ) throws
       IOException
    {
-      AtomicReference<File> source = new AtomicReference<>();
-      AtomicReference<File> target = new AtomicReference<>();
-      if(prepareAssetTransfer(srcPath, source, targetPath, target)){
-         if(isDebug)debug("transferAsset called with path: "+srcPath);
-         fileUtils.copyFile(source.get(), target.get());
+      srcPath = assetPath.resolve(srcPath).toString();
+      targetPath = buildPath.resolve(targetPath).toString();
+      if(fileUtils.isDirectory(srcPath)){
+         fileUtils.copyDirContentsToDir(srcPath, targetPath);
+      } else {
+         AtomicReference<File> source = new AtomicReference<>();
+         AtomicReference<File> target = new AtomicReference<>();
+         if(prepareAssetTransfer(srcPath, source, targetPath, target)){
+            if(isDebug)debug("transferAsset called with path: "+srcPath);
+            fileUtils.copyFile(source.get(), target.get());
+         }
       }
    }
 

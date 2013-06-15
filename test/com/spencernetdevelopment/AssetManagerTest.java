@@ -31,13 +31,19 @@ public class AssetManagerTest {
    Properties vars;
    StaticPagesConfiguration config;
    FileUtils fileUtils;
+   FilePath assetDir;
+   FilePath buildDir;
+   FilePath spoofDir;
 
    @Before
    public void before() throws IOException {
       config = mock(StaticPagesConfiguration.class);
       fileUtils=mock(FileUtils.class);
       vars = new Properties();
-      manager = new AssetManager(null, null, fileUtils, vars,config, null);
+      assetDir=mock(FilePath.class);
+      buildDir=mock(FilePath.class);
+      spoofDir=mock(FilePath.class);
+      manager = new AssetManager(assetDir, buildDir, fileUtils, vars,config, null);
    }
 
 
@@ -53,6 +59,17 @@ public class AssetManagerTest {
       String expanded = manager.expandVariables("${foo}${foo}");
       assertEquals("", expanded);
 
+   }
+
+   @Test
+   public void directories_should_be_transferrable() throws IOException {
+      when(assetDir.resolve(anyString())).thenReturn(assetDir);
+      when(buildDir.resolve(anyString())).thenReturn(buildDir);
+      when(assetDir.toString()).thenReturn("src/foo");
+      when(buildDir.toString()).thenReturn("build/foo");
+      when(fileUtils.isDirectory(anyString())).thenReturn(true);
+      manager.transferAsset("foo");
+      verify(fileUtils, times(1)).copyDirContentsToDir("src/foo", "build/foo");
    }
 
 }

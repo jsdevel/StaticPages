@@ -33,6 +33,9 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 
 /**
+ * A class of convenient File IO abstractions and wrapper methods that also
+ * facilitate better testing.  The idea is that you can mock this class to
+ * avoid File IO operations during unit tests.
  *
  * @author Joseph Spencer
  */
@@ -44,6 +47,9 @@ public class FileUtils {
       if(directory.isDirectory()){
          Files.walkFileTree(directory.toPath(), new DirectoryCleaner(directory.toPath(), preserveBase));
       }
+   }
+   public void copyDirContentsToDir(String from, String to) throws IOException {
+      copyDirContentsToDir(new File(from), new File(to));
    }
    public void copyDirContentsToDir(File fromDir, File toDir) throws IOException{
       createDir(fromDir);
@@ -191,6 +197,9 @@ public class FileUtils {
       reader.close();
 
       return str.toCharArray();
+   }
+   public boolean isDirectory(String path){
+      return path != null && new File(path).isDirectory();
    }
    public void putString(String absoluteFilePath, String contents)
       throws IOException
