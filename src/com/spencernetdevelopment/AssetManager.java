@@ -37,12 +37,8 @@ import static com.spencernetdevelopment.Logger.*;
  */
 public class AssetManager {
    private static final Pattern CSS_URL = Pattern.compile("url\\(\\s*(['\"])?/((?:(?!\\1\\)).)+)\\1?\\)");
-   private static final Pattern VARIABLES = Pattern.compile(
-      "\\$\\{([a-zA-Z_][0-9a-zA-Z_]*)\\}"
-   );
 
    private final String assetPrefixInBrowser;
-   private final Properties variables;
    private final int maxDataURISizeInBytes;
    private final FilePath assetPath;
    private final FilePath buildPath;
@@ -55,7 +51,6 @@ public class AssetManager {
       FilePath assets,
       FilePath build,
       FileUtils fileUtils,
-      Properties variables,
       StaticPagesConfiguration config,
       AssetResolver assetResolver
    )
@@ -63,7 +58,6 @@ public class AssetManager {
    {
       assetPath=assets;
       buildPath=build;
-      this.variables=variables;
       this.assetPrefixInBrowser=config.getAssetPrefixInBrowser();
       this.maxDataURISizeInBytes=config.getMaxDataURISizeInBytes();
       this.assetResolver=assetResolver;
@@ -341,27 +335,6 @@ public class AssetManager {
          }
          return false;
       }
-   }
-
-   public String expandVariables(String text){
-      String returnText = text;
-      if(text == null){
-         return "";
-      }
-      Matcher vars = VARIABLES.matcher(text);
-      while(vars.find()){
-         String var = vars.group(1);
-         if(variables.containsKey(var)){
-            Object value;
-            if(variables.get(var) != null){
-               value = variables.get(var);
-            } else {
-               value = "";
-            }
-            returnText = returnText.replace(vars.group(0), value.toString());
-         }
-      }
-      return returnText.replaceAll(VARIABLES.pattern(), "");
    }
 
    public boolean isCompressionFromAttributeValue(String bool){

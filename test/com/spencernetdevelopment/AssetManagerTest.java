@@ -28,7 +28,6 @@ import static org.mockito.Mockito.*;
  */
 public class AssetManagerTest {
    AssetManager manager;
-   Properties vars;
    StaticPagesConfiguration config;
    FileUtils fileUtils;
    FilePath assetDir;
@@ -39,26 +38,10 @@ public class AssetManagerTest {
    public void before() throws IOException {
       config = mock(StaticPagesConfiguration.class);
       fileUtils=mock(FileUtils.class);
-      vars = new Properties();
       assetDir=mock(FilePath.class);
       buildDir=mock(FilePath.class);
       spoofDir=mock(FilePath.class);
-      manager = new AssetManager(assetDir, buildDir, fileUtils, vars,config, null);
-   }
-
-
-   @Test
-   public void variable_expansion_should_happen_when_the_manager_has_the_variable_loaded() throws IOException {
-      vars.setProperty("foo", "5");
-      String expanded = manager.expandVariables("${foo}${foo}");
-      assertEquals("55", expanded);
-   }
-
-   @Test
-   public void all_variable_references_should_be_removed_regardless_if_they_have_been_defined_or_not() throws IOException {
-      String expanded = manager.expandVariables("${foo}${foo}");
-      assertEquals("", expanded);
-
+      manager = new AssetManager(assetDir, buildDir, fileUtils, config, null);
    }
 
    @Test

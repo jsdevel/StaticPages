@@ -34,7 +34,9 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import static com.spencernetdevelopment.Logger.*;
 import java.net.URISyntaxException;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import javax.xml.validation.Schema;
@@ -48,6 +50,7 @@ public class HTMLBuilder {
 
    private final FilePath buildDirPath;
    private final FilePath xmlPagesDirPath;
+   private final Properties variables;
    private final FileUtils fileUtils;
    private final String xmlPagesDirString;
    private final int xmlPagesDirStringLength;
@@ -62,6 +65,7 @@ public class HTMLBuilder {
    public HTMLBuilder(
       FilePath buildDirPath,
       FilePath pagesDirPath,
+      Properties variables,
       FileUtils fileUtils,
       Schema schema,
       StaticPagesConfiguration config,
@@ -76,6 +80,7 @@ public class HTMLBuilder {
 
       this.buildDirPath = buildDirPath;
       this.xmlPagesDirPath = pagesDirPath;
+      this.variables=variables;
       this.fileUtils=fileUtils;
       xmlPagesDirString = xmlPagesDirPath.toString();
       xmlPagesDirStringLength = xmlPagesDirString.length();
@@ -143,17 +148,22 @@ public class HTMLBuilder {
          Node firstChild = xmlDocument.getDocumentElement();
          if(isDebug && firstChild == null)debug("firstChild was null");
          else if(isDebug)debug("firstChildName: "+firstChild.getLocalName());
+         String domainRelativePagePath = htmlFile
+                               .getAbsolutePath()
+                               .substring(buildDirPath.toString().length());
+         WrappedTransformer transformer = getTransformer(xmlDocument, htmlFile);
+         Properties vars = new Properties(variables);
+         vars.put("xmlPagePath", xmlFilePath.toString());
+         vars.put("domainRelativePagePath", domainRelativePagePath);
+         VariableManager variableManager = new VariableManager(vars);
 
-         WrappedTransformer transformer;
-         transformer = getTransformer(xmlDocument, htmlFile);
+         transformer.setParameter("VM", variableManager);
          transformer.setParameter("enableRewrites", true);
          transformerVisitor.addDefaultParametersTo(transformer);
          transformer.setParameter("xmlPagePath", xmlFilePath.toString());
          transformer.setParameter(
             "domainRelativePagePath",
-            htmlFile
-               .getAbsolutePath()
-               .substring(buildDirPath.toString().length())
+            domainRelativePagePath
          );
          transformer.transform();
       }

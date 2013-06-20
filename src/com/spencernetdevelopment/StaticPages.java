@@ -127,7 +127,6 @@ public class StaticPages {
                builtConfig.getAssetsDirPath(),
                buildDirPath,
                fileUtils,
-               getVariables(arguments),
                builtConfig,
                assetResolver
             );
@@ -172,6 +171,7 @@ public class StaticPages {
             HTMLBuilder htmlBuilder = new HTMLBuilder(
                buildDirPath,
                builtConfig.getPagesDirPath(),
+               getVariables(arguments),
                fileUtils,
                schemaFile,
                builtConfig,

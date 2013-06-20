@@ -20,8 +20,9 @@
    xmlns:U="com.spencernetdevelopment.xsl.Utils"
    xmlns:AM="com.spencernetdevelopment.AssetManager"
    xmlns:RM="com.spencernetdevelopment.RewriteManager"
+   xmlns:VM="com.spencernetdevelopment.VariableManager"
    xmlns:fn="functions"
-   exclude-result-prefixes="a d fn U AM RM"
+   exclude-result-prefixes="a d fn U AM RM VM"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
    <xsl:param name="xmlPagePath"/>
@@ -30,6 +31,7 @@
    <xsl:param name="enableRewrites" select="false()"/>
    <xsl:param name="AM"/>
    <xsl:param name="RM"/>
+   <xsl:param name="VM"/>
 
    <xsl:template name="HTML5Doctype">
       <xsl:text disable-output-escaping="yes">&lt;!DOCTYPE html&gt;</xsl:text>
@@ -66,7 +68,7 @@
    <xsl:template match="d:script">
       <script>
          <xsl:apply-templates select="@*"/>
-         <xsl:value-of select="AM:expandVariables($AM, .)"
+         <xsl:value-of select="VM:expandVariables($VM, .)"
                        disable-output-escaping="yes"/>
          <xsl:apply-templates select="a:include"/>
       </script>
@@ -75,7 +77,7 @@
    <xsl:template match="d:style">
       <style>
          <xsl:apply-templates select="@*"/>
-         <xsl:value-of select="AM:expandVariables($AM, .)"
+         <xsl:value-of select="VM:expandVariables($VM, .)"
                        disable-output-escaping="yes"/>
       </style>
    </xsl:template>
@@ -91,7 +93,7 @@
    <!--ATTRIBUTES-->
    <xsl:template match="@*">
       <xsl:attribute name="{name(.)}">
-         <xsl:value-of select="AM:expandVariables($AM,.)"/>
+         <xsl:value-of select="VM:expandVariables($VM,.)"/>
       </xsl:attribute>
    </xsl:template>
 
@@ -99,10 +101,10 @@
    <xsl:template match="text()">
       <xsl:choose>
          <xsl:when test="ancestor::pre">
-            <xsl:value-of select="AM:expandVariables($AM,.)"/>
+            <xsl:value-of select="VM:expandVariables($VM,.)"/>
          </xsl:when>
          <xsl:otherwise>
-            <xsl:value-of select="AM:expandVariables($AM,U:normalizeSpace(.))"/>
+            <xsl:value-of select="VM:expandVariables($VM,U:normalizeSpace(.))"/>
          </xsl:otherwise>
       </xsl:choose>
    </xsl:template>
@@ -122,20 +124,20 @@
    </xsl:template>
    <xsl:template match="d:title" mode="seo">
       <title>
-         <xsl:value-of select="AM:expandVariables($AM,.)"/>
+         <xsl:value-of select="VM:expandVariables($VM,.)"/>
       </title>
    </xsl:template>
    <xsl:template match="d:description" mode="seo">
       <meta name="description">
          <xsl:attribute name="content">
-            <xsl:value-of select="AM:expandVariables($AM, .)"/>
+            <xsl:value-of select="VM:expandVariables($VM, .)"/>
          </xsl:attribute>
       </meta>
    </xsl:template>
    <xsl:template match="d:keywords" mode="seo">
       <meta name="keywords">
          <xsl:attribute name="content">
-            <xsl:value-of select="AM:expandVariables($AM, .)"/>
+            <xsl:value-of select="VM:expandVariables($VM, .)"/>
          </xsl:attribute>
       </meta>
    </xsl:template>
