@@ -84,7 +84,7 @@ public class AssetManager {
       return handleCSS(getAsset(file), compress);
    }
    public String getCSS(String path, String compress) throws IOException, URISyntaxException {
-      return getCSS(path, getIsCompressionFromAttributeValue(compress));
+      return getCSS(path, isCompressionFromAttributeValue(compress));
    }
    public String getCSS(String path, boolean compress) throws IOException, URISyntaxException {
       if(isDebug)debug("getCSS called with path: "+path);
@@ -161,7 +161,7 @@ public class AssetManager {
       return handleJS(getAsset(file), compress);
    }
    public String getJS(String path, String compress) throws IOException, URISyntaxException {
-      return getJS(path, getIsCompressionFromAttributeValue(compress));
+      return getJS(path, isCompressionFromAttributeValue(compress));
    }
    public String getJS(String path, boolean compress) throws IOException, URISyntaxException {
       if(isDebug)debug("getJS called with path: "+path);
@@ -188,7 +188,7 @@ public class AssetManager {
       throws IOException,
              URISyntaxException
    {
-      transferCSS(src,getIsCompressionFromAttributeValue(compress));
+      transferCSS(src,isCompressionFromAttributeValue(compress));
    }
 
    public void transferCSS(String src, boolean compress)
@@ -235,7 +235,7 @@ public class AssetManager {
       throws IOException,
              URISyntaxException
    {
-      transferJS(src, getIsCompressionFromAttributeValue(compress));
+      transferJS(src, isCompressionFromAttributeValue(compress));
    }
    public void transferJS(String src, boolean compress)
       throws IOException,
@@ -364,11 +364,11 @@ public class AssetManager {
       return returnText.replaceAll(VARIABLES.pattern(), "");
    }
 
-   public boolean getIsCompressionFromAttributeValue(String bool){
-      return getBoolean(bool, config.isEnableCompression());
+   public boolean isCompressionFromAttributeValue(String bool){
+      return isBoolean(bool, config.isEnableCompression());
    }
 
-   public boolean getBoolean(String bool, boolean fallback){
+   public boolean isBoolean(String bool, boolean fallback){
       if("true".equals(bool)){
          return true;
       } else if("false".equals(bool)){
