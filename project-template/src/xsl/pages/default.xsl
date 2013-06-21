@@ -28,6 +28,7 @@
 
    <xsl:import href="../utilities/HTML.xsl"/>
    <xsl:import href="../utilities/Resources.xsl"/>
+   <xsl:import href="../utilities/Extensions.xsl"/>
    <xsl:import href="../utilities/Assets.xsl"/>
 
    <xsl:param name="enableDevMode"/>

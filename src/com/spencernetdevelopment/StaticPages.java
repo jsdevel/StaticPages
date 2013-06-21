@@ -130,6 +130,8 @@ public class StaticPages {
                builtConfig,
                assetResolver
             );
+            BreadcrumbFactory breadcrumbFactory = new BreadcrumbFactory();
+            Extensions extensions = new Extensions(breadcrumbFactory);
             GroupedAssetTransactionManager groupedAssetTransactionManager =
                new GroupedAssetTransactionManager(
                   assetManager,
@@ -163,6 +165,7 @@ public class StaticPages {
                new HTMLBuilderVisitorImpl(
                   assetManager,
                   assetResolver,
+                  extensions,
                   rewriteManager,
                   builtConfig,
                   groupedAssetTransactionManager,

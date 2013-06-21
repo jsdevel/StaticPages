@@ -25,6 +25,7 @@
    exclude-result-prefixes="a d fn U AM RM VM"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
+   <xsl:param name="assetPrefixInBrowser"/>
    <xsl:param name="xmlPagePath"/>
    <!-- something like /index.html -->
    <xsl:param name="domainRelativePagePath"/>

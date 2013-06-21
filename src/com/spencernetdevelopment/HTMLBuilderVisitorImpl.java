@@ -24,6 +24,7 @@ import javax.xml.transform.Transformer;
 public class HTMLBuilderVisitorImpl implements HTMLBuilderVisitor {
    private final AssetManager assetManager;
    private final AssetResolver assetResolver;
+   private final Extensions extensions;
    private final RewriteManager rewriteManager;
    private final StaticPagesConfiguration config;
    private final GroupedAssetTransactionManager groupedAssetTransactionManager;
@@ -32,6 +33,7 @@ public class HTMLBuilderVisitorImpl implements HTMLBuilderVisitor {
    public HTMLBuilderVisitorImpl(
       AssetManager assetManager,
       AssetResolver assetResolver,
+      Extensions extensions,
       RewriteManager rewriteManager,
       StaticPagesConfiguration config,
       GroupedAssetTransactionManager groupedAssetTransactionManager,
@@ -39,6 +41,7 @@ public class HTMLBuilderVisitorImpl implements HTMLBuilderVisitor {
    ){
       this.assetManager = assetManager;
       this.assetResolver = assetResolver;
+      this.extensions=extensions;
       this.rewriteManager = rewriteManager;
       this.config = config;
       this.groupedAssetTransactionManager = groupedAssetTransactionManager;
@@ -49,6 +52,7 @@ public class HTMLBuilderVisitorImpl implements HTMLBuilderVisitor {
    public void addDefaultParametersTo(WrappedTransformer transformer){
       transformer.setParameter("AM", assetManager);
       transformer.setParameter("AR", assetResolver);
+      transformer.setParameter("E", extensions);
       transformer.setParameter("RM", rewriteManager);
       transformer.setParameter("LV", linkValidator);
       transformer.setParameter(
