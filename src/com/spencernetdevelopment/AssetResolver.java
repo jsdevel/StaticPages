@@ -15,13 +15,10 @@
  */
 package com.spencernetdevelopment;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -139,12 +136,52 @@ public class AssetResolver {
       }
       return new URI(normalizedPath).normalize().toString();
    }
-
+   /**
+    *
+    * @param prefix
+    * @param page
+    * @return
+    * @throws IOException
+    * @throws IllegalArgumentException if prefix ends in "/"
+    */
+   public String getPageLink(String prefix, String page) throws IOException {
+      String path;
+      if(prefix.endsWith("/")){
+         throw new IllegalArgumentException("prefix must not end in \"/\".");
+      }
+      if(page.endsWith("/")){
+         FilePath dirPath = pagesDirPath.resolve(page);
+         FilePath defaultDirFile = dirPath.resolve("index.xml");
+         File defaultFile = defaultDirFile.toFile();
+         boolean isFile = defaultFile.isFile();
+         if(!isFile){
+            throw new IOException(
+               "The following directory reference didn't point to a "+
+               "default file: "+page
+            );
+         }
+         path = prefix + "/" + page;
+      } else {
+         FilePath pagePath = pagesDirPath.resolve(page+".xml");
+         File pageFile = pagePath.toFile();
+         if(!pageFile.isFile()){
+            throw new IOException(
+               "The following page reference didn't point to an existing file:"+
+               page
+            );
+         }
+         path = prefix + "/" + page + ".html";
+      }
+      return path;
+   }
    public String getPagePath(String path)
       throws IOException, URISyntaxException
    {
-      String relativeFilePath = forceRelativeFilePath(path);
-      FilePath fpath = pagesDirPath.resolve(relativeFilePath+".xml");
+      FilePath fpath = pagesDirPath.resolve(
+         path.endsWith("/")?
+            path + "index.xml":
+            path + ".xml"
+      );
       return fpath.toUnix();
    }
 
@@ -175,7 +212,7 @@ public class AssetResolver {
    public String forceRelativeFilePath(String path) throws URISyntaxException {
       path = path.trim();
       if(path.endsWith("/")){
-         throw new IllegalArgumentException("view paths may not end in '/'");
+         throw new IllegalArgumentException("the path should not end in '/'");
       }
       return forceRelativePath(path);
    }

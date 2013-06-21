@@ -73,7 +73,7 @@ public class LinkValidator {
       if(hasBeenValidated(path, validatedPages, failedPages)){
          return;
       }
-      FilePath page = config.getPagesDirPath().resolve(path +".xml");
+      FilePath page = getPageFilePath(path);
       if(!page.toFile().isFile()){
          synchronized(failedPages){
             failedPages.add(path);
@@ -97,7 +97,7 @@ public class LinkValidator {
       }
       validatePageReference(path);
       try {
-         FilePath page = config.getPagesDirPath().resolve(path +".xml");
+         FilePath page = getPageFilePath(path);
          if(fragment != null && fragment.trim().isEmpty()){
             throw new IllegalArgumentException(
                "Empty document fragment not allowed: "+page+"#"+fragment
@@ -160,5 +160,13 @@ public class LinkValidator {
          validatedSet.add(key);
          return false;
       }
+   }
+
+   private FilePath getPageFilePath(String path) throws IOException {
+      return config.getPagesDirPath().resolve(
+         path.endsWith("/")?
+            path + "index.xml":
+            path + ".xml"
+      );
    }
 }

@@ -15,11 +15,14 @@
  */
 package com.spencernetdevelopment;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
+import org.junit.Before;
+import static com.spencernetdevelopment.TestUtils.*;
 
 /**
  *
@@ -32,11 +35,15 @@ public class AssetResolverTest {
    FilePath pagesDirPath;
    FilePath resourcesDirPath;
    FilePath viewDirsPath;
-   public AssetResolverTest() throws IOException {
+   File fileMock;
+
+   @Before
+   public void before() throws IOException {
       config = mock(StaticPagesConfiguration.class);
-      pagesDirPath=FilePath.getFilePath("/pages");
-      resourcesDirPath=FilePath.getFilePath("/resources");
-      viewDirsPath=FilePath.getFilePath("/test");
+      fileMock = mock(File.class);
+      pagesDirPath=getResolvingFilePath("/pages", fileMock);
+      resourcesDirPath=getResolvingFilePath("/resources", fileMock);
+      viewDirsPath=getResolvingFilePath("/test", fileMock);
       when(config.getAssetFingerprint()).thenReturn("");
       when(config.getPagesDirPath()).thenReturn(pagesDirPath);
       when(config.getXmlResourcesDirPath()).thenReturn(resourcesDirPath);
@@ -140,6 +147,30 @@ public class AssetResolverTest {
    public void get_js_should_not_allow_trailing_forward_slashes() throws URISyntaxException {
       resolver.getJSPath("asdf/");
    }
+   @Test(expected = IllegalArgumentException.class)
+   public void getPageLink_prefix_should_not_end_with_forwar_slash() throws IOException {
+      when(fileMock.isFile()).thenReturn(true);
+      String pageLink = resolver.getPageLink("/", "asdf/asdf/");
+      assertEquals("/asdf/asdf/", pageLink);
+   }
+   @Test(expected = IOException.class)
+   public void getPageLink_path_ending_with_forward_slash_should_throw_IOException_when_default_file_in_referenced_directory_is_not_a_file() throws IOException {
+      when(fileMock.isFile()).thenReturn(false);
+      resolver.getPageLink("/foo", "asdf/asdf/");
+   }
+   @Test
+   public void getPageLink_path_ending_with_forward_slash_should_remain_untouched() throws IOException {
+      when(fileMock.isFile()).thenReturn(true);
+      String pageLink = resolver.getPageLink("/foo", "asdf/asdf/");
+      assertEquals("/foo/asdf/asdf/", pageLink);
+   }
+   @Test
+   public void getPageLink_path_not_ending_with_forward_slash_should_have_dot_html_added() throws IOException {
+      when(fileMock.isFile()).thenReturn(true);
+      String pageLink = resolver.getPageLink("/foo", "asdf/asdf");
+      assertEquals("/foo/asdf/asdf.html", pageLink);
+   }
+
    @Test
    public void rewrite_paths_should_be_normalized() throws URISyntaxException {
       String path;
@@ -151,10 +182,16 @@ public class AssetResolverTest {
       assertEquals("/asdf/asdf.html", path);
    }
    @Test
-   public void page_dir_path_should_be_normalized() throws IOException, URISyntaxException {
+   public void getPagePath_path_should_resolve_to_xml_file_when_not_directory() throws IOException, URISyntaxException {
       String path;
       path = resolver.getPagePath("asdf/asdf");
       assertEquals("/pages/asdf/asdf.xml", path);
+   }
+   @Test
+   public void getPagePath_path_should_resolve_to_default_xml_file_when_directory() throws IOException, URISyntaxException {
+      String path;
+      path = resolver.getPagePath("asdf/asdf/");
+      assertEquals("/pages/asdf/asdf/index.xml", path);
    }
    @Test
    public void resources_dir_path_should_be_normalized() throws IOException, URISyntaxException {

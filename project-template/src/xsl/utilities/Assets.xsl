@@ -221,12 +221,9 @@
                      )"/>
                </xsl:when>
                <xsl:otherwise>
-                  <xsl:value-of select="concat(
-                        $assetPrefixInBrowser,
-                        '/',
-                        string:replaceAll($src, '%', '%25'),
-                        '.html'
-                     )"/>
+                  <xsl:value-of select="
+                     AR:getPageLink($AR, $assetPrefixInBrowser, $src)
+                  "/>
                </xsl:otherwise>
             </xsl:choose>
             <xsl:value-of select="$frag"/>
