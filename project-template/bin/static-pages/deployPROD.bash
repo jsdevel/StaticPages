@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 #This script should only be sourced from start.bash.
-
+set -eu;
 function verifyVariables()
 {
    local message="";
