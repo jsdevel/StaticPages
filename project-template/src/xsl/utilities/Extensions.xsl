@@ -89,8 +89,10 @@
       <xsl:param name="crumbs"/>
 
       <xsl:if test="BCS:isEmpty($crumbs) = false()">
+         <xsl:variable name="crumb" select="BCS:take($crumbs)"/>
          <xsl:apply-templates mode="Extensions_buildCrumb">
-            <xsl:with-param name="crumb" select="BCS:take($crumbs)"/>
+            <xsl:with-param name="crumb" select="$crumb"/>
+            <xsl:with-param name="isLast" select="BCS:isEmpty($crumbs)"/>
          </xsl:apply-templates>
          <xsl:apply-templates select="." mode="Extensions_buildCrumbs">
             <xsl:with-param name="crumbs" select="$crumbs"/>
@@ -100,6 +102,7 @@
 
    <xsl:template match="d:*" mode="Extensions_buildCrumb">
       <xsl:param name="crumb"/>
+      <xsl:param name="isLast"/>
 
       <xsl:value-of select="concat( '&lt;', local-name())"
                      disable-output-escaping="yes"/>
@@ -113,6 +116,7 @@
             <xsl:text disable-output-escaping="yes">&gt;</xsl:text>
             <xsl:apply-templates mode="Extensions_buildCrumb">
                <xsl:with-param name="crumb" select="$crumb"/>
+               <xsl:with-param name="isLast" select="$isLast"/>
             </xsl:apply-templates>
             <xsl:value-of select="concat('&lt;/', local-name(), '&gt;')"
                            disable-output-escaping="yes"/>
@@ -125,12 +129,20 @@
 
    <xsl:template match="e:link" mode="Extensions_buildCrumb">
       <xsl:param name="crumb"/>
+      <xsl:param name="isLast" select="false()"/>
 
       <xsl:value-of select="LV:validatePageReference($LV,
          BC:getXmlPagesRelativePath($crumb))"/>
 
-      <a href="{BC:getDomainRelativeLink($crumb)}">
-         <xsl:value-of select="BC:getDisplayName($crumb)"/>
-      </a>
+      <xsl:choose>
+         <xsl:when test="$isLast">
+            <xsl:value-of select="BC:getDisplayName($crumb)"/>
+         </xsl:when>
+         <xsl:otherwise>
+            <a href="{BC:getDomainRelativeLink($crumb)}">
+               <xsl:value-of select="BC:getDisplayName($crumb)"/>
+            </a>
+         </xsl:otherwise>
+      </xsl:choose>
    </xsl:template>
 </xsl:stylesheet>
