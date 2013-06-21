@@ -217,15 +217,14 @@ public class StaticPages {
                }
             }
 
-            synchronized(postOperations){
-               if(postOperations.size() > 0){
-                  List<Future<Object>> results =
-                     executorService.invokeAll(postOperations);
-                  for(Future<Object> result: results){
-                     result.get();//force exceptions to be thrown
-                  }
+            if(postOperations.size() > 0){
+               List<Future<Object>> results =
+                  executorService.invokeAll(postOperations);
+               for(Future<Object> result: results){
+                  result.get();//force exceptions to be thrown
                }
             }
+
             executorService.shutdown();
             rewriteManager.applyRewrites();
             if(builtConfig.isEnableDevMode()){
