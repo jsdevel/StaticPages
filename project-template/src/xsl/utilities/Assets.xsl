@@ -23,8 +23,9 @@
    xmlns:AR="com.spencernetdevelopment.AssetResolver"
    xmlns:GATM="com.spencernetdevelopment.GroupedAssetTransactionManager"
    xmlns:LV="com.spencernetdevelopment.LinkValidator"
+   xmlns:VM="com.spencernetdevelopment.VariableManager"
    xmlns:U="com.spencernetdevelopment.xsl.Utils"
-   exclude-result-prefixes="a d string GAT U AM AR GATM LV"
+   exclude-result-prefixes="a d string GAT U AM AR GATM LV VM"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
    <xsl:param name="assetPrefixInBrowser"/>
@@ -33,6 +34,7 @@
    <xsl:param name="AR"/>
    <xsl:param name="GATM"/>
    <xsl:param name="LV"/>
+   <xsl:param name="VM"/>
 
    <xsl:template match="a:*">
       <xsl:message terminate="yes">
@@ -46,7 +48,7 @@
 
    <xsl:template match="a:css[@src]">
       <xsl:variable name="src"
-                    select="AM:expandVariables($AM, @src)"/>
+                    select="VM:expandVariables($VM, @src)"/>
       <xsl:value-of select="AM:transferCSS($AM,
             $src,
             @compress
@@ -66,7 +68,7 @@
 
    <xsl:template match="a:externalLink[@src]">
       <xsl:variable name="src"
-                    select="AM:expandVariables($AM, @src)"/>
+                    select="VM:expandVariables($VM, @src)"/>
       <xsl:value-of select="LV:validateExternalURL($LV, $src)"/>
 
       <a href="{$src}">
@@ -97,7 +99,7 @@
       <xsl:for-each select="d:url">
          <xsl:value-of select="GAT:addURL(
             $transaction,
-            AM:expandVariables($AM, text())
+            VM:expandVariables($VM, text())
          )"/>
       </xsl:for-each>
       <xsl:variable name="identifier" select="GAT:getIdentifier($transaction)"/>
@@ -136,7 +138,7 @@
 
    <xsl:template match="a:image[@src]">
       <xsl:variable name="src"
-                    select="AM:expandVariables($AM, @src)"/>
+                    select="VM:expandVariables($VM, @src)"/>
       <xsl:variable name="path" select="AR:getImagePath($AR, $src)"/>
       <xsl:value-of select="AM:transferImage($AM,
          AR:getCleanImagePath($AR, $src)
@@ -148,14 +150,14 @@
 
    <xsl:template match="a:include[@asset]">
       <xsl:variable name="asset"
-                    select="AM:expandVariables($AM, @asset)"/>
+                    select="VM:expandVariables($VM, @asset)"/>
       <xsl:value-of select="string(AM:getAsset($AM, $asset))"
                     disable-output-escaping="yes"/>
    </xsl:template>
 
    <xsl:template match="a:js[@src]">
       <xsl:variable name="src"
-                    select="AM:expandVariables($AM, @src)"/>
+                    select="VM:expandVariables($VM, @src)"/>
       <xsl:value-of select="AM:transferJS($AM,
          $src,
          @compress
@@ -168,11 +170,11 @@
 
    <xsl:template match="a:pageLink[@src]">
       <xsl:variable name="src"
-                    select="AM:expandVariables($AM, @src)"/>
+                    select="VM:expandVariables($VM, @src)"/>
       <xsl:variable name="class"
-                    select="AM:expandVariables($AM, @class)"/>
+                    select="VM:expandVariables($VM, @class)"/>
       <xsl:variable name="name"
-                    select="AM:expandVariables($AM, @name)"/>
+                    select="VM:expandVariables($VM, @name)"/>
       <xsl:value-of select="LV:validatePageReference($LV, $src)"/>
       <xsl:variable name="referencedPageDocument"
                     select="document(AR:getPagePath($AR, $src))/d:page"/>
@@ -180,7 +182,7 @@
          <xsl:variable name="default"
                        select="$referencedPageDocument/d:seo/d:rewrites/d:default/text()"/>
          <xsl:if test="string($default) != ''">
-            <xsl:value-of select="AM:expandVariables($AM, $default)"/>
+            <xsl:value-of select="VM:expandVariables($VM, $default)"/>
          </xsl:if>
       </xsl:variable>
 
@@ -188,7 +190,7 @@
          <xsl:value-of select="LV:validateFragmentReference(
             $LV,
             $src,
-            AM:expandVariables($AM, @frag)
+            VM:expandVariables($VM, @frag)
          )"/>
       </xsl:if>
 
@@ -196,7 +198,7 @@
          <xsl:if test="@frag">
             <xsl:value-of select="concat(
                '#',
-               AM:expandVariables($AM, @frag)
+               VM:expandVariables($VM, @frag)
             )"/>
          </xsl:if>
       </xsl:variable>
@@ -219,12 +221,9 @@
                      )"/>
                </xsl:when>
                <xsl:otherwise>
-                  <xsl:value-of select="concat(
-                        $assetPrefixInBrowser,
-                        '/',
-                        string:replaceAll($src, '%', '%25'),
-                        '.html'
-                     )"/>
+                  <xsl:value-of select="
+                     AR:getPageLink($AR, $assetPrefixInBrowser, $src)
+                  "/>
                </xsl:otherwise>
             </xsl:choose>
             <xsl:value-of select="$frag"/>
@@ -263,7 +262,7 @@
    <xsl:template match="a:script[@src]">
       <script>
          <xsl:value-of select="AM:getJS($AM,
-            AM:expandVariables($AM, @src),
+            VM:expandVariables($VM, @src),
             @compress
          )" disable-output-escaping="yes"/>
       </script>
@@ -272,7 +271,7 @@
    <xsl:template match="a:style[@src]">
       <style type="text/css">
          <xsl:value-of select="AM:getCSS($AM,
-            AM:expandVariables($AM, @src),
+            VM:expandVariables($VM, @src),
             @compress
          )" disable-output-escaping="yes"/>
       </style>
@@ -280,7 +279,7 @@
 
    <xsl:template match="a:transfer[@src]">
       <xsl:value-of select="AM:transferAsset($AM,
-         AM:expandVariables($AM, @src)
+         VM:expandVariables($VM, @src)
       )"/>
    </xsl:template>
 
@@ -288,7 +287,7 @@
    <xsl:template match="a:view">
       <xsl:variable name="viewPath" select="AR:getViewPath(
          $AR,
-         AM:expandVariables($AM, text())
+         VM:expandVariables($VM, text())
       )"/>
       <xsl:apply-templates select="document($viewPath)/d:view"/>
    </xsl:template>
