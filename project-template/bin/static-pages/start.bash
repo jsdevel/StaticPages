@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 BIN_DIR=$(dirname $(readlink -f ${BASH_SOURCE[0]}));
-PROJECT_DIR=$(dirname $BIN_DIR);
+PROJECT_DIR=$(dirname $(dirname $BIN_DIR));
 BUILD_DIR=$PROJECT_DIR/build;
 REFRESH_FILE=$BUILD_DIR/refresh.js;
 
