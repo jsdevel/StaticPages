@@ -166,7 +166,9 @@ public class LinkValidator {
       return config.getPagesDirPath().resolve(
          path.endsWith("/")?
             path + "index.xml":
-            path + ".xml"
+            path.endsWith(".xml")?
+               path:
+               path + ".xml"
       );
    }
 }

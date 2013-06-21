@@ -29,8 +29,16 @@ import org.mockito.stubbing.Answer;
  */
 public class TestUtils {
 
+   /**
+    *
+    * @param base
+    * @param file This should be a mock object.
+    * @return
+    * @throws IOException
+    */
    public static FilePath getResolvingFilePath(final String base, final File file) throws IOException {
       FilePath mock = mock(FilePath.class);
+      when(file.getAbsolutePath()).thenReturn(base);
       when(mock.toString()).thenReturn(base);
       when(mock.toUnix()).thenReturn(base);
       when(mock.toFile()).thenReturn(file);
