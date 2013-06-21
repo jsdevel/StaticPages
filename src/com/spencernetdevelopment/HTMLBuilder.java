@@ -126,7 +126,11 @@ public class HTMLBuilder {
     * @throws TransformerException
     * @throws IOException
     */
-   public void buildPage(Path xmlFilePath) throws SAXException, TransformerException, IOException {
+   public void buildPage(Path xmlFilePath)
+      throws SAXException,
+             TransformerException,
+             IOException
+   {
       if(isDebug)debug("preparing to build xml file: "+
               (xmlFilePath != null ? xmlFilePath.toString() : null));
       if (
@@ -135,37 +139,45 @@ public class HTMLBuilder {
             config.getPrefixToIgnoreFilesWith()
          )
       ) {
-         Document xmlDocument = docBuilder.parse(xmlFilePath.toFile());
-         xmlDocument.normalize();
-         schema.newValidator().validate(new DOMSource(xmlDocument));
-         FilePath outputFilePath = buildDirPath
-            .resolve(xmlFilePath
-               .toString()
-               .substring(xmlPagesDirStringLength + 1)
-               .replaceFirst("\\.xml$", ".html")
+         try {
+            Document xmlDocument = docBuilder.parse(xmlFilePath.toFile());
+            xmlDocument.normalize();
+            schema.newValidator().validate(new DOMSource(xmlDocument));
+            FilePath outputFilePath = buildDirPath
+               .resolve(xmlFilePath
+                  .toString()
+                  .substring(xmlPagesDirStringLength + 1)
+                  .replaceFirst("\\.xml$", ".html")
+               );
+            File htmlFile = outputFilePath.toFile();
+            Node firstChild = xmlDocument.getDocumentElement();
+            if(isDebug && firstChild == null)debug("firstChild was null");
+            else if(isDebug)debug("firstChildName: "+firstChild.getLocalName());
+            String domainRelativePagePath = htmlFile
+                                 .getAbsolutePath()
+                                 .substring(buildDirPath.toString().length());
+            WrappedTransformer transformer = getTransformer(
+               xmlDocument,
+               htmlFile
             );
-         File htmlFile = outputFilePath.toFile();
-         Node firstChild = xmlDocument.getDocumentElement();
-         if(isDebug && firstChild == null)debug("firstChild was null");
-         else if(isDebug)debug("firstChildName: "+firstChild.getLocalName());
-         String domainRelativePagePath = htmlFile
-                               .getAbsolutePath()
-                               .substring(buildDirPath.toString().length());
-         WrappedTransformer transformer = getTransformer(xmlDocument, htmlFile);
-         Properties vars = new Properties(variables);
-         vars.put("xmlPagePath", xmlFilePath.toString());
-         vars.put("domainRelativePagePath", domainRelativePagePath);
-         VariableManager variableManager = new VariableManager(vars);
+            Properties vars = new Properties(variables);
+            vars.put("xmlPagePath", xmlFilePath.toString());
+            vars.put("domainRelativePagePath", domainRelativePagePath);
+            VariableManager variableManager = new VariableManager(vars);
 
-         transformer.setParameter("VM", variableManager);
-         transformer.setParameter("enableRewrites", true);
-         transformerVisitor.addDefaultParametersTo(transformer);
-         transformer.setParameter("xmlPagePath", xmlFilePath.toString());
-         transformer.setParameter(
-            "domainRelativePagePath",
-            domainRelativePagePath
-         );
-         transformer.transform();
+            transformer.setParameter("VM", variableManager);
+            transformer.setParameter("enableRewrites", true);
+            transformerVisitor.addDefaultParametersTo(transformer);
+            transformer.setParameter("xmlPagePath", xmlFilePath.toString());
+            transformer.setParameter(
+               "domainRelativePagePath",
+               domainRelativePagePath
+            );
+            transformer.transform();
+         } catch(IOException| SAXException| TransformerException ex){
+            error("An error occurred while attempting to build: "+ xmlFilePath);
+            throw ex;
+         }
       }
    }
 
