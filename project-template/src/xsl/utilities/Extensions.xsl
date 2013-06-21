@@ -41,7 +41,7 @@
       </xsl:message>
    </xsl:template>
 
-   <xsl:template match="e:breadcrumb">
+   <xsl:template match="e:breadcrumbs">
       <xsl:variable name="crumbs" select="E:breadcrumb($E,
          $assetPrefixInBrowser, $domainRelativePagePath
       )"/>
