@@ -40,24 +40,35 @@ public class ExternalLinkValidator<T> implements Callable<T> {
          Logger.info("Validating: "+url);
          HttpURLConnection http = (HttpURLConnection)url.openConnection();
          http.setRequestMethod("GET");
-         http.setConnectTimeout(config.getMaxTimeToWaitForExternalLinkValidation());
+         http.setConnectTimeout(
+            config.getMaxTimeToWaitForExternalLinkValidation()
+         );
          http.connect();
-
 
          switch(http.getResponseCode()){
             case 200:
                return null;
             default:
-               Logger.error("External link validation failed for the following URL: "+url);
-               Logger.error("The status code of the http connection was: "+http.getResponseCode());
+               Logger.error(
+                  "External link validation failed for the following URL: "+url
+               );
+               Logger.error(
+                  "The status code of the http connection was: "+
+                  http.getResponseCode()
+               );
          }
       } catch (SocketTimeoutException ex){
-         Logger.error("A connection to the following URL couldn't be established during the configured timeout period: "+url);
+         Logger.error(
+            "A connection to the following URL couldn't be established during "+
+            "the configured timeout period: "+url
+         );
       } catch (IOException ex) {
-         Logger.error("An IOException occurred while attempting to validate the following external URL: "+url);
+         Logger.error(
+            "An IOException occurred while attempting to validate the "+
+            "following external URL: "+url
+         );
          Logger.error("Here is the detailed message: "+ex.getMessage());
       }
       throw new IOException("Validation failed for: "+url);
    }
-
 }
