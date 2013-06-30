@@ -212,7 +212,9 @@ public class HTMLBuilder {
             StreamSource stylesheetStream = new StreamSource(stylesheetFile);
             transformer = transformerFactory.newTransformer(stylesheetStream);
          } else {
-            throw new IllegalArgumentException("stylesheet attributes may not be empty.");
+            throw new IllegalArgumentException(
+               "The stylesheet attribute may not be empty on page elemnts."
+            );
          }
       } else {
          transformer = transformerFactory.newTransformer(new StreamSource(defaultStylesheet));;
