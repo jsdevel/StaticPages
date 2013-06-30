@@ -64,13 +64,25 @@
 
    <xsl:template match="d:page">
       <xsl:call-template name="HTML5Doctype"/>
-      <html class="no-js">
+      <html>
+         <xsl:apply-templates select="@*[not(
+            local-name() = 'stylesheet' or
+            local-name() = 'class'
+         )]"/>
+         <xsl:attribute name="class">
+            <xsl:if test="string(@class) != ''">
+               <xsl:value-of select="concat(@class, ' ')"/>
+            </xsl:if>
+            <xsl:text>no-js</xsl:text>
+         </xsl:attribute>
          <head>
+            <xsl:apply-templates select="d:head/@*"/>
             <meta charset="utf-8"/>
             <xsl:apply-templates select="d:seo" mode="defaultStylesheet"/>
             <xsl:apply-templates select="d:head" mode="defaultStylesheet"/>
          </head>
          <body>
+            <xsl:apply-templates select="d:body/@*"/>
             <xsl:apply-templates select="d:body" mode="defaultStylesheet"/>
             <xsl:if test="$enableDevMode">
                <xsl:variable name="path"

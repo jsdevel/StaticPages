@@ -30,7 +30,7 @@ limitations under the License.
          <xsd:element name="head" type="anyElement"/>
          <xsd:element name="body" type="anyContent"/>
       </xsd:sequence>
-      <xsd:attribute name="stylesheet" type="noFragmentOrTrailingSlashRelativeURI"/>
+      <xsd:anyAttribute processContents="skip"/>
    </xsd:complexType>
 
    <xsd:complexType name="seo">
@@ -72,21 +72,17 @@ limitations under the License.
       </xsd:restriction>
    </xsd:simpleType>
 
-   <xsd:simpleType name="noFragmentOrTrailingSlashRelativeURI">
-      <xsd:restriction base="xsd:string">
-         <xsd:pattern value="[^/\r\n#]+((/[^/\r\n#]+)*)?"/>
-      </xsd:restriction>
-   </xsd:simpleType>
-
    <xsd:complexType name="anyContent" mixed="true">
       <xsd:sequence>
          <xsd:any maxOccurs="unbounded" minOccurs="0" processContents="skip"/>
       </xsd:sequence>
+      <xsd:anyAttribute processContents="skip"/>
    </xsd:complexType>
 
    <xsd:complexType name="anyElement">
       <xsd:sequence>
          <xsd:any maxOccurs="unbounded" minOccurs="0" processContents="skip"/>
       </xsd:sequence>
+      <xsd:anyAttribute processContents="skip"/>
    </xsd:complexType>
 </xsd:schema>
