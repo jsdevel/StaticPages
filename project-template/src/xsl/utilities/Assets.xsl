@@ -94,7 +94,8 @@
    <xsl:template match="a:group[@type = 'js' or @type = 'css']">
       <xsl:variable name="transaction" select="GATM:startTransaction($GATM,
             @type,
-            @compress
+            @compress,
+            @wrapjs
          )"/>
       <xsl:for-each select="d:url">
          <xsl:value-of select="GAT:addURL(
@@ -121,6 +122,7 @@
             </link>
          </xsl:when>
          <xsl:otherwise>
+            <xsl:variable name="void" select="GAT:wrapInClosure($transaction)"/>
             <xsl:variable name="jsPath"
                           select="AR:getJSPath($AR, $identifier)"/>
             <script src="{$assetPrefixInBrowser}/{$jsPath}"
