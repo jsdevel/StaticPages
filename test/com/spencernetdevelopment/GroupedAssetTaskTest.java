@@ -29,9 +29,7 @@ import static org.mockito.AdditionalAnswers.*;
 public class GroupedAssetTaskTest {
    private GroupedAssetTask<Object> task;
    private AssetManager assetManager;
-   private AssetResolver resolver;
    private GroupedAssetTransaction transaction;
-   private StaticPagesConfiguration config;
    private FilePath buildDirPath;
    private FileUtils futils;
 
