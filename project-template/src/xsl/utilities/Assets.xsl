@@ -122,7 +122,6 @@
             </link>
          </xsl:when>
          <xsl:otherwise>
-            <xsl:variable name="void" select="GAT:wrapInClosure($transaction)"/>
             <xsl:variable name="jsPath"
                           select="AR:getJSPath($AR, $identifier)"/>
             <script src="{$assetPrefixInBrowser}/{$jsPath}"
