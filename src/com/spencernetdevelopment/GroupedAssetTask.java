@@ -45,12 +45,18 @@ public class GroupedAssetTask<T> implements Callable<T> {
       StringBuilder builder = new StringBuilder();
       switch(transaction.getType()){
       case "js":
+         if(transaction.shouldWrapJsInClosure()){
+            builder.append("!function(){");
+         }
          for(String jsPath:transaction.toArray()){
             String js = assetManager.getJS(
                jsPath,
                transaction.isCompressed()
             );
             builder.append(js);
+         }
+         if(transaction.shouldWrapJsInClosure()){
+            builder.append("}();");
          }
          fileUtils.putString(
             proposedFilePath.toString(),

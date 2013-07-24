@@ -55,6 +55,7 @@ import java.util.List;
 public class GroupedAssetTransaction {
    private final String type;
    private final boolean isCompressed;
+   private final boolean shouldWrapJsInClosure;
    private final List<String> urls = new ArrayList<>();
    private boolean isOpenForAdditions=true;
    private String identifier;
@@ -64,7 +65,9 @@ public class GroupedAssetTransaction {
     * See: {@link GroupedAssetTransaction#GroupedAssetTransaction(java.lang.String, boolean)}
     * @param type
     */
-   public GroupedAssetTransaction(String type){
+   public GroupedAssetTransaction(String type) throws NullPointerException,
+                                                      IllegalArgumentException
+   {
       this(type, true);
    }
    /**
@@ -75,6 +78,16 @@ public class GroupedAssetTransaction {
     */
    public GroupedAssetTransaction(String type, boolean compress)
       throws NullPointerException, IllegalArgumentException
+   {
+      this(type, compress, false);
+   }
+
+   public GroupedAssetTransaction(
+      String type,
+      boolean compress,
+      boolean shouldWrapJsInClosure
+   ) throws NullPointerException,
+            IllegalArgumentException
    {
       if(type == null){
          throw new NullPointerException("type was null");
@@ -88,6 +101,7 @@ public class GroupedAssetTransaction {
       }
       this.type=type;
       this.isCompressed=compress;
+      this.shouldWrapJsInClosure=shouldWrapJsInClosure;
    }
 
    /**
@@ -173,6 +187,15 @@ public class GroupedAssetTransaction {
     */
    public boolean isCompressed(){
       return isCompressed;
+   }
+
+   /**
+    * Used for groups representing javascript.  When true, the result should be
+    * surrounded with a closure block to contain potential global variables.
+    * @return
+    */
+   public boolean shouldWrapJsInClosure(){
+      return shouldWrapJsInClosure;
    }
 
    /**

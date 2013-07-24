@@ -186,4 +186,10 @@ public class GroupedAssetTransactionTest {
       transaction.close();
       assertTrue(transaction.isClosed());
    }
+   @Test
+   public void wrapjs_should_be_available_from_a_method(){
+      assertFalse("wrapjs was true.", transaction.shouldWrapJsInClosure());
+      transaction = new GroupedAssetTransaction("js", false, true);
+      assertTrue("wrapjs was false.", transaction.shouldWrapJsInClosure());
+   }
 }

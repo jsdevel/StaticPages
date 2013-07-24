@@ -188,5 +188,12 @@ public class GroupedAssetTransactionManagerTest {
       tasks = manager.getGroupedAssetTasks();
       assertEquals(2, tasks.size());
    }
+   @Test
+   public void wrapjs_should_be_passed_appropriately_to_start_transaction(){
+      transaction=manager.startTransaction("js", "true", "true");
+      assertTrue("should wrap was false.", transaction.shouldWrapJsInClosure());
 
+      transaction=manager.startTransaction("js", "true", "false");
+      assertFalse("should wrap was true.", transaction.shouldWrapJsInClosure());
+   }
 }

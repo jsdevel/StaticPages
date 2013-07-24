@@ -163,13 +163,22 @@ public class GroupedAssetTransactionManager {
       String type,
       String compress
    ){
+      return startTransaction(type, compress, "false");
+   }
+
+   public GroupedAssetTransaction startTransaction(
+      String type,
+      String compress,
+      String shouldWrapJsInClosure
+   ){
       boolean useCompress="true".equals(compress) || "false".equals(compress);
       GroupedAssetTransaction transaction =
          new GroupedAssetTransaction(
          type,
          useCompress?
             "true".equals(compress):
-            config.isEnableCompression()
+            config.isEnableCompression(),
+         "true".equals(shouldWrapJsInClosure)
       );
       synchronized(transactions){
          transactions.add(transaction);

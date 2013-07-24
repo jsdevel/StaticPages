@@ -80,5 +80,30 @@ public class GroupedAssetTaskTest {
       task.call();
       verify(futils, times(1)).putString("somefoo", "fooboo");
    }
-
+   @Test
+   public void js_should_be_wrapped_when_transaction_should_wrap_js() throws Exception {
+      when(transaction.getType()).thenReturn("js");
+      when(transaction.toArray()).thenReturn(new String[]{
+         "foo",
+         "boo"
+      });
+      when(transaction.shouldWrapJsInClosure()).thenReturn(true);
+      when(transaction.isCompressed()).thenReturn(true);
+      when(assetManager.getJS(anyString(), eq(true))).then(returnsFirstArg());
+      task.call();
+      verify(futils, times(1)).putString("somefoo", "!function(){fooboo}();");
+   }
+   @Test
+   public void css_should_not_be_affected_by_js_wrapping() throws Exception{
+      when(transaction.getType()).thenReturn("css");
+      when(transaction.toArray()).thenReturn(new String[]{
+         "foo",
+         "boo"
+      });
+      when(transaction.isCompressed()).thenReturn(true);
+      when(transaction.shouldWrapJsInClosure()).thenReturn(true);
+      when(assetManager.getCSS(anyString(), eq(true))).then(returnsFirstArg());
+      task.call();
+      verify(futils, times(1)).putString("somefoo", "fooboo");
+   }
 }
