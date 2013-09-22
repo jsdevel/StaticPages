@@ -106,9 +106,9 @@ public class HTMLBuilder {
          throw new IllegalStateException("A default stylesheet is required to process xml files.");
       }
 
-      ArrayList<Path> xmlPagesToBuild = new ArrayList<>();
+      List<Path> xmlPagesToBuild = new ArrayList<>();
 
-      fileUtils.filePathsToArrayList(xmlPagesDirPath.toFile(), xmlPagesToBuild, ".xml");
+      fileUtils.filePathsToList(xmlPagesDirPath.toFile(), xmlPagesToBuild, ".xml");
       List<Callable<Object>> htmlTasks = new ArrayList<>();
 
       for (Path xmlFilePath : xmlPagesToBuild) {

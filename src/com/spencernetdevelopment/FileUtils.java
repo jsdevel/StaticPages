@@ -29,8 +29,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 
 /**
  * A class of convenient File IO abstractions and wrapper methods that also
@@ -111,10 +111,10 @@ public class FileUtils {
          file.createNewFile();
       }
    }
-   public void filePathsToArrayList(File directory, ArrayList<Path> filePaths) throws IOException {
-      filePathsToArrayList(directory, filePaths, null);
+   public void filePathsToList(File directory, List<Path> filePaths) throws IOException {
+      filePathsToList(directory, filePaths, null);
    }
-   public void filePathsToArrayList(File directory, final ArrayList<Path> filePaths, final String extension) throws IOException {
+   public void filePathsToList(File directory, final List<Path> filePaths, final String extension) throws IOException {
       if(directory!=null && directory.isDirectory() && filePaths != null){
          Files.walkFileTree(directory.toPath(), new SimpleFileVisitor<Path>(){
             @Override
