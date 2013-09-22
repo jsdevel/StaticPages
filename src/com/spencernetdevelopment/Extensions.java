@@ -28,7 +28,7 @@ public class Extensions {
       this.breadcrumbFactory=breadcrumbFactory;
    }
 
-   public Breadcrumbs breadcrumb(String prefix, String pagePath) {
+   public Breadcrumbs makeBreadcrumbs(String prefix, String pagePath) {
       return breadcrumbFactory.makeBreadcrumbs(prefix, pagePath);
    }
 }

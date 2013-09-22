@@ -15,10 +15,8 @@
  */
 package com.spencernetdevelopment;
 
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -37,7 +35,7 @@ public class ExtensionsTest {
 
    @Test
    public void breadcrumbs_should_call_makeBreadcrumbs_on_factory(){
-      extensions.breadcrumb(null, null);
+      extensions.makeBreadcrumbs(null, null);
       verify(breadcrumbFactory, times(1)).makeBreadcrumbs(null, null);
    }
 

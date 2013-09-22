@@ -32,7 +32,7 @@
    <xsl:param name="LV"/>
 
    <xsl:template match="e:breadcrumbs">
-      <xsl:variable name="crumbs" select="E:breadcrumb($E,
+      <xsl:variable name="crumbs" select="E:makeBreadcrumbs($E,
          $assetPrefixInBrowser, $domainRelativePagePath
       )"/>
 
