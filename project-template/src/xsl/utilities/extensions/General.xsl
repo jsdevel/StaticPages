@@ -19,8 +19,16 @@
    exclude-result-prefixes="e"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
-   <!-- make sure this is first! -->
-   <xsl:import href="extensions/General.xsl"/>
-   <xsl:import href="extensions/Breadcrumbs.xsl"/>
+   <!-- All extension elements should exist within the "extensions" namespace.
+   -->
+   <xsl:template match="e:*">
+      <xsl:message terminate="yes">
+   Unknown extension element 'e:<xsl:value-of select="local-name(.)"/>'.
+   The following attributes were found on this element:
+         <xsl:for-each select="@*">
+            <xsl:value-of select="concat(local-name(.), '=', .)"/>
+         </xsl:for-each>
+      </xsl:message>
+   </xsl:template>
 
 </xsl:stylesheet>
