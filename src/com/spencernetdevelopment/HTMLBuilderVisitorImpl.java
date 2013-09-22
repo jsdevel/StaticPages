@@ -68,8 +68,4 @@ public class HTMLBuilderVisitorImpl implements HTMLBuilderVisitor {
          groupedAssetTransactionManager
       );
    }
-   @Override
-   public void visitPagesCompleteEvent(){
-
-   }
 }

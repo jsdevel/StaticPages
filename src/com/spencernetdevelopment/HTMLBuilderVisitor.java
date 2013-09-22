@@ -21,5 +21,4 @@ package com.spencernetdevelopment;
  */
 public interface HTMLBuilderVisitor {
    void addDefaultParametersTo(WrappedTransformer transformer);
-   void visitPagesCompleteEvent();
 }
