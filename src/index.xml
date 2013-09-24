@@ -5,6 +5,9 @@
    xmlns:p="phrases"
    stylesheet="asdfasd"
 >
+   <vars>
+      <var1 value="asdf"/>
+   </vars>
    <seo>
       <title>Home Page Title</title>
       <description>Description as seen by google.</description>

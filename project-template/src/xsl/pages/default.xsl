@@ -22,8 +22,9 @@
    xmlns:d="default"
    xmlns:AM="com.spencernetdevelopment.AssetManager"
    xmlns:AR="com.spencernetdevelopment.AssetResolver"
+   xmlns:VM="com.spencernetdevelopment.VariableManager"
    xmlns:saxon="http://icl.com/saxon"
-   exclude-result-prefixes="d saxon AM AR"
+   exclude-result-prefixes="d saxon AM AR VM"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform" >
 
    <xsl:import href="../utilities/HTML.xsl"/>
@@ -34,6 +35,7 @@
    <xsl:param name="enableDevMode"/>
    <xsl:param name="AM"/>
    <xsl:param name="AR"/>
+   <xsl:param name="VM"/>
 
    <xsl:output method="html" indent="no" saxon:omit-meta-tag="yes"/>
 
@@ -63,6 +65,8 @@
    </xsl:template>
 
    <xsl:template match="d:page">
+      <xsl:apply-templates select="d:vars" mode="PageVariableSetup"/>
+
       <xsl:call-template name="HTML5Doctype"/>
       <html>
          <xsl:apply-templates select="@*[not(
@@ -94,6 +98,12 @@
             </xsl:if>
          </body>
       </html>
+   </xsl:template>
+
+   <xsl:template match="d:vars" mode="PageVariableSetup">
+      <xsl:for-each select="*">
+         <xsl:value-of select="VM:setVariable($VM, local-name(), @value)"/>
+      </xsl:for-each>
    </xsl:template>
 
    <!-- These are here to allow for an override mechanism. -->
