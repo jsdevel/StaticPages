@@ -22,5 +22,6 @@
    <!-- make sure this is first! -->
    <xsl:import href="extensions/General.xsl"/>
    <xsl:import href="extensions/Breadcrumbs.xsl"/>
+   <xsl:import href="extensions/FileIterators.xsl"/>
 
 </xsl:stylesheet>

@@ -15,22 +15,26 @@
  */
 package com.spencernetdevelopment;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * This class is not thread safe.
  *
  * @author Joseph Spencer
  */
 public class VariableManager {
    private static final Pattern VARIABLES = Pattern.compile(
-      "\\$\\{([a-zA-Z_][0-9a-zA-Z_]*)\\}"
+      "\\$\\{([a-zA-Z_][0-9a-zA-Z_]*+)\\}"
    );
-   private final Properties variables;
+   private final List<Properties> contexts=new ArrayList<>();
+   private Properties currentVariables;
 
-   public VariableManager(Properties variables) {
-      this.variables = variables;
+   public VariableManager(Properties initialVariables) {
+      this.currentVariables = initialVariables;
    }
 
    public String expandVariables(String text){
@@ -40,12 +44,32 @@ public class VariableManager {
       }
       Matcher vars = VARIABLES.matcher(text);
       while(vars.find()){
-         String var = variables.getProperty(vars.group(1));
+         String var = currentVariables.getProperty(vars.group(1));
          if(var != null){
             returnText = returnText.replace(vars.group(0), var);
          }
       }
       return returnText.replaceAll(VARIABLES.pattern(), "");
+   }
+
+   public void addContext(){
+      contexts.add(currentVariables);
+      currentVariables = new Properties(currentVariables);
+   }
+
+   public void removeContext(){
+      int size = contexts.size();
+      if(size > 0) {
+         currentVariables = contexts.remove(size-1);
+      }
+   }
+
+   public String getVariable(String key){
+      return currentVariables.getProperty(key);
+   }
+
+   public void setVariable(String key, String value){
+      currentVariables.setProperty(key, value);
    }
 
 }

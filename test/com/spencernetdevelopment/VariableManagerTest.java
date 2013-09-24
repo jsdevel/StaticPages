@@ -56,4 +56,24 @@ public class VariableManagerTest {
       String expanded = manager.expandVariables("${boo}${foo}");
       assertEquals("45", expanded);
    }
+   @Test
+   public void contexts_can_be_added_and_removed_without_effecting_each_other(){
+      assertEquals(manager.getVariable("foo"), "5");
+      manager.addContext();
+      assertEquals(manager.getVariable("foo"), "5");
+      manager.setVariable("foo", "6");
+      assertEquals(manager.getVariable("foo"), "6");
+      manager.addContext();
+      manager.setVariable("foo", "7");
+      assertEquals(manager.getVariable("foo"), "7");
+      manager.removeContext();
+      assertEquals(manager.getVariable("foo"), "6");
+      manager.removeContext();
+      assertEquals(manager.getVariable("foo"), "5");
+      manager.removeContext();
+      manager.removeContext();
+      manager.removeContext();
+      manager.removeContext();
+      assertEquals(manager.getVariable("foo"), "5");
+   }
 }

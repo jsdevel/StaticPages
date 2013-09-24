@@ -131,7 +131,15 @@ public class StaticPages {
                assetResolver
             );
             BreadcrumbFactory breadcrumbFactory = new BreadcrumbFactory();
-            Extensions extensions = new Extensions(breadcrumbFactory);
+            FileIteratorFactory fileIteratorFactory = new FileIteratorFactory(
+               builtConfig.getAssetsDirPath(),
+               fileUtils
+            );
+            Extensions extensions = new Extensions(
+               breadcrumbFactory,
+               fileIteratorFactory
+
+            );
             GroupedAssetTransactionManager groupedAssetTransactionManager =
                new GroupedAssetTransactionManager(
                   assetManager,

@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -111,12 +112,62 @@ public class FileUtils {
          file.createNewFile();
       }
    }
+
+   public List<Path> filePaths(
+      FilePath directory,
+      String extension,
+      boolean isRecursive
+   )
+      throws IOException
+   {
+      List<Path> paths=new ArrayList<>();
+      filePathsToList(directory.toFile(), paths, extension, isRecursive);
+      return paths;
+   }
+
+   public void filePathsToList(
+      FilePath directory,
+      List<Path> filePaths,
+      String extension,
+      boolean isRecursive
+   )
+      throws IOException
+   {
+      filePathsToList(directory.toFile(), filePaths, extension, isRecursive);
+   }
+
    public void filePathsToList(File directory, List<Path> filePaths) throws IOException {
       filePathsToList(directory, filePaths, null);
    }
+
    public void filePathsToList(File directory, final List<Path> filePaths, final String extension) throws IOException {
+      filePathsToList(directory, filePaths, extension, true);
+   }
+
+   public void filePathsToList(
+      final File directory,
+      final List<Path> filePaths,
+      final String extension,
+      final boolean isRecursive
+   )
+      throws IOException
+   {
       if(directory!=null && directory.isDirectory() && filePaths != null){
          Files.walkFileTree(directory.toPath(), new SimpleFileVisitor<Path>(){
+
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+
+               if(isRecursive){
+                  return FileVisitResult.CONTINUE;
+               } else {
+                  if(dir.toFile().equals(directory)){
+                     return FileVisitResult.CONTINUE;
+                  }
+                  return FileVisitResult.SKIP_SUBTREE;
+               }
+            }
+
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                if(extension == null || file.toString().endsWith(extension)){

@@ -21,33 +21,27 @@ import java.io.IOException;
  *
  * @author Joseph Spencer
  */
-public class Extensions {
-   private final BreadcrumbFactory breadcrumbFactory;
-   private final FileIteratorFactory fileIteratorFactory;
+public class FileIteratorFactory {
+   private final FilePath assetPath;
+   private final FileUtils fileUtils;
 
-   public Extensions(
-      BreadcrumbFactory breadcrumbFactory,
-      FileIteratorFactory fileIteratorFactory
-   ){
-      this.breadcrumbFactory=breadcrumbFactory;
-      this.fileIteratorFactory=fileIteratorFactory;
+   public FileIteratorFactory(FilePath assetPath, FileUtils fileUtils) {
+      this.assetPath = assetPath;
+      this.fileUtils = fileUtils;
    }
 
-   public Breadcrumbs makeBreadcrumbs(String prefix, String pagePath) {
-      return breadcrumbFactory.makeBreadcrumbs(prefix, pagePath);
-   }
-
-   public FileIterator makeAssetsIterator(
-      String dirPath,
+   public FileIterator makeAssetIterator(
+      String base,
       String extension,
-      String recursive
+      boolean recursive
    )
       throws IOException
    {
-      return fileIteratorFactory.makeAssetIterator(
-         dirPath,
+      return new FileIterator(
+         assetPath.resolve(base),
+         fileUtils,
          extension,
-         "true".equals(recursive)
+         recursive
       );
    }
 }

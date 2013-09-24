@@ -15,6 +15,7 @@
  */
 package com.spencernetdevelopment;
 
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
@@ -23,22 +24,22 @@ import static org.mockito.Mockito.*;
  *
  * @author Joseph Spencer
  */
-public class ExtensionsTest {
-   BreadcrumbFactory breadcrumbFactory;
-   FileIteratorFactory fileIteratorFactory;
-   Extensions extensions;
+public class FileIteratorFactoryTest {
+   FileIteratorFactory factory;
+   FilePath mockAssetPath;
+   FileUtils mockFileUtils;
 
    @Before
-   public void before(){
-      breadcrumbFactory=mock(BreadcrumbFactory.class);
-      fileIteratorFactory=mock(FileIteratorFactory.class);
-      extensions = new Extensions(breadcrumbFactory, fileIteratorFactory);
+   public void before() throws IOException {
+      mockAssetPath = mock(FilePath.class);
+      mockFileUtils = mock(FileUtils.class);
+      when(mockAssetPath.resolve(anyString())).thenReturn(mockAssetPath);
+      factory = new FileIteratorFactory(mockAssetPath, mockFileUtils);
    }
 
    @Test
-   public void breadcrumbs_should_call_makeBreadcrumbs_on_factory(){
-      extensions.makeBreadcrumbs(null, null);
-      verify(breadcrumbFactory, times(1)).makeBreadcrumbs(null, null);
+   public void make_asset_iterator_sets_base_directory_appropriately() throws IOException {
+      factory.makeAssetIterator("foo", ".js", true);
+      verify(mockAssetPath).resolve("foo");
    }
-
 }
