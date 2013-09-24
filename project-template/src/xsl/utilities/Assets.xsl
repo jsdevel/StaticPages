@@ -41,7 +41,9 @@
    Unknown asset element 'a:<xsl:value-of select="local-name(.)"/>'.
    The following attributes were found on this element:
          <xsl:for-each select="@*">
-            <xsl:value-of select="concat(local-name(.), '=', .)"/>
+         <xsl:value-of select="concat(local-name(.), '=', .)"/>
+         <xsl:text>
+         </xsl:text>
          </xsl:for-each>
       </xsl:message>
    </xsl:template>

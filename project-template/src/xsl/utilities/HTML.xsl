@@ -47,6 +47,9 @@
    <xsl:template match="d:button"><button><xsl:apply-templates select="@*"/><xsl:apply-templates/></button></xsl:template>
    <xsl:template match="d:br"><br/></xsl:template>
    <xsl:template match="d:b"><b><xsl:apply-templates select="@*"/><xsl:apply-templates/></b></xsl:template>
+   <xsl:template match="d:caption"><caption><xsl:apply-templates select="@*"/><xsl:apply-templates/></caption></xsl:template>
+   <xsl:template match="d:col"><col><xsl:apply-templates select="@*"/><xsl:apply-templates/></col></xsl:template>
+   <xsl:template match="d:colgroup"><colgroup><xsl:apply-templates select="@*"/><xsl:apply-templates/></colgroup></xsl:template>
    <xsl:template match="d:code"><code><xsl:apply-templates select="@*"/><xsl:apply-templates/></code></xsl:template>
    <xsl:template match="d:div"><div><xsl:apply-templates select="@*"/><xsl:apply-templates/></div></xsl:template>
    <xsl:template match="d:form"><form><xsl:apply-templates select="@*"/><xsl:apply-templates/></form></xsl:template>
@@ -86,7 +89,14 @@
    <xsl:template match="d:strong"><strong><xsl:apply-templates select="@*"/><xsl:apply-templates/></strong></xsl:template>
    <xsl:template match="d:select"><select><xsl:apply-templates select="@*"/><xsl:apply-templates/></select></xsl:template>
    <xsl:template match="d:source"><source><xsl:apply-templates select="@*"/><xsl:apply-templates/></source></xsl:template>
+   <xsl:template match="d:table"><table><xsl:apply-templates select="@*"/><xsl:apply-templates/></table></xsl:template>
+   <xsl:template match="d:tbody"><tbody><xsl:apply-templates select="@*"/><xsl:apply-templates/></tbody></xsl:template>
+   <xsl:template match="d:tfoot"><tfoot><xsl:apply-templates select="@*"/><xsl:apply-templates/></tfoot></xsl:template>
+   <xsl:template match="d:thead"><thead><xsl:apply-templates select="@*"/><xsl:apply-templates/></thead></xsl:template>
+   <xsl:template match="d:td"><td><xsl:apply-templates select="@*"/><xsl:apply-templates/></td></xsl:template>
    <xsl:template match="d:textarea"><textarea><xsl:apply-templates select="@*"/><xsl:apply-templates/></textarea></xsl:template>
+   <xsl:template match="d:th"><th><xsl:apply-templates select="@*"/><xsl:apply-templates/></th></xsl:template>
+   <xsl:template match="d:tr"><tr><xsl:apply-templates select="@*"/><xsl:apply-templates/></tr></xsl:template>
    <xsl:template match="d:u"><u><xsl:apply-templates/></u></xsl:template>
    <xsl:template match="d:ul"><ul><xsl:apply-templates select="@*"/><xsl:apply-templates/></ul></xsl:template>
    <xsl:template match="d:video"><video><xsl:apply-templates select="@*"/><xsl:apply-templates/></video></xsl:template>
@@ -94,7 +104,7 @@
    <!--ATTRIBUTES-->
    <xsl:template match="@*">
       <xsl:attribute name="{name(.)}">
-         <xsl:value-of select="VM:expandVariables($VM,.)"/>
+         <xsl:value-of select="U:normalizeSpace(VM:expandVariables($VM,.))"/>
       </xsl:attribute>
    </xsl:template>
 
