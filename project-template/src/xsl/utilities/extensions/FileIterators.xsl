@@ -19,7 +19,7 @@
    xmlns:E="com.spencernetdevelopment.Extensions"
    xmlns:FI="com.spencernetdevelopment.FileIterator"
    xmlns:VM="com.spencernetdevelopment.VariableManager"
-   exclude-result-prefixes="e E FI"
+   exclude-result-prefixes="e E FI VM"
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
    <xsl:param name="E"/>
