@@ -104,7 +104,7 @@
    <!--ATTRIBUTES-->
    <xsl:template match="@*">
       <xsl:attribute name="{name(.)}">
-         <xsl:value-of select="VM:expandVariables($VM,.)"/>
+         <xsl:value-of select="U:normalizeSpace(VM:expandVariables($VM,.))"/>
       </xsl:attribute>
    </xsl:template>
 
